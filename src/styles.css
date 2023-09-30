@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: "Hafs";
+  src: url("./assets/fonts/Hafs.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.arabic {
+  direction: rtl;
+  font-family: "Hafs", "Courier New", Courier, monospace;
+}
