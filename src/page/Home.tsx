@@ -6,20 +6,25 @@ interface Props {
 }
 
 const Home = (props: Props) => {
-  async function handleImportButtonClick() {
-    // Open a selection dialog for image files
-    const selected = await open({
-      filters: [
-        {
-          name: "Audio files",
-          extensions: ["mp3", "ogg", "wav"],
-        },
-      ],
-    });
+  function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
 
-    if (selected !== null) {
-      props.setRecitationFile(selected.toString());
-    }
+    if (!file) return;
+
+    const { type } = file;
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const audioData = e.target?.result as ArrayBuffer;
+
+      if (!audioData) return;
+
+      const audioBlob = new Blob([audioData], { type });
+      props.setRecitationFile(URL.createObjectURL(audioBlob));
+    };
+
+    reader.readAsArrayBuffer(file);
   }
 
   return (
@@ -30,11 +35,12 @@ const Home = (props: Props) => {
       >
         Quran Video Maker
       </h1>
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-12 shadow-lg shadow-black"
-        onClick={handleImportButtonClick}
-      >
-        Import a new recitation
+      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-12 shadow-lg shadow-black">
+        <input
+          type="file"
+          accept=".mp3,.ogg,.wav"
+          onChange={handleFileUpload}
+        />
       </button>
     </div>
   );
