@@ -16,6 +16,14 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "dialog": {
+        "all": true,
+        "ask": true,
+        "confirm": true,
+        "message": true,
+        "open": true,
+        "save": true
       }
     },
     "bundle": {
@@ -37,7 +45,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "quran-video-maker",
+        "title": "Quran Video Maker",
         "width": 800,
         "height": 600
       }
