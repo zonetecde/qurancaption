@@ -1,8 +1,10 @@
 import React from "react";
 import { open } from "@tauri-apps/api/dialog";
+import Page from "../models/page";
 
 interface Props {
   setRecitationFile: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setPage: React.Dispatch<React.SetStateAction<Page>>;
 }
 
 const Home = (props: Props) => {
@@ -22,6 +24,7 @@ const Home = (props: Props) => {
 
       const audioBlob = new Blob([audioData], { type });
       props.setRecitationFile(URL.createObjectURL(audioBlob));
+      props.setPage(Page.EDITOR);
     };
 
     reader.readAsArrayBuffer(file);
@@ -35,12 +38,25 @@ const Home = (props: Props) => {
       >
         Quran Video Maker
       </h1>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-12 shadow-lg shadow-black">
+
+      <button className="relative bg-blue-500 hover:bg-blue-700 text-white font-bold mt-8 py-2 px-6 rounded-full text-xl duration-75 shadow-lg shadow-black">
+        Create subtitle
         <input
           type="file"
           accept=".mp3,.ogg,.wav"
           onChange={handleFileUpload}
+          className="absolute inset-0 opacity-0 cursor-pointer"
+          style={{ zIndex: 2 }}
         />
+      </button>
+
+      <p className="mt-7 font-bold text-xl">or</p>
+
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-6 shadow-lg shadow-black"
+        onClick={() => props.setPage(Page.WATCH)}
+      >
+        Watch recitation
       </button>
     </div>
   );

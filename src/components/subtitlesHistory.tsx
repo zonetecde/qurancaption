@@ -1,13 +1,14 @@
-import React, { useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import Subtitle from "../models/subtitle";
 import TimeExt from "../extensions/timeExt";
 
 interface Props {
   subtitles: Subtitle[];
   setSubtitleText: React.Dispatch<React.SetStateAction<string>>;
+  addTranslation: () => void;
 }
 
-const Historique = (props: Props) => {
+const SubtitlesHistory = (props: Props) => {
   function showSubtitle() {
     // Sync fini, on transforme ça en fichier sous-titre
     let subtitleFileText = "";
@@ -24,29 +25,18 @@ const Historique = (props: Props) => {
     props.setSubtitleText(subtitleFileText);
   }
 
-  useMemo(() => {
-    try {
-      // scroll to bottom
-      if (subtitlesScrollViewRef.current)
-        subtitlesScrollViewRef.current?.scrollTo({
-          top: subtitlesScrollViewRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-    } catch (e) {
-      console.log(e);
-    }
+  const subtitlesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (subtitlesEndRef.current)
+      subtitlesEndRef.current.scrollIntoView({ behavior: "smooth" });
   }, [props.subtitles]);
 
-  const subtitlesScrollViewRef = useRef<HTMLDivElement>(null);
-
   return (
-    <div className="w-full text-green-200 flex justify-start items-center mt-6 flex-col h-full ">
+    <div className="w-full text-green-200 flex justify-start items-center pt-6 flex-col h-full ">
       {" "}
       <p className="text-2xl mb-5">Subtitles</p>
-      <div
-        className="w-11/12 overflow-y-scroll h-full flex flex-col items-center pr-1"
-        ref={subtitlesScrollViewRef}
-      >
+      <div className="w-11/12 overflow-y-scroll h-full flex flex-col items-center pr-1">
         {props.subtitles.map((subtitle) => (
           <div className="flex flex-col border rounded-lg w-full mb-2 p-2">
             <div className="flex flex-row">
@@ -59,17 +49,26 @@ const Historique = (props: Props) => {
             <p className="arabic text-2xl mt-2 text-white">{subtitle.text}</p>
           </div>
         ))}
+        <div ref={subtitlesEndRef} />
       </div>
       {props.subtitles.length > 0 && (
-        <button
-          className="bg-blue-500 hover:bg-blue-700 w-11/12 h-12 mb-12 text-white font-bold px-6 rounded text-lg duration-75 mt-4 shadow-lg shadow-black leading-10"
-          onClick={showSubtitle}
-        >
-          Generate subtitles
-        </button>
+        <div className=" w-12/12 h-16 mb-12  mt-4 flex flex-row">
+          <button
+            className="bg-blue-500 hover:bg-blue-700  text-white font-bold px-4 mx-2 rounded text-lg duration-75 shadow-lg shadow-black"
+            onClick={showSubtitle}
+          >
+            Generate subtitles
+          </button>
+          {/* <button
+            className="bg-blue-500 hover:bg-blue-700  text-white font-bold mx-2 px-4 rounded text-lg duration-75 shadow-lg shadow-black "
+            onClick={props.addTranslation}
+          >
+            Add translations
+          </button> */}
+        </div>
       )}
     </div>
   );
 };
 
-export default Historique;
+export default SubtitlesHistory;

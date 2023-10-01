@@ -6,6 +6,8 @@ import Editor from "./page/Editor";
 
 // APi
 import QuranApi, { Surah } from "./api/quran";
+import Page from "./models/page";
+import Cinema from "./page/Cinema";
 
 function App() {
   const [Quran, setQuran] = useState<Surah[]>([]);
@@ -13,6 +15,8 @@ function App() {
   const [recitationFile, setRecitationFile] = useState<string | undefined>(
     undefined
   );
+
+  const [page, setPage] = useState<Page>(Page.HOME);
 
   useEffect(() => {
     QuranApi.getAllSurahs().then((quran: Surah[]) => {
@@ -22,12 +26,18 @@ function App() {
 
   return (
     <div className="bg-slate-600 h-screen w-screen">
-      {recitationFile === undefined ? (
-        <Home setRecitationFile={setRecitationFile} />
-      ) : (
+      {page === Page.HOME ? (
+        <Home setRecitationFile={setRecitationFile} setPage={setPage} />
+      ) : page === Page.EDITOR && recitationFile ? (
         <div>
           <Editor recitationFile={recitationFile} Quran={Quran} />
         </div>
+      ) : page === Page.WATCH ? (
+        <div>
+          <Cinema />
+        </div>
+      ) : (
+        <></>
       )}
     </div>
   );

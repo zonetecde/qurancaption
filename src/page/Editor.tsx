@@ -6,7 +6,7 @@ import ReactAudioPlayer from "react-audio-player";
 import StringExt from "../extensions/stringExt";
 import Word from "../components/word";
 import Subtitle from "../models/subtitle";
-import Historique from "../components/historique";
+import SubtitlesHistory from "../components/subtitlesHistory";
 import TimeExt from "../extensions/timeExt";
 import SubtitleViewer from "../components/subtitleViewer";
 
@@ -259,6 +259,12 @@ const Editor = (props: Props) => {
     subtitles,
   ]);
 
+  /**
+   * L'utilisateur a appuyé sur le bouton pour ajouter
+   * une traduction
+   */
+  function addTranslation(): void {}
+
   return (
     <div className="w-screen h-screen flex flex-row">
       <div className="bg-black bg-opacity-25 h-full w-[30%] text-white flex justify-start items-center flex-col">
@@ -331,43 +337,61 @@ const Editor = (props: Props) => {
       </div>
       <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative">
         {hasSyncBegan ? (
-          <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center pb-20 flex-row">
-            <div className="flex flex-row-reverse ml-auto flex-wrap">
-              {selectedVerses[currentVerse].text
-                .split(" ")
-                .map((word, index) => (
-                  <Word
-                    word={word}
-                    key={index}
-                    isSelected={
-                      !didSyncEnded &&
-                      currentSelectedWordsRange[0] <= index &&
-                      currentSelectedWordsRange[1] >= index
-                    }
-                    wordClickedAction={() => {
-                      // Lorsqu'on clique sur un mot on change la born min
-                      // = le récitateur se répète
-                      // c'est surtout fait pour corriger un appuie d'arrowdown en trop
-                      if (index <= currentSelectedWordsRange[1]) {
-                        setCurrentSelectedWordsRange([
-                          index,
-                          currentSelectedWordsRange[1],
-                        ]);
+          <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
+            <div className="flex flex-col w-full h-full">
+              <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto mr-5 overflow-y-scroll">
+                {selectedVerses[currentVerse].text
+                  .split(" ")
+                  .map((word, index) => (
+                    <Word
+                      word={word}
+                      key={index}
+                      isSelected={
+                        !didSyncEnded &&
+                        currentSelectedWordsRange[0] <= index &&
+                        currentSelectedWordsRange[1] >= index
                       }
-                    }}
-                  />
-                ))}
+                      wordClickedAction={() => {
+                        // Lorsqu'on clique sur un mot on change la born min
+                        // = le récitateur se répète
+                        // c'est surtout fait pour corriger un appuie d'arrowdown en trop
+                        if (index <= currentSelectedWordsRange[1]) {
+                          setCurrentSelectedWordsRange([
+                            index,
+                            currentSelectedWordsRange[1],
+                          ]);
+                        } else {
+                          // Sinon on sélectionne jusqu'à ce mot
+                          setCurrentSelectedWordsRange([
+                            currentSelectedWordsRange[0],
+                            index,
+                          ]);
+                        }
+                      }}
+                    />
+                  ))}
+              </div>
+
+              <ul className="mt-auto text-white text-opacity-40 ml-6 list-disc">
+                <li>Press space to pause/resume the audio</li>
+                <li>Use the up and down arrow keys to select words</li>
+                <li>
+                  Use the left and right arrow to navigate the audio player
+                  forward or backward by 2 seconds
+                </li>
+              </ul>
+
+              <ReactAudioPlayer
+                ref={audioPlayerRef}
+                src={props.recitationFile}
+                controls
+                className="w-10/12 self-center pb-10 pt-5"
+              />
             </div>
 
-            <ReactAudioPlayer
-              ref={audioPlayerRef}
-              src={props.recitationFile}
-              controls
-              className="w-11/12  absolute left-8 right-8 bottom-5"
-            />
-
-            <div className="h-full ml-auto bg-black bg-opacity-30 w-4/12 rounded-s-2xl">
-              <Historique
+            <div className="h-full bg-black bg-opacity-30 w-42 md:w-96">
+              <SubtitlesHistory
+                addTranslation={addTranslation}
                 subtitles={subtitles}
                 setSubtitleText={setSubtitleFileText}
               />
@@ -377,6 +401,14 @@ const Editor = (props: Props) => {
               <SubtitleViewer
                 subtitleText={subtitleFileText}
                 setSubtitleText={setSubtitleFileText}
+                subtitleFileName={
+                  props.Quran[selectedSurahPosition - 1].transliteration +
+                  " " +
+                  selectedVerses[0].id +
+                  "-" +
+                  selectedVerses[selectedVerses.length - 1].id +
+                  ".srt"
+                }
               />
             )}
           </div>
