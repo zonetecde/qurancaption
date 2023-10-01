@@ -27,6 +27,8 @@ const subtitleViewer = (props: Props) => {
     }
   };
 
+  function addTranslation(event: any): void {}
+
   return (
     <div className="absolute bg-white lg:left-10 top-10 -left-40 right-0 lg:right-80 bottom-10 border-3 pb-10 border-2 border-black shadow-2xl shadow-black p-10 rounded-lg">
       <div className="flex flex-row">
@@ -55,10 +57,31 @@ const subtitleViewer = (props: Props) => {
       <textarea
         aria-multiline
         value={props.subtitleText}
-        className="absolute bottom-5 top-24 left-5 p-3 rounded-lg bg-slate-400 right-5 arabic"
+        className="absolute bottom-20 top-28 left-5 p-3 rounded-lg bg-slate-400 right-5 arabic"
         style={{ direction: "ltr" }}
         readOnly
       ></textarea>
+
+      <div className="flex flex-row absolute bottom-5 right-5">
+        <select className="h-8 mr-3 border border-black">
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="bn">Bengali</option>
+          <option value="ru">Russian</option>
+          <option value="zh">Chinease</option>
+          <option value="id">Indonesian</option>
+          <option value="sv">Swedish</option>
+          <option value="tr">Turkish</option>
+          <option value="ur">Urdu</option>
+        </select>{" "}
+        <button
+          className="bg-blue-500 hover:bg-blue-700 mr-2 rounded-lg px-2 py-1 text-white duration-75"
+          onClick={addTranslation}
+        >
+          Add translation
+        </button>
+      </div>
     </div>
   );
 };
