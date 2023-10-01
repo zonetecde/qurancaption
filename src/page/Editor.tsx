@@ -184,14 +184,57 @@ const Editor = (props: Props) => {
             }
             break;
 
+          case "a":
+            // Add أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
+
+            setSubtitles([
+              ...subtitles,
+              new Subtitle(
+                subtitles.length + 1,
+                currentVerse + 1,
+                currentSelectedWordsRange[0],
+                currentSelectedWordsRange[1],
+                lastSubtitleEndTime(subtitles),
+                getCurrentAudioPlayerTime(),
+                "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
+              ),
+            ]);
+            break;
+          case "b":
+            // Add the basmala
+
+            setSubtitles([
+              ...subtitles,
+              new Subtitle(
+                subtitles.length + 1,
+                currentVerse + 1,
+                currentSelectedWordsRange[0],
+                currentSelectedWordsRange[1],
+                lastSubtitleEndTime(subtitles),
+                getCurrentAudioPlayerTime(),
+                "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+              ),
+            ]);
+            break;
+
+          case "Backspace":
+            // Du dernier temps jusqu'à maintenant un silence
+            setSubtitles([
+              ...subtitles,
+              new Subtitle(
+                subtitles.length + 1,
+                currentVerse + 1,
+                currentSelectedWordsRange[0],
+                currentSelectedWordsRange[1],
+                lastSubtitleEndTime(subtitles),
+                getCurrentAudioPlayerTime(),
+                ""
+              ),
+            ]);
+            break;
           case "Enter":
             if (!didSyncEnded) {
               // Valide la séléction pour le temps acctuel
-              const time = getCurrentAudioPlayerTime();
-              const lastEndTime =
-                subtitles.length > 0
-                  ? subtitles[subtitles.length - 1]?.endTime
-                  : 0;
               setSubtitles([
                 ...subtitles,
                 new Subtitle(
@@ -199,8 +242,8 @@ const Editor = (props: Props) => {
                   currentVerse + 1,
                   currentSelectedWordsRange[0],
                   currentSelectedWordsRange[1],
-                  lastEndTime,
-                  time,
+                  lastSubtitleEndTime(subtitles),
+                  getCurrentAudioPlayerTime(),
                   selectedVerses[currentVerse].text
                     .split(" ")
                     .slice(
@@ -236,7 +279,6 @@ const Editor = (props: Props) => {
               }
             }
             break;
-
           default:
             break;
         }
@@ -372,12 +414,21 @@ const Editor = (props: Props) => {
                   ))}
               </div>
 
-              <ul className="mt-auto text-white text-opacity-40 ml-6 list-disc">
+              <ul className="mt-auto text-white text-opacity-40 ml-6 list-disc text-sm">
                 <li>Press space to pause/resume the audio</li>
                 <li>Use the up and down arrow keys to select words</li>
                 <li>
                   Use the left and right arrow to navigate the audio player
                   forward or backward by 2 seconds
+                </li>
+                <li>Press backspace to add a silence</li>
+                <li>Press B to add a basmala</li>
+                <li>
+                  Press A to add "
+                  <span className="arabic text-xl">
+                    أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
+                  </span>
+                  "
                 </li>
               </ul>
 
@@ -449,3 +500,6 @@ const Editor = (props: Props) => {
 };
 
 export default Editor;
+function lastSubtitleEndTime(subtitles: Subtitle[]): number {
+  return subtitles.length > 0 ? subtitles[subtitles.length - 1]?.endTime : 0;
+}
