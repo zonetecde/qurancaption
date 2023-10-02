@@ -436,7 +436,7 @@ const Editor = (props: Props) => {
 
           <input
             type="file"
-            accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg"
+            accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
             onChange={handleFileUpload}
             className="max-w-[400px]"
           />
