@@ -198,7 +198,7 @@ const Editor = (props: Props) => {
               // Change la born min (= le réciteur se répète)
               setCurrentSelectedWordsRange([
                 currentSelectedWordsRange[0] - 1,
-                currentSelectedWordsRange[1],
+                currentSelectedWordsRange[1] - 1,
               ]);
               //setPreviousSelectedWordIndexInVerse(currentSelectedWordsRange[0] - 1)
             } else {
