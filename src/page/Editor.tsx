@@ -103,6 +103,10 @@ const Editor = (props: Props) => {
     setHasSyncBegan(true);
   }
 
+  function lastSubtitleEndTime(subtitles: Subtitle[]): number {
+    return subtitles.length > 0 ? subtitles[subtitles.length - 1]?.endTime : 0;
+  }
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (hasSyncBegan && subtitleFileText === "") {
@@ -141,8 +145,10 @@ const Editor = (props: Props) => {
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1] + 1,
               ]);
-
-              console.log(currentSelectedWordsRange);
+            } else {
+              // Dans ce cas on va au verset suivant
+              setCurrentVerse(currentVerse + 1);
+              setCurrentSelectedWordsRange([0, 0]);
             }
             break;
 
@@ -191,7 +197,7 @@ const Editor = (props: Props) => {
               ...subtitles,
               new Subtitle(
                 subtitles.length + 1,
-                currentVerse + 1,
+                -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
                 lastSubtitleEndTime(subtitles),
@@ -207,7 +213,7 @@ const Editor = (props: Props) => {
               ...subtitles,
               new Subtitle(
                 subtitles.length + 1,
-                currentVerse + 1,
+                -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
                 lastSubtitleEndTime(subtitles),
@@ -218,12 +224,31 @@ const Editor = (props: Props) => {
             break;
 
           case "Backspace":
+            // enlève le dernier sous titre ajouté
+            if (subtitles.length >= 1) {
+              setSubtitles(subtitles.slice(0, subtitles.length - 1));
+
+              // > 1 car la length n'est pas actualisé après son set
+              if (subtitles.length > 1) {
+                console.log(subtitles);
+                setCurrentSelectedWordsRange([
+                  subtitles[subtitles.length - 1].toWordIndex,
+                  subtitles[subtitles.length - 1].toWordIndex,
+                ]);
+              } else {
+                // Si on a aucun sous-titre on remet au tout début du verset
+                setCurrentSelectedWordsRange([0, 0]);
+              }
+            }
+            break;
+
+          case "s":
             // Du dernier temps jusqu'à maintenant un silence
             setSubtitles([
               ...subtitles,
               new Subtitle(
                 subtitles.length + 1,
-                currentVerse + 1,
+                -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
                 lastSubtitleEndTime(subtitles),
@@ -239,7 +264,7 @@ const Editor = (props: Props) => {
                 ...subtitles,
                 new Subtitle(
                   subtitles.length + 1,
-                  currentVerse + 1,
+                  selectedVerses[currentVerse].id,
                   currentSelectedWordsRange[0],
                   currentSelectedWordsRange[1],
                   lastSubtitleEndTime(subtitles),
@@ -381,7 +406,7 @@ const Editor = (props: Props) => {
         {hasSyncBegan ? (
           <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
             <div className="flex flex-col w-full h-full">
-              <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto mr-5 overflow-y-scroll">
+              <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto mr-5 overflow-y-auto">
                 {selectedVerses[currentVerse].text
                   .split(" ")
                   .map((word, index) => (
@@ -414,22 +439,17 @@ const Editor = (props: Props) => {
                   ))}
               </div>
 
-              <ul className="mt-auto text-white text-opacity-40 ml-6 list-disc text-sm">
+              <ul className="mt-auto text-white text-opacity-10 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm">
                 <li>Press space to pause/resume the audio</li>
                 <li>Use the up and down arrow keys to select words</li>
                 <li>
                   Use the left and right arrow to navigate the audio player
                   forward or backward by 2 seconds
                 </li>
-                <li>Press backspace to add a silence</li>
+                <li>Press S to add a silence</li>
                 <li>Press B to add a basmala</li>
-                <li>
-                  Press A to add "
-                  <span className="arabic text-xl">
-                    أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
-                  </span>
-                  "
-                </li>
+                <li>Press A to add the isti3adha</li>
+                <li>Press backspace to remove the last added subtitles</li>
               </ul>
 
               <ReactAudioPlayer
@@ -500,6 +520,3 @@ const Editor = (props: Props) => {
 };
 
 export default Editor;
-function lastSubtitleEndTime(subtitles: Subtitle[]): number {
-  return subtitles.length > 0 ? subtitles[subtitles.length - 1]?.endTime : 0;
-}

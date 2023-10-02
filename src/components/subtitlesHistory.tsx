@@ -41,12 +41,22 @@ const SubtitlesHistory = (props: Props) => {
           <div className="flex flex-col border rounded-lg w-full mb-2 p-2">
             <div className="flex flex-row">
               <p>
-                {subtitle.startTime}s - {subtitle.endTime}s
+                {subtitle.startTime.toFixed(3)}s - {subtitle.endTime.toFixed(3)}
+                s
               </p>
-              <p className="mr-1 ml-auto">Verse {subtitle.versePos}</p>
+              {subtitle.versePos !== -1 && (
+                <p className="mr-1 ml-auto">Verse {subtitle.versePos}</p>
+              )}
             </div>
 
-            <p className="arabic text-2xl mt-2 text-white">{subtitle.text}</p>
+            <p
+              className={
+                "text-2xl mt-2 text-white " +
+                (subtitle.text !== "" ? "arabic" : "text-sm")
+              }
+            >
+              {subtitle.text !== "" ? subtitle.text : "(silence)"}
+            </p>
           </div>
         ))}
         <div ref={subtitlesEndRef} />
