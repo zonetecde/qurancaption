@@ -7,11 +7,9 @@ import StringExt from "../extensions/stringExt";
 import Word from "../components/word";
 import Subtitle from "../models/subtitle";
 import SubtitlesHistory from "../components/subtitlesHistory";
-import TimeExt from "../extensions/timeExt";
 import SubtitleViewer from "../components/subtitleViewer";
 
 interface Props {
-  recitationFile: string;
   Quran: Surah[];
 }
 
@@ -28,8 +26,13 @@ const Editor = (props: Props) => {
   const [selectedSurahPosition, setSelectedSurahPosition] = useState<number>(1);
   // Les versets de la récitation uploadé, par défaut Al-Fatiha de 1 à 7 (set dans useEffect)
   const [selectedVerses, setSelectedVerses] = useState<Verse[]>([]);
-
+  // Le blob de la récitation
+  const [recitationFile, setRecitationFile] = useState<string>("");
+  // Est-ce que l'utilisateur est en train de créé les sous titres ?
   const [hasSyncBegan, setHasSyncBegan] = useState<boolean>(false);
+
+  // Est-ce que c'est en logiciel ou en site internet ?
+  const [isWeb, setIsWeb] = useState<boolean>(true);
 
   // Sync useSate
   const [currentVerse, setCurrentVerse] = useState<number>(0); // Index - 1
@@ -67,6 +70,32 @@ const Editor = (props: Props) => {
       setSelectedVerses(props.Quran[0].verses);
     }
   }, []);
+
+  /**
+   * Take the selected recitation file of the user and transform it into a JS blob
+   * @param event
+   * @returns
+   */
+  function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    const { type } = file;
+
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const audioData = e.target?.result as ArrayBuffer;
+
+      if (!audioData) return;
+
+      const audioBlob = new Blob([audioData], { type });
+      setRecitationFile(URL.createObjectURL(audioBlob));
+    };
+
+    reader.readAsArrayBuffer(file);
+  }
 
   /**
    * Updates the selected verses based on the provided input values.
@@ -401,12 +430,23 @@ const Editor = (props: Props) => {
             onChange={updateSelectedVerses}
           />
         </div>
+
+        <div className="mt-10 w-full pl-3 flex flex-col">
+          <p className="">{"Recitation file (audio or video) :"}</p>
+
+          <input
+            type="file"
+            accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg"
+            onChange={handleFileUpload}
+            className="max-w-[400px]"
+          />
+        </div>
       </div>
       <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative">
         {hasSyncBegan ? (
           <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
             <div className="flex flex-col w-full h-full">
-              <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto mr-5 overflow-y-auto">
+              <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto pt-10 mr-5 overflow-y-auto">
                 {selectedVerses[currentVerse].text
                   .split(" ")
                   .map((word, index) => (
@@ -454,9 +494,9 @@ const Editor = (props: Props) => {
 
               <ReactAudioPlayer
                 ref={audioPlayerRef}
-                src={props.recitationFile}
+                src={recitationFile}
                 controls
-                className="w-10/12 self-center pb-10 pt-5"
+                className="w-10/12 self-center mb-5 mt-5"
               />
             </div>
 
@@ -490,7 +530,7 @@ const Editor = (props: Props) => {
               beginSync();
             }}
           >
-            {selectedVerses.length > 0 ? (
+            {selectedVerses.length > 0 && recitationFile !== "" ? (
               <p>
                 Start with surah{" "}
                 {props.Quran[selectedSurahPosition - 1].transliteration} from
@@ -510,7 +550,11 @@ const Editor = (props: Props) => {
                 </span>
               </p>
             ) : (
-              <p>Wrong 'from verse' and 'to verse' input values</p>
+              <p>
+                {recitationFile === ""
+                  ? "Please select a recitation file"
+                  : "Wrong 'from verse' and 'to verse' input values"}
+              </p>
             )}
           </button>
         )}

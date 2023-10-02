@@ -22,18 +22,26 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-  border-radius: 100vh;
+  border-radius: 10vh;
   background: gray;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #2f3234;
-  border-radius: 100vh;
-  border: 3px solid #272a2d;
+  background: #2d4351;
+  border-radius: 10vh;
+  border: 3px solid #cdcfd25b;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #464849;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar:hover {
+  width: 20px;
 }
