@@ -22,7 +22,7 @@ const SubtitlesHistory = (props: Props) => {
       subtitleFileText += subtitle.text + "\n\n";
     });
 
-    props.setSubtitleText(subtitleFileText);
+    props.setSubtitleText(subtitleFileText.trim());
   }
 
   const subtitlesEndRef = useRef<HTMLDivElement>(null);
