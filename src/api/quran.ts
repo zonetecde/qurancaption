@@ -1,10 +1,10 @@
 import AppVariables from "../AppVariables";
 
 export default class QuranApi {
-  static getAllSurahs() {
+  static getQuran(lang: string) {
     const url =
       "https://cdn.jsdelivr.net/npm/quran-json@3.1.2/dist/quran_" +
-      AppVariables.Lang +
+      lang +
       ".json";
 
     return fetch(url).then((res) => res.json());

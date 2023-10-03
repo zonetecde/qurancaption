@@ -1,5 +1,4 @@
 import React from "react";
-import { open } from "@tauri-apps/api/dialog";
 import Page from "../models/page";
 
 interface Props {

@@ -5,21 +5,14 @@ import ReactAudioPlayer from "react-audio-player";
 // Extensions
 import StringExt from "../extensions/stringExt";
 import Word from "../components/word";
-import Subtitle from "../models/subtitle";
+import Subtitle, { Subtitles } from "../models/subtitle";
 import SubtitlesHistory from "../components/subtitlesHistory";
 import SubtitleViewer from "../components/subtitleViewer";
+import TranslationsEditor from "../components/translationsEditor";
 
 interface Props {
   Quran: Surah[];
 }
-
-/**
- * APpuie sur espace : resume l'audio
- * appuie une deuxieme fois sur espace : stop l'audio
- * fleche haut et bas : selectionne le texte qui vient d'etre lu
- * fleche gauche et droite : revenir en arrière/avant audio
- * espace pour resume et continuer
- */
 
 const Editor = (props: Props) => {
   // La position de la sourate sélectionné. 1 = Al-Fatiha, 114 = An-Nass
@@ -30,9 +23,8 @@ const Editor = (props: Props) => {
   const [recitationFile, setRecitationFile] = useState<string>("");
   // Est-ce que l'utilisateur est en train de créé les sous titres ?
   const [hasSyncBegan, setHasSyncBegan] = useState<boolean>(false);
-
-  // Est-ce que c'est en logiciel ou en site internet ?
-  const [isWeb, setIsWeb] = useState<boolean>(true);
+  // Est-ce que l'utilisateur est en train d'ajouter des traductions ?
+  const [translatedVerses, setTranslatedVerses] = useState<Verse[]>([]);
 
   // Sync useSate
   const [currentVerse, setCurrentVerse] = useState<number>(0); // Index - 1
@@ -43,7 +35,7 @@ const Editor = (props: Props) => {
     previousSelectedWordIndexInVerse,
     setPreviousSelectedWordIndexInVerse,
   ] = useState<number>(1);
-  const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
+  const [arabicSubtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [subtitleFileText, setSubtitleFileText] = useState<string>("");
   const [didSyncEnded, setDidSyncEnded] = useState<boolean>(false);
 
@@ -129,6 +121,7 @@ const Editor = (props: Props) => {
     setSubtitles([]);
     setDidSyncEnded(false);
     setSubtitleFileText("");
+    setTranslatedVerses([]);
     setHasSyncBegan(true);
   }
 
@@ -138,7 +131,11 @@ const Editor = (props: Props) => {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (hasSyncBegan && subtitleFileText === "") {
+      if (
+        hasSyncBegan &&
+        subtitleFileText === "" &&
+        translatedVerses.length === 0
+      ) {
         // Resume/Pause recitation
         switch (e.key) {
           case " ":
@@ -223,13 +220,13 @@ const Editor = (props: Props) => {
             // Add أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
 
             setSubtitles([
-              ...subtitles,
+              ...arabicSubtitles,
               new Subtitle(
-                subtitles.length + 1,
+                arabicSubtitles.length + 1,
                 -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
-                lastSubtitleEndTime(subtitles),
+                lastSubtitleEndTime(arabicSubtitles),
                 getCurrentAudioPlayerTime(),
                 "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
               ),
@@ -239,13 +236,13 @@ const Editor = (props: Props) => {
             // Add the basmala
 
             setSubtitles([
-              ...subtitles,
+              ...arabicSubtitles,
               new Subtitle(
-                subtitles.length + 1,
+                arabicSubtitles.length + 1,
                 -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
-                lastSubtitleEndTime(subtitles),
+                lastSubtitleEndTime(arabicSubtitles),
                 getCurrentAudioPlayerTime(),
                 "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
               ),
@@ -254,15 +251,17 @@ const Editor = (props: Props) => {
 
           case "Backspace":
             // enlève le dernier sous titre ajouté
-            if (subtitles.length >= 1) {
-              setSubtitles(subtitles.slice(0, subtitles.length - 1));
+            if (arabicSubtitles.length >= 1) {
+              setSubtitles(
+                arabicSubtitles.slice(0, arabicSubtitles.length - 1)
+              );
 
               // > 1 car la length n'est pas actualisé après son set
-              if (subtitles.length > 1) {
-                console.log(subtitles);
+              if (arabicSubtitles.length > 1) {
+                console.log(arabicSubtitles);
                 setCurrentSelectedWordsRange([
-                  subtitles[subtitles.length - 1].toWordIndex,
-                  subtitles[subtitles.length - 1].toWordIndex,
+                  arabicSubtitles[arabicSubtitles.length - 1].toWordIndex,
+                  arabicSubtitles[arabicSubtitles.length - 1].toWordIndex,
                 ]);
               } else {
                 // Si on a aucun sous-titre on remet au tout début du verset
@@ -274,13 +273,13 @@ const Editor = (props: Props) => {
           case "s":
             // Du dernier temps jusqu'à maintenant un silence
             setSubtitles([
-              ...subtitles,
+              ...arabicSubtitles,
               new Subtitle(
-                subtitles.length + 1,
+                arabicSubtitles.length + 1,
                 -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
-                lastSubtitleEndTime(subtitles),
+                lastSubtitleEndTime(arabicSubtitles),
                 getCurrentAudioPlayerTime(),
                 ""
               ),
@@ -300,7 +299,7 @@ const Editor = (props: Props) => {
           case "e":
             setCurrentSelectedWordsRange([
               currentSelectedWordsRange[0],
-              selectedVerses[currentVerse].text.split(" ").length,
+              selectedVerses[currentVerse].text.split(" ").length - 1,
             ]);
             break;
           /**
@@ -310,20 +309,20 @@ const Editor = (props: Props) => {
           case "v":
             setCurrentSelectedWordsRange([
               0,
-              selectedVerses[currentVerse].text.split(" ").length,
+              selectedVerses[currentVerse].text.split(" ").length - 1,
             ]);
             break;
           case "Enter":
             if (!didSyncEnded) {
               // Valide la séléction pour le temps acctuel
               setSubtitles([
-                ...subtitles,
+                ...arabicSubtitles,
                 new Subtitle(
-                  subtitles.length + 1,
+                  arabicSubtitles.length + 1,
                   selectedVerses[currentVerse].id,
                   currentSelectedWordsRange[0],
                   currentSelectedWordsRange[1],
-                  lastSubtitleEndTime(subtitles),
+                  lastSubtitleEndTime(arabicSubtitles),
                   getCurrentAudioPlayerTime(),
                   selectedVerses[currentVerse].text
                     .split(" ")
@@ -379,14 +378,20 @@ const Editor = (props: Props) => {
     previousSelectedWordIndexInVerse,
     currentVerse,
     subtitleFileText,
-    subtitles,
+    arabicSubtitles,
   ]);
 
   /**
    * L'utilisateur a appuyé sur le bouton pour ajouter
    * une traduction
    */
-  function addTranslation(): void {}
+  function addTranslation(versesTranslated: Verse[]): void {
+    // Cache le pannel de sous-titre
+    setSubtitleFileText("");
+    // Ajout des traductions
+    console.log(versesTranslated);
+    setTranslatedVerses(versesTranslated);
+  }
 
   return (
     <div className="w-screen h-screen flex flex-row">
@@ -471,93 +476,106 @@ const Editor = (props: Props) => {
       </div>
       <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative">
         {hasSyncBegan ? (
-          <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
-            <div className="flex flex-col w-full h-full">
-              <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto pt-10 mr-5 overflow-y-auto">
-                {selectedVerses[currentVerse].text
-                  .split(" ")
-                  .map((word, index) => (
-                    <Word
-                      word={word}
-                      key={index}
-                      isSelected={
-                        !didSyncEnded &&
-                        currentSelectedWordsRange[0] <= index &&
-                        currentSelectedWordsRange[1] >= index
-                      }
-                      wordClickedAction={() => {
-                        // Lorsqu'on clique sur un mot on change la born min
-                        // = le récitateur se répète
-                        // c'est surtout fait pour corriger un appuie d'arrowdown en trop
-                        if (index <= currentSelectedWordsRange[1]) {
-                          setCurrentSelectedWordsRange([
-                            index,
-                            currentSelectedWordsRange[1],
-                          ]);
-                        } else {
-                          // Sinon on sélectionne jusqu'à ce mot
-                          setCurrentSelectedWordsRange([
-                            currentSelectedWordsRange[0],
-                            index,
-                          ]);
-                        }
-                      }}
-                    />
-                  ))}
+          <>
+            {translatedVerses.length === 0 ? (
+              <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
+                <div className="flex flex-col w-full h-full">
+                  <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto pt-10 mr-5 overflow-y-auto">
+                    {selectedVerses[currentVerse].text
+                      .split(" ")
+                      .map((word, index) => (
+                        <Word
+                          word={word}
+                          key={index}
+                          isSelected={
+                            !didSyncEnded &&
+                            currentSelectedWordsRange[0] <= index &&
+                            currentSelectedWordsRange[1] >= index
+                          }
+                          wordClickedAction={() => {
+                            // Lorsqu'on clique sur un mot on change la born min
+                            // = le récitateur se répète
+                            // c'est surtout fait pour corriger un appuie d'arrowdown en trop
+                            if (index <= currentSelectedWordsRange[1]) {
+                              setCurrentSelectedWordsRange([
+                                index,
+                                currentSelectedWordsRange[1],
+                              ]);
+                            } else {
+                              // Sinon on sélectionne jusqu'à ce mot
+                              setCurrentSelectedWordsRange([
+                                currentSelectedWordsRange[0],
+                                index,
+                              ]);
+                            }
+                          }}
+                        />
+                      ))}
+                  </div>
+
+                  <ul className="mt-auto text-white text-opacity-10 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm">
+                    <li>Press space to pause/resume the audio</li>
+                    <li>Use the up and down arrow keys to select words</li>
+                    <li>
+                      Use the left and right arrow to navigate the audio player
+                      forward or backward by 2 seconds
+                    </li>
+                    <li>Press S to add a silence</li>
+                    <li>Press B to add a basmala</li>
+                    <li>Press A to add the isti3adha</li>
+                    <li>Press backspace to remove the last added subtitles</li>
+                    <li>Press 'i' to select the first word</li>
+                    <li>Press 'e' to select the last word</li>
+                    <li>Press 'v' to select the whole verse</li>
+                  </ul>
+
+                  <ReactAudioPlayer
+                    ref={audioPlayerRef}
+                    src={recitationFile}
+                    controls
+                    className="w-10/12 self-center mb-5 mt-5"
+                  />
+                </div>
+
+                <div className="h-full bg-black bg-opacity-30 w-42 md:w-96">
+                  <SubtitlesHistory
+                    subtitles={arabicSubtitles}
+                    setSubtitleText={setSubtitleFileText}
+                  />
+                </div>
+
+                {subtitleFileText !== "" && (
+                  <SubtitleViewer
+                    addTranslation={addTranslation}
+                    selectedVerses={selectedVerses}
+                    surahName={props.Quran[selectedSurahPosition - 1].name}
+                    subtitleText={subtitleFileText}
+                    setSubtitleText={setSubtitleFileText}
+                    subtitleFileName={
+                      props.Quran[selectedSurahPosition - 1].transliteration +
+                      " " +
+                      selectedVerses[0].id +
+                      "-" +
+                      selectedVerses[selectedVerses.length - 1].id +
+                      ".srt"
+                    }
+                  />
+                )}
               </div>
-
-              <ul className="mt-auto text-white text-opacity-10 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm">
-                <li>Press space to pause/resume the audio</li>
-                <li>Use the up and down arrow keys to select words</li>
-                <li>
-                  Use the left and right arrow to navigate the audio player
-                  forward or backward by 2 seconds
-                </li>
-                <li>Press S to add a silence</li>
-                <li>Press B to add a basmala</li>
-                <li>Press A to add the isti3adha</li>
-                <li>Press backspace to remove the last added subtitles</li>
-                <li>Press 'i' to select the first word</li>
-                <li>Press 'e' to select the last word</li>
-                <li>Press 'v' to select the whole verse</li>
-              </ul>
-
-              <ReactAudioPlayer
-                ref={audioPlayerRef}
-                src={recitationFile}
-                controls
-                className="w-10/12 self-center mb-5 mt-5"
-              />
-            </div>
-
-            <div className="h-full bg-black bg-opacity-30 w-42 md:w-96">
-              <SubtitlesHistory
-                addTranslation={addTranslation}
-                subtitles={subtitles}
-                setSubtitleText={setSubtitleFileText}
-              />
-            </div>
-
-            {subtitleFileText !== "" && (
-              <SubtitleViewer
-                subtitleText={subtitleFileText}
-                setSubtitleText={setSubtitleFileText}
-                subtitleFileName={
-                  props.Quran[selectedSurahPosition - 1].transliteration +
-                  " " +
-                  selectedVerses[0].id +
-                  "-" +
-                  selectedVerses[selectedVerses.length - 1].id +
-                  ".srt"
-                }
+            ) : (
+              <TranslationsEditor
+                translatedVerses={translatedVerses}
+                subtitles={arabicSubtitles}
+                setSubtitles={setSubtitles}
               />
             )}
-          </div>
+          </>
         ) : (
           <button
             className="bg-blue-500 hover:bg-blue-700 w-96 mb-32 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-12 shadow-lg shadow-black leading-10"
             onClick={() => {
-              beginSync();
+              if (selectedVerses.length > 0 && recitationFile !== "")
+                beginSync();
             }}
           >
             {selectedVerses.length > 0 && recitationFile !== "" ? (

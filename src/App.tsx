@@ -15,7 +15,7 @@ function App() {
   const [page, setPage] = useState<Page>(Page.HOME);
 
   useEffect(() => {
-    QuranApi.getAllSurahs().then((quran: Surah[]) => {
+    QuranApi.getQuran("en").then((quran: Surah[]) => {
       setQuran(quran);
     });
   });

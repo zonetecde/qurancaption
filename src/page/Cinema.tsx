@@ -116,7 +116,8 @@ const Cinema = () => {
                   }
                 }
                 return false;
-              })?.text ?? `Subtitle not found ${videoRef.current?.currentTime}`
+              })?.arabicText ??
+              `Subtitle not found ${videoRef.current?.currentTime}`
             : "No subtitles"}
         </p>
       </div>

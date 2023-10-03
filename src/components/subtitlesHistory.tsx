@@ -5,21 +5,25 @@ import TimeExt from "../extensions/timeExt";
 interface Props {
   subtitles: Subtitle[];
   setSubtitleText: React.Dispatch<React.SetStateAction<string>>;
-  addTranslation: () => void;
 }
 
 const SubtitlesHistory = (props: Props) => {
   function showSubtitle() {
     // Sync fini, on transforme ça en fichier sous-titre
     let subtitleFileText = "";
+    let silenceCounter: number = 0; // Permet de compenser les pauses pour pas que le numéro de sous titre soit erroné
     props.subtitles.forEach((subtitle, index) => {
-      subtitleFileText += String(index + 1) + "\n";
-      subtitleFileText +=
-        TimeExt.secondsToHHMMSSms(subtitle.startTime) +
-        " --> " +
-        TimeExt.secondsToHHMMSSms(subtitle.endTime) +
-        "\n";
-      subtitleFileText += subtitle.text + "\n\n";
+      if (subtitle.arabicText !== "") {
+        subtitleFileText += String(index + 1 - silenceCounter) + "\n";
+        subtitleFileText +=
+          TimeExt.secondsToHHMMSSms(subtitle.startTime) +
+          " --> " +
+          TimeExt.secondsToHHMMSSms(subtitle.endTime) +
+          "\n";
+        subtitleFileText += subtitle.arabicText + "\n\n";
+      } else {
+        silenceCounter++;
+      }
     });
 
     props.setSubtitleText(subtitleFileText.trim());
@@ -52,10 +56,10 @@ const SubtitlesHistory = (props: Props) => {
             <p
               className={
                 "text-2xl mt-2 text-white " +
-                (subtitle.text !== "" ? "arabic" : "text-sm")
+                (subtitle.arabicText !== "" ? "arabic" : "text-sm")
               }
             >
-              {subtitle.text !== "" ? subtitle.text : "(silence)"}
+              {subtitle.arabicText !== "" ? subtitle.arabicText : "(silence)"}
             </p>
           </div>
         ))}

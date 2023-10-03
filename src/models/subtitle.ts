@@ -1,3 +1,13 @@
+class Translation {
+  text: string;
+  lang: string;
+
+  constructor(text: string, lang: string) {
+    this.text = text;
+    this.lang = lang;
+  }
+}
+
 export default class Subtitle {
   id: number;
   versePos: number;
@@ -7,7 +17,8 @@ export default class Subtitle {
   startTime: number;
   endTime: number;
 
-  text: string;
+  arabicText: string;
+  translatedText: Translation[];
 
   constructor(
     id: number,
@@ -16,7 +27,8 @@ export default class Subtitle {
     toWordIndex: number,
     startTime: number,
     endTime: number,
-    text: string
+    text: string,
+    translatedText: Translation[] = []
   ) {
     this.id = id;
     this.versePos = versePos;
@@ -24,6 +36,7 @@ export default class Subtitle {
     this.toWordIndex = toWordIndex;
     this.startTime = startTime;
     this.endTime = endTime;
-    this.text = text;
+    this.arabicText = text;
+    this.translatedText = translatedText;
   }
 }

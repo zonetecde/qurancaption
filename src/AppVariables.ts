@@ -1,3 +1,1 @@
-export default class AppVariables {
-  static Lang = "en";
-}
+export default class AppVariables {}
