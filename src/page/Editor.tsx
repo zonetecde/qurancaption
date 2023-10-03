@@ -286,6 +286,33 @@ const Editor = (props: Props) => {
               ),
             ]);
             break;
+          /**
+           * I
+           * Sélectionne du current_end_range jusqu'au début du verset
+           */
+          case "i":
+            setCurrentSelectedWordsRange([0, currentSelectedWordsRange[1]]);
+            break;
+          /**
+           * E
+           * Sélectionne du current_begin_range jusqu'à la fin du verset
+           */
+          case "e":
+            setCurrentSelectedWordsRange([
+              currentSelectedWordsRange[0],
+              selectedVerses[currentVerse].text.split(" ").length,
+            ]);
+            break;
+          /**
+           * V
+           * Sélectionne le verset entier
+           */
+          case "v":
+            setCurrentSelectedWordsRange([
+              0,
+              selectedVerses[currentVerse].text.split(" ").length,
+            ]);
+            break;
           case "Enter":
             if (!didSyncEnded) {
               // Valide la séléction pour le temps acctuel
@@ -490,6 +517,9 @@ const Editor = (props: Props) => {
                 <li>Press B to add a basmala</li>
                 <li>Press A to add the isti3adha</li>
                 <li>Press backspace to remove the last added subtitles</li>
+                <li>Press 'i' to select the first word</li>
+                <li>Press 'e' to select the last word</li>
+                <li>Press 'v' to select the whole verse</li>
               </ul>
 
               <ReactAudioPlayer
@@ -536,13 +566,13 @@ const Editor = (props: Props) => {
                 {props.Quran[selectedSurahPosition - 1].transliteration} from
                 verse :
                 <br />
-                <span className="arabic text-2xl ">
+                <span className="arabic text-2xl font-normal">
                   {selectedVerses !== undefined &&
                     StringExt.ReduceString(selectedVerses[0].text)}
                 </span>
                 <br />
                 to verse :<br />
-                <span className="arabic text-2xl">
+                <span className="arabic text-2xl font-normal">
                   {selectedVerses !== undefined &&
                     StringExt.ReduceString(
                       selectedVerses[selectedVerses.length - 1].text
