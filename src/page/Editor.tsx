@@ -10,6 +10,7 @@ import SubtitlesHistory from "../components/subtitlesHistory";
 import SubtitleViewer from "../components/subtitleViewer";
 import TranslationsEditor from "../components/translationsEditor";
 import ArabicSubtitleEditor from "../components/arabicSubtitleEditor";
+import TabControl from "../components/tabControl";
 
 interface Props {
   Quran: Surah[];
@@ -211,9 +212,7 @@ const Editor = (props: Props) => {
         {hasSyncBegan ? (
           <>
             <div className="flex flex-col w-full h-full">
-              <div className="bg-black opacity-60 h-12 flex flex-row">
-                <div className=" w-40  bg-slate-200 h-full"></div>
-              </div>
+              <TabControl />
 
               {translatedVerses.length === 0 ? (
                 <>
