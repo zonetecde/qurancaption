@@ -9,7 +9,7 @@ interface Props {
   hasSyncBegan: boolean;
   selectedVerses: Verse[];
   setSubtitles: React.Dispatch<React.SetStateAction<Subtitle[]>>;
-  arabicSubtitles: Subtitle[];
+  subtitles: Subtitle[];
   subtitleFileText: string;
   recitationFile: string;
 
@@ -138,13 +138,13 @@ const ArabicSubtitleEditor = (props: Props) => {
             // Add أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
 
             props.setSubtitles([
-              ...props.arabicSubtitles,
+              ...props.subtitles,
               new Subtitle(
-                props.arabicSubtitles.length + 1,
+                props.subtitles.length + 1,
                 -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
-                lastSubtitleEndTime(props.arabicSubtitles),
+                lastSubtitleEndTime(props.subtitles),
                 getCurrentAudioPlayerTime(),
                 "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
               ),
@@ -154,13 +154,13 @@ const ArabicSubtitleEditor = (props: Props) => {
             // Add the basmala
 
             props.setSubtitles([
-              ...props.arabicSubtitles,
+              ...props.subtitles,
               new Subtitle(
-                props.arabicSubtitles.length + 1,
+                props.subtitles.length + 1,
                 -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
-                lastSubtitleEndTime(props.arabicSubtitles),
+                lastSubtitleEndTime(props.subtitles),
                 getCurrentAudioPlayerTime(),
                 "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
               ),
@@ -169,19 +169,17 @@ const ArabicSubtitleEditor = (props: Props) => {
 
           case "Backspace":
             // enlève le dernier sous titre ajouté
-            if (props.arabicSubtitles.length >= 1) {
+            if (props.subtitles.length >= 1) {
               props.setSubtitles(
-                props.arabicSubtitles.slice(0, props.arabicSubtitles.length - 1)
+                props.subtitles.slice(0, props.subtitles.length - 1)
               );
 
               // > 1 car la length n'est pas actualisé après son set
-              if (props.arabicSubtitles.length > 1) {
-                console.log(props.arabicSubtitles);
+              if (props.subtitles.length > 1) {
+                console.log(props.subtitles);
                 setCurrentSelectedWordsRange([
-                  props.arabicSubtitles[props.arabicSubtitles.length - 1]
-                    .toWordIndex,
-                  props.arabicSubtitles[props.arabicSubtitles.length - 1]
-                    .toWordIndex,
+                  props.subtitles[props.subtitles.length - 1].toWordIndex,
+                  props.subtitles[props.subtitles.length - 1].toWordIndex,
                 ]);
               } else {
                 // Si on a aucun sous-titre on remet au tout début du verset
@@ -193,13 +191,13 @@ const ArabicSubtitleEditor = (props: Props) => {
           case "s":
             // Du dernier temps jusqu'à maintenant un silence
             props.setSubtitles([
-              ...props.arabicSubtitles,
+              ...props.subtitles,
               new Subtitle(
-                props.arabicSubtitles.length + 1,
+                props.subtitles.length + 1,
                 -1,
                 currentSelectedWordsRange[0],
                 currentSelectedWordsRange[1],
-                lastSubtitleEndTime(props.arabicSubtitles),
+                lastSubtitleEndTime(props.subtitles),
                 getCurrentAudioPlayerTime(),
                 ""
               ),
@@ -236,13 +234,13 @@ const ArabicSubtitleEditor = (props: Props) => {
             if (!didSyncEnded) {
               // Valide la séléction pour le temps acctuel
               props.setSubtitles([
-                ...props.arabicSubtitles,
+                ...props.subtitles,
                 new Subtitle(
-                  props.arabicSubtitles.length + 1,
+                  props.subtitles.length + 1,
                   props.selectedVerses[currentVerse].id,
                   currentSelectedWordsRange[0],
                   currentSelectedWordsRange[1],
-                  lastSubtitleEndTime(props.arabicSubtitles),
+                  lastSubtitleEndTime(props.subtitles),
                   getCurrentAudioPlayerTime(),
                   props.selectedVerses[currentVerse].text
                     .split(" ")
@@ -298,13 +296,13 @@ const ArabicSubtitleEditor = (props: Props) => {
     previousSelectedWordIndexInVerse,
     currentVerse,
     props.subtitleFileText,
-    props.arabicSubtitles,
+    props.subtitles,
   ]);
 
   return (
     <>
       {" "}
-      <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
+      <div className="w-full h-full bg-[#1e242c] flex items-center justify-center flex-row">
         <div className="flex flex-col w-full h-full">
           <div className="flex flex-row-reverse ml-auto flex-wrap self-end my-auto pt-10 mr-5 overflow-y-auto">
             {props.selectedVerses[currentVerse].text

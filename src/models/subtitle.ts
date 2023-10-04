@@ -18,7 +18,7 @@ export default class Subtitle {
   endTime: number;
 
   arabicText: string;
-  translatedText: Translation[];
+  translations: Translation[];
 
   constructor(
     id: number,
@@ -37,6 +37,6 @@ export default class Subtitle {
     this.startTime = startTime;
     this.endTime = endTime;
     this.arabicText = text;
-    this.translatedText = translatedText;
+    this.translations = translatedText;
   }
 }

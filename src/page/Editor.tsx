@@ -10,7 +10,7 @@ import SubtitlesHistory from "../components/subtitlesHistory";
 import SubtitleViewer from "../components/subtitleViewer";
 import TranslationsEditor from "../components/translationsEditor";
 import ArabicSubtitleEditor from "../components/arabicSubtitleEditor";
-import TabControl from "../components/tabControl";
+import TabControl, { TabItem } from "../components/tabControl";
 
 interface Props {
   Quran: Surah[];
@@ -25,13 +25,15 @@ const Editor = (props: Props) => {
   const [recitationFile, setRecitationFile] = useState<string>("");
   // Est-ce que l'utilisateur est en train de créé les sous titres ?
   const [hasSyncBegan, setHasSyncBegan] = useState<boolean>(false);
-  // Est-ce que l'utilisateur est en train d'ajouter des traductions ?
-  const [translatedVerses, setTranslatedVerses] = useState<Verse[]>([]);
   // When user change the recitation file or the surah or verse range, reset the work
   const [triggerResetWork, setTriggerResetWork] = useState<boolean>(false);
+  // TabControl : quels page de travail est affiché ?
+  const [tabItems, setTabItems] = useState<TabItem[]>([
+    { isShown: true, lang: "ar" }, // Par défaut l'arabe est affiché
+  ]);
 
   // Sync useSate
-  const [arabicSubtitles, setSubtitles] = useState<Subtitle[]>([]);
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [subtitleFileText, setSubtitleFileText] = useState<string>("");
 
   // Ref
@@ -107,27 +109,14 @@ const Editor = (props: Props) => {
   function beginSync() {
     setSubtitles([]);
     setSubtitleFileText("");
-    setTranslatedVerses([]);
     setHasSyncBegan(true);
     setTriggerResetWork(!triggerResetWork);
-  }
-
-  /**
-   * L'utilisateur a appuyé sur le bouton pour ajouter
-   * une traduction
-   */
-  function addTranslation(versesTranslated: Verse[]): void {
-    // Cache le pannel de sous-titre
-    setSubtitleFileText("");
-    // Ajout des traductions
-    console.log(versesTranslated);
-    setTranslatedVerses(versesTranslated);
   }
 
   return (
     <div className="w-screen h-screen flex flex-row">
       {hasSyncBegan === false && (
-        <div className="bg-black bg-opacity-25 h-full w-[30%] max-w-[300px] text-white flex justify-start items-center flex-col">
+        <div className="bg-black bg-opacity-25 h-full w-[30%] max-w-[350px] text-white flex justify-start items-center flex-col">
           <p className="mt-3 text-xl">Surah</p>
           <select
             name="surahs"
@@ -208,53 +197,58 @@ const Editor = (props: Props) => {
         </div>
       )}
 
-      <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-t-2 border-black">
+      <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-black">
         {hasSyncBegan ? (
           <>
             <div className="flex flex-col w-full h-full">
-              <TabControl />
+              <TabControl
+                tabItems={tabItems}
+                setTabItems={setTabItems}
+                surahName={props.Quran[selectedSurahPosition - 1].name}
+                selectedVerses={selectedVerses}
+                subtitles={subtitles}
+                setSubtitles={setSubtitles}
+              />
 
-              {translatedVerses.length === 0 ? (
-                <>
-                  <ArabicSubtitleEditor
-                    setSubtitles={setSubtitles}
-                    subtitleFileText={subtitleFileText}
-                    selectedVerses={selectedVerses}
-                    hasSyncBegan={hasSyncBegan}
-                    arabicSubtitles={arabicSubtitles}
-                    recitationFile={recitationFile}
-                    triggerResetWork={triggerResetWork}
-                  />
-
-                  {subtitleFileText !== "" && (
-                    <SubtitleViewer
-                      addTranslation={addTranslation}
-                      selectedVerses={selectedVerses}
-                      surahName={props.Quran[selectedSurahPosition - 1].name}
-                      subtitleText={subtitleFileText}
-                      setSubtitleText={setSubtitleFileText}
-                      subtitleFileName={
-                        props.Quran[selectedSurahPosition - 1].transliteration +
-                        " " +
-                        selectedVerses[0].id +
-                        "-" +
-                        selectedVerses[selectedVerses.length - 1].id +
-                        ".srt"
-                      }
-                    />
-                  )}
-                </>
-              ) : (
-                <TranslationsEditor
-                  translatedVerses={translatedVerses}
-                  subtitles={arabicSubtitles}
+              {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
+                <ArabicSubtitleEditor
                   setSubtitles={setSubtitles}
+                  subtitleFileText={subtitleFileText}
+                  selectedVerses={selectedVerses}
+                  hasSyncBegan={hasSyncBegan}
+                  subtitles={subtitles}
+                  recitationFile={recitationFile}
+                  triggerResetWork={triggerResetWork}
                 />
+              ) : (
+                <div className="w-full h-[95vh]">
+                  <TranslationsEditor
+                    setSubtitles={setSubtitles}
+                    subtitles={subtitles}
+                    lang={tabItems.find((x) => x.isShown)?.lang!}
+                  />
+                </div>
               )}
+              <>
+                {subtitleFileText !== "" && (
+                  <SubtitleViewer
+                    subtitleText={subtitleFileText}
+                    setSubtitleText={setSubtitleFileText}
+                    subtitleFileName={
+                      props.Quran[selectedSurahPosition - 1].transliteration +
+                      " " +
+                      selectedVerses[0].id +
+                      "-" +
+                      selectedVerses[selectedVerses.length - 1].id +
+                      ".srt"
+                    }
+                  />
+                )}
+              </>
             </div>
-            <div className="h-full bg-black bg-opacity-30 w-42 md:w-96 border-l-2 border-black">
+            <div className="h-full w-42 md:w-96 border-l-2 border-black">
               <SubtitlesHistory
-                subtitles={arabicSubtitles}
+                subtitles={subtitles}
                 setSubtitleText={setSubtitleFileText}
               />
             </div>

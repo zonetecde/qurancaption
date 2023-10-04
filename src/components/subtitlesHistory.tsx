@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Subtitle from "../models/subtitle";
 import TimeExt from "../extensions/timeExt";
+import AppVariables from "../AppVariables";
 
 interface Props {
   subtitles: Subtitle[];
@@ -37,7 +38,7 @@ const SubtitlesHistory = (props: Props) => {
   }, [props.subtitles]);
 
   return (
-    <div className="w-full text-green-200 flex justify-start items-center pt-6 flex-col h-full ">
+    <div className="w-full text-green-200 flex justify-start items-center pt-6 flex-col h-full bg-[#1e242c] ">
       {" "}
       <p className="text-2xl mb-5">Subtitles</p>
       <div className="w-11/12 overflow-y-scroll h-full flex flex-col items-center pr-1">
@@ -60,6 +61,19 @@ const SubtitlesHistory = (props: Props) => {
               }
             >
               {subtitle.arabicText !== "" ? subtitle.arabicText : "(silence)"}
+
+              {subtitle.translations.map((translation) => (
+                <>
+                  {translation.lang !== "ar" && (
+                    <p className="mt-2 text-sm font-normal text-left font-sans">
+                      <span className="underline underline-offset-2">
+                        {AppVariables.Langs[translation.lang]}
+                      </span>{" "}
+                      : {translation.text}
+                    </p>
+                  )}
+                </>
+              ))}
             </p>
           </div>
         ))}
