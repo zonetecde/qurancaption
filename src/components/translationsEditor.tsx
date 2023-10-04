@@ -8,11 +8,11 @@ interface Props {
   setSubtitles: React.Dispatch<React.SetStateAction<Subtitle[]>>;
 }
 
-const textAreaTranslationRef = React.createRef<HTMLTextAreaElement>();
+const textAreaTranslationRef = React.createRef<HTMLSpanElement>();
 
 const TranslationsEditor = (props: Props) => {
   return (
-    <div className="h-full w-full flex justify-center items-center flex-col">
+    <div className="h-full w-full flex justify-center items-center flex-col pl-20">
       <div className="h-full overflow-y-auto mt-20 mb-10 pr-20">
         {props.subtitles.map((subtitle: Subtitle) => (
           <>
@@ -25,6 +25,7 @@ const TranslationsEditor = (props: Props) => {
                   className="textarea w-full bg-opacity-30 bg-white mt-5 text-lg lg:text-xl px-1 py-1"
                   role="textbox"
                   contentEditable
+                  ref={textAreaTranslationRef}
                 >
                   {
                     props.translatedVerses.find(

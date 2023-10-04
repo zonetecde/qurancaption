@@ -395,180 +395,190 @@ const Editor = (props: Props) => {
 
   return (
     <div className="w-screen h-screen flex flex-row">
-      <div className="bg-black bg-opacity-25 h-full w-[30%] text-white flex justify-start items-center flex-col">
-        <p className="mt-3 text-xl">Surah</p>
-        <select
-          name="surahs"
-          id="surahs"
-          className="h-8 w-5/6 text-black outline-none mt-3 px-1 "
-          defaultValue={selectedSurahPosition - 1}
-          onChange={(e) => {
-            /**
-             * On change surah
-             */
-            const selectedSurahPosition = Number(e.target.value);
+      {hasSyncBegan === false && (
+        <div className="bg-black bg-opacity-25 h-full w-[30%] max-w-[300px] text-white flex justify-start items-center flex-col">
+          <p className="mt-3 text-xl">Surah</p>
+          <select
+            name="surahs"
+            id="surahs"
+            className="h-8 w-5/6 text-black outline-none mt-3 px-1 "
+            defaultValue={selectedSurahPosition - 1}
+            onChange={(e) => {
+              /**
+               * On change surah
+               */
+              const selectedSurahPosition = Number(e.target.value);
 
-            if (fromVerseInputRef.current && toVerseInputRef.current) {
-              // Update les deux bornes pour qu'elles correspondent
-              // à celle de la sourate sélectionné
-              fromVerseInputRef.current.value = "1";
-              toVerseInputRef.current.value = String(
-                props.Quran[selectedSurahPosition - 1].total_verses
+              if (fromVerseInputRef.current && toVerseInputRef.current) {
+                // Update les deux bornes pour qu'elles correspondent
+                // à celle de la sourate sélectionné
+                fromVerseInputRef.current.value = "1";
+                toVerseInputRef.current.value = String(
+                  props.Quran[selectedSurahPosition - 1].total_verses
+                );
+              }
+
+              setSelectedSurahPosition(selectedSurahPosition);
+            }}
+          >
+            {props.Quran.map((surah) => {
+              return (
+                <option key={surah.id} value={surah.id}>
+                  {surah.id +
+                    ". " +
+                    surah.transliteration +
+                    " (" +
+                    surah.translation +
+                    ")"}
+                </option>
               );
-            }
+            })}
+          </select>
+          <div className="flex flex-row w-full px-3 relative mt-5">
+            <p className="mt-3 text-lg">From verse : </p>
+            <input
+              type="number"
+              name="verse-begin"
+              id="verse-begin"
+              min={1}
+              defaultValue={1}
+              max={props.Quran[selectedSurahPosition - 1].total_verses}
+              className="h-8 w-[60px] ml-2 bg-slate-400 text-black outline-none mt-3 pl-1"
+              ref={fromVerseInputRef}
+              onChange={updateSelectedVerses}
+            />
+          </div>
+          <p className="w-full pl-3 opacity-40"></p>
+          <div className="flex flex-row w-full px-3 relative">
+            <p className="mt-3 text-lg">To verse : </p>
+            <input
+              type="number"
+              name="verse-begin"
+              id="verse-begin"
+              min={1}
+              defaultValue={7}
+              max={props.Quran[selectedSurahPosition - 1].total_verses}
+              className="h-8 w-[60px] ml-[31px] bg-slate-400 text-black outline-none mt-3 pl-1"
+              ref={toVerseInputRef}
+              onChange={updateSelectedVerses}
+            />
+          </div>
 
-            setSelectedSurahPosition(selectedSurahPosition);
-          }}
-        >
-          {props.Quran.map((surah) => {
-            return (
-              <option key={surah.id} value={surah.id}>
-                {surah.id +
-                  ". " +
-                  surah.transliteration +
-                  " (" +
-                  surah.translation +
-                  ")"}
-              </option>
-            );
-          })}
-        </select>
-        <div className="flex flex-row w-full px-3 relative mt-5">
-          <p className="mt-3 text-lg">From verse : </p>
-          <input
-            type="number"
-            name="verse-begin"
-            id="verse-begin"
-            min={1}
-            defaultValue={1}
-            max={props.Quran[selectedSurahPosition - 1].total_verses}
-            className="h-8 w-[60px] ml-2 bg-slate-400 text-black outline-none mt-3 pl-1"
-            ref={fromVerseInputRef}
-            onChange={updateSelectedVerses}
-          />
-        </div>
-        <p className="w-full pl-3 opacity-40"></p>
-        <div className="flex flex-row w-full px-3 relative">
-          <p className="mt-3 text-lg">To verse : </p>
-          <input
-            type="number"
-            name="verse-begin"
-            id="verse-begin"
-            min={1}
-            defaultValue={7}
-            max={props.Quran[selectedSurahPosition - 1].total_verses}
-            className="h-8 w-[60px] ml-[31px] bg-slate-400 text-black outline-none mt-3 pl-1"
-            ref={toVerseInputRef}
-            onChange={updateSelectedVerses}
-          />
-        </div>
+          <div className="mt-10 w-full pl-3 flex flex-col">
+            <p className="">{"Recitation file (audio or video) :"}</p>
 
-        <div className="mt-10 w-full pl-3 flex flex-col">
-          <p className="">{"Recitation file (audio or video) :"}</p>
-
-          <input
-            type="file"
-            accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
-            onChange={handleFileUpload}
-            className="max-w-[400px]"
-          />
+            <input
+              type="file"
+              accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
+              onChange={handleFileUpload}
+              className="max-w-[400px]"
+            />
+          </div>
         </div>
-      </div>
-      <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative">
+      )}
+
+      <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-t-2 border-black">
         {hasSyncBegan ? (
           <>
-            {translatedVerses.length === 0 ? (
-              <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
-                <div className="flex flex-col w-full h-full">
-                  <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto pt-10 mr-5 overflow-y-auto">
-                    {selectedVerses[currentVerse].text
-                      .split(" ")
-                      .map((word, index) => (
-                        <Word
-                          word={word}
-                          key={index}
-                          isSelected={
-                            !didSyncEnded &&
-                            currentSelectedWordsRange[0] <= index &&
-                            currentSelectedWordsRange[1] >= index
-                          }
-                          wordClickedAction={() => {
-                            // Lorsqu'on clique sur un mot on change la born min
-                            // = le récitateur se répète
-                            // c'est surtout fait pour corriger un appuie d'arrowdown en trop
-                            if (index <= currentSelectedWordsRange[1]) {
-                              setCurrentSelectedWordsRange([
-                                index,
-                                currentSelectedWordsRange[1],
-                              ]);
-                            } else {
-                              // Sinon on sélectionne jusqu'à ce mot
-                              setCurrentSelectedWordsRange([
-                                currentSelectedWordsRange[0],
-                                index,
-                              ]);
+            <div className="flex flex-col w-full h-full">
+              <div className="bg-black opacity-60 h-12 flex flex-row">
+                <div className=" w-40  bg-red-200 h-full"></div>
+              </div>
+
+              {translatedVerses.length === 0 ? (
+                <div className="w-full h-full bg-black bg-opacity-30 flex items-center justify-center flex-row">
+                  <div className="flex flex-col w-full h-full">
+                    <div className="flex flex-row-reverse ml-auto flex-wrap self-end mt-auto pt-10 mr-5 overflow-y-auto">
+                      {selectedVerses[currentVerse].text
+                        .split(" ")
+                        .map((word, index) => (
+                          <Word
+                            word={word}
+                            key={index}
+                            isSelected={
+                              !didSyncEnded &&
+                              currentSelectedWordsRange[0] <= index &&
+                              currentSelectedWordsRange[1] >= index
                             }
-                          }}
-                        />
-                      ))}
+                            wordClickedAction={() => {
+                              // Lorsqu'on clique sur un mot on change la born min
+                              // = le récitateur se répète
+                              // c'est surtout fait pour corriger un appuie d'arrowdown en trop
+                              if (index <= currentSelectedWordsRange[1]) {
+                                setCurrentSelectedWordsRange([
+                                  index,
+                                  currentSelectedWordsRange[1],
+                                ]);
+                              } else {
+                                // Sinon on sélectionne jusqu'à ce mot
+                                setCurrentSelectedWordsRange([
+                                  currentSelectedWordsRange[0],
+                                  index,
+                                ]);
+                              }
+                            }}
+                          />
+                        ))}
+                    </div>
+
+                    <ul className="absolute bottom-20 mt-auto text-white text-opacity-10 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm hover:bg-gray-700">
+                      <li>Press space to pause/resume the audio</li>
+                      <li>Use the up and down arrow keys to select words</li>
+                      <li>
+                        Use the left and right arrow to navigate the audio
+                        player forward or backward by 2 seconds
+                      </li>
+                      <li>Press S to add a silence</li>
+                      <li>Press B to add a basmala</li>
+                      <li>Press A to add the isti3adha</li>
+                      <li>
+                        Press backspace to remove the last added subtitles
+                      </li>
+                      <li>Press 'i' to select the first word</li>
+                      <li>Press 'e' to select the last word</li>
+                      <li>Press 'v' to select the whole verse</li>
+                    </ul>
+
+                    <ReactAudioPlayer
+                      ref={audioPlayerRef}
+                      src={recitationFile}
+                      controls
+                      className="w-10/12 self-center mb-5 mt-5"
+                    />
                   </div>
 
-                  <ul className="mt-auto text-white text-opacity-10 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm">
-                    <li>Press space to pause/resume the audio</li>
-                    <li>Use the up and down arrow keys to select words</li>
-                    <li>
-                      Use the left and right arrow to navigate the audio player
-                      forward or backward by 2 seconds
-                    </li>
-                    <li>Press S to add a silence</li>
-                    <li>Press B to add a basmala</li>
-                    <li>Press A to add the isti3adha</li>
-                    <li>Press backspace to remove the last added subtitles</li>
-                    <li>Press 'i' to select the first word</li>
-                    <li>Press 'e' to select the last word</li>
-                    <li>Press 'v' to select the whole verse</li>
-                  </ul>
-
-                  <ReactAudioPlayer
-                    ref={audioPlayerRef}
-                    src={recitationFile}
-                    controls
-                    className="w-10/12 self-center mb-5 mt-5"
-                  />
+                  {subtitleFileText !== "" && (
+                    <SubtitleViewer
+                      addTranslation={addTranslation}
+                      selectedVerses={selectedVerses}
+                      surahName={props.Quran[selectedSurahPosition - 1].name}
+                      subtitleText={subtitleFileText}
+                      setSubtitleText={setSubtitleFileText}
+                      subtitleFileName={
+                        props.Quran[selectedSurahPosition - 1].transliteration +
+                        " " +
+                        selectedVerses[0].id +
+                        "-" +
+                        selectedVerses[selectedVerses.length - 1].id +
+                        ".srt"
+                      }
+                    />
+                  )}
                 </div>
-
-                <div className="h-full bg-black bg-opacity-30 w-42 md:w-96">
-                  <SubtitlesHistory
-                    subtitles={arabicSubtitles}
-                    setSubtitleText={setSubtitleFileText}
-                  />
-                </div>
-
-                {subtitleFileText !== "" && (
-                  <SubtitleViewer
-                    addTranslation={addTranslation}
-                    selectedVerses={selectedVerses}
-                    surahName={props.Quran[selectedSurahPosition - 1].name}
-                    subtitleText={subtitleFileText}
-                    setSubtitleText={setSubtitleFileText}
-                    subtitleFileName={
-                      props.Quran[selectedSurahPosition - 1].transliteration +
-                      " " +
-                      selectedVerses[0].id +
-                      "-" +
-                      selectedVerses[selectedVerses.length - 1].id +
-                      ".srt"
-                    }
-                  />
-                )}
-              </div>
-            ) : (
-              <TranslationsEditor
-                translatedVerses={translatedVerses}
+              ) : (
+                <TranslationsEditor
+                  translatedVerses={translatedVerses}
+                  subtitles={arabicSubtitles}
+                  setSubtitles={setSubtitles}
+                />
+              )}
+            </div>
+            <div className="h-full bg-black bg-opacity-30 w-42 md:w-96 border-l-2 border-black">
+              <SubtitlesHistory
                 subtitles={arabicSubtitles}
-                setSubtitles={setSubtitles}
+                setSubtitleText={setSubtitleFileText}
               />
-            )}
+            </div>
           </>
         ) : (
           <button
