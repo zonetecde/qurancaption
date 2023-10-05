@@ -65,12 +65,12 @@ const SubtitlesHistory = (props: Props) => {
               {subtitle.translations.map((translation) => (
                 <>
                   {translation.lang !== "ar" && (
-                    <p className="mt-2 text-sm font-normal text-left font-sans">
+                    <span className="mt-2 text-sm font-normal text-left font-sans block">
                       <span className="underline underline-offset-2">
                         {AppVariables.Langs[translation.lang]}
                       </span>{" "}
                       : {translation.text}
-                    </p>
+                    </span>
                   )}
                 </>
               ))}

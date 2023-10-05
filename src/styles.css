@@ -40,6 +40,7 @@
 
 ::-webkit-scrollbar {
   width: 10px;
+  background-color: #1e242c;
 }
 
 ::-webkit-scrollbar:hover {
@@ -57,4 +58,12 @@
 
 .textarea[contenteditable]:empty::before {
   color: gray;
+}
+
+.remove-tab-button {
+  display: none;
+}
+
+.div-tab-item:hover .remove-tab-button {
+  display: inline-block;
 }

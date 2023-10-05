@@ -9,7 +9,11 @@ interface Props {
   lang: string;
 }
 
+/**
+ * Component pour éditer les traductions des sous-titre arabe de l'utilisateur de l'utilisateur
+ */
 const TranslationsEditor = (props: Props) => {
+  // Au chargement du component, on regarde si certaines des traductions sont manquantes
   useEffect(() => {
     // Si des traductions sont manquantes (= qu'ils viennent d'être ajouté depuis le sync arabe)
     // alors on les ajoutes ici
@@ -29,6 +33,17 @@ const TranslationsEditor = (props: Props) => {
       }
     });
   }, []);
+
+  /**
+   * Empêche l'utilisateur veut revenir à la ligne dans les
+   * inputs pour saisir une traduction
+   * @param event
+   */
+  function preventNewLine(event: React.KeyboardEvent<HTMLSpanElement>) {
+    if (event.key === "Enter" || event.keyCode === 13) {
+      event.preventDefault();
+    }
+  }
 
   return (
     <div className="h-full w-full flex justify-center items-center flex-col px-5 lg:px-20 bg-[#1e242c]">
@@ -52,9 +67,7 @@ const TranslationsEditor = (props: Props) => {
                        * Prevent the enter key to create a new line
                        */
                       onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.keyCode === 13) {
-                          event.preventDefault();
-                        }
+                        preventNewLine(event);
                       }}
                       /**
                        * Write the translation of the verse (~ default value)

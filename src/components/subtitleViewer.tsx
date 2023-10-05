@@ -7,6 +7,11 @@ interface Props {
   subtitleFileName: string;
 }
 
+/**
+ * Affiche le contenu des fichiers sous-titre généré et propose de les sauvegarders
+ * @param props
+ * @returns
+ */
 const subtitleViewer = (props: Props) => {
   const saveFile = async () => {
     try {

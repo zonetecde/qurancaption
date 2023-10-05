@@ -200,7 +200,7 @@ const Editor = (props: Props) => {
       <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-black">
         {hasSyncBegan ? (
           <>
-            <div className="flex flex-col w-full h-full">
+            <div className="flex flex-col w-full h-full max-w-[full]">
               <TabControl
                 tabItems={tabItems}
                 setTabItems={setTabItems}
@@ -210,6 +210,8 @@ const Editor = (props: Props) => {
                 setSubtitles={setSubtitles}
               />
 
+              {/* Si on est dans la tab "Arabe" alors on affiche l'éditeur de sous-titre arabe,
+              Sinon on affiche l'éditeur de sous-titre dans les autres langues */}
               {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
                 <ArabicSubtitleEditor
                   setSubtitles={setSubtitles}
