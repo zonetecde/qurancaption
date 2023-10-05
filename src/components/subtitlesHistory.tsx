@@ -43,7 +43,10 @@ const SubtitlesHistory = (props: Props) => {
       <p className="text-2xl mb-5">Subtitles</p>
       <div className="w-11/12 overflow-y-scroll h-full flex flex-col items-center pr-1">
         {props.subtitles.map((subtitle) => (
-          <div className="flex flex-col border rounded-lg w-full mb-2 p-2">
+          <div
+            className="flex flex-col border rounded-lg w-full mb-2 p-2"
+            key={subtitle.id}
+          >
             <div className="flex flex-row">
               <p>
                 {subtitle.startTime.toFixed(3)}s - {subtitle.endTime.toFixed(3)}
@@ -65,7 +68,10 @@ const SubtitlesHistory = (props: Props) => {
               {subtitle.translations.map((translation) => (
                 <>
                   {translation.lang !== "ar" && (
-                    <span className="mt-2 text-sm font-normal text-left font-sans block">
+                    <span
+                      className="mt-2 text-sm font-normal text-left font-sans block"
+                      key={translation.lang}
+                    >
                       <span className="underline underline-offset-2">
                         {AppVariables.Langs[translation.lang]}
                       </span>{" "}
@@ -87,12 +93,6 @@ const SubtitlesHistory = (props: Props) => {
           >
             Generate subtitles
           </button>
-          {/* <button
-            className="bg-blue-500 hover:bg-blue-700  text-white font-bold mx-2 px-4 rounded text-lg duration-75 shadow-lg shadow-black "
-            onClick={props.addTranslation}
-          >
-            Add translations
-          </button> */}
         </div>
       )}
     </div>

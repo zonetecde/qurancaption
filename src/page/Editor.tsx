@@ -25,6 +25,19 @@ const Editor = (props: Props) => {
   const [recitationFile, setRecitationFile] = useState<string>("");
   // Est-ce que l'utilisateur est en train de créé les sous titres ?
   const [hasSyncBegan, setHasSyncBegan] = useState<boolean>(false);
+
+  // ARABIC SUBTITLES EDITOR
+  // Ces 3 useStates sont ici afin que la progression de l'utilisateur PERSISTE même si il est dans une autre tab.
+  // Le verset qui est actuellement traité par l'utilisateur dans l'éditeur arabe
+  const [currentVerse, setCurrentVerse] = useState<number>(0); // Index - 1
+  const [currentSelectedWordsRange, setCurrentSelectedWordsRange] = useState<
+    [number, number]
+  >([0, 1]);
+  const [
+    previousSelectedWordIndexInVerse,
+    setPreviousSelectedWordIndexInVerse,
+  ] = useState<number>(1);
+
   // When user change the recitation file or the surah or verse range, reset the work
   const [triggerResetWork, setTriggerResetWork] = useState<boolean>(false);
   // TabControl : quels page de travail est affiché ?
@@ -214,13 +227,22 @@ const Editor = (props: Props) => {
               Sinon on affiche l'éditeur de sous-titre dans les autres langues */}
               {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
                 <ArabicSubtitleEditor
+                  currentVerse={currentVerse}
+                  setCurrentVerse={setCurrentVerse}
                   setSubtitles={setSubtitles}
                   subtitleFileText={subtitleFileText}
                   selectedVerses={selectedVerses}
-                  hasSyncBegan={hasSyncBegan}
                   subtitles={subtitles}
                   recitationFile={recitationFile}
                   triggerResetWork={triggerResetWork}
+                  setCurrentSelectedWordsRange={setCurrentSelectedWordsRange}
+                  currentSelectedWordsRange={currentSelectedWordsRange}
+                  setPreviousSelectedWordIndexInVerse={
+                    setPreviousSelectedWordIndexInVerse
+                  }
+                  previousSelectedWordIndexInVerse={
+                    previousSelectedWordIndexInVerse
+                  }
                 />
               ) : (
                 <div className="w-full h-[95vh]">

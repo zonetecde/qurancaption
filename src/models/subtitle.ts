@@ -11,6 +11,8 @@ class Translation {
 export default class Subtitle {
   id: number;
   versePos: number;
+  versePosRelative: number; // verse pos par rapport aux versets sélectionnés
+
   fromWordIndex: number;
   toWordIndex: number;
 
@@ -23,6 +25,7 @@ export default class Subtitle {
   constructor(
     id: number,
     versePos: number,
+    versePosRelative: number,
     fromWordIndex: number,
     toWordIndex: number,
     startTime: number,
@@ -32,6 +35,7 @@ export default class Subtitle {
   ) {
     this.id = id;
     this.versePos = versePos;
+    this.versePosRelative = versePosRelative;
     this.fromWordIndex = fromWordIndex;
     this.toWordIndex = toWordIndex;
     this.startTime = startTime;

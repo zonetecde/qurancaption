@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Subtitle from "../models/subtitle";
-import { Verse } from "../api/quran";
 import AppVariables from "../AppVariables";
+import UndoIcon from "../assets/UndoIcon.png";
 
 interface Props {
   subtitles: Subtitle[];
@@ -13,6 +13,10 @@ interface Props {
  * Component pour éditer les traductions des sous-titre arabe de l'utilisateur de l'utilisateur
  */
 const TranslationsEditor = (props: Props) => {
+  const subtitleRefs = props.subtitles.map(() =>
+    useRef<HTMLSpanElement | null>(null)
+  );
+
   // Au chargement du component, on regarde si certaines des traductions sont manquantes
   useEffect(() => {
     // Si des traductions sont manquantes (= qu'ils viennent d'être ajouté depuis le sync arabe)
@@ -23,26 +27,78 @@ const TranslationsEditor = (props: Props) => {
         subtitle.translations.find((x) => x.lang === props.lang) === undefined
       ) {
         // Ajoute la traduction
-        subtitle.translations.push({
-          lang: props.lang,
-          // La traduction est sauvegardé dans les variables statique du site
-          text: AppVariables.TranslatedVerses[props.lang].find(
-            (x) => x.id === subtitle.versePos
-          )!.translation,
-        });
+        // Si ce n'est pas une basmala ou autre
+        if (subtitle.versePos !== -1) {
+          subtitle.translations.push({
+            lang: props.lang,
+            // La traduction est sauvegardé dans les variables statique du site
+            text: AppVariables.TranslatedVerses[props.lang].find(
+              (x) => x.id === subtitle.versePos
+            )!.translation,
+          });
+        }
       }
     });
-  }, []);
+  }, [props.subtitles]);
 
   /**
-   * Empêche l'utilisateur veut revenir à la ligne dans les
-   * inputs pour saisir une traduction
+   * Empêche l'utilisateur de revenir à la ligne dans les
+   * inputs pour saisir une traduction, et la valide,
+   * et met le focus sur la prochaine traduction
    * @param event
    */
-  function preventNewLine(event: React.KeyboardEvent<HTMLSpanElement>) {
+  function preventNewLine(
+    subtitle: Subtitle,
+    event: React.KeyboardEvent<HTMLSpanElement>
+  ) {
     if (event.key === "Enter" || event.keyCode === 13) {
+      updateSubtitle(subtitle, event.currentTarget.innerText);
+
       event.preventDefault();
     }
+  }
+
+  /**
+   * Updates the subtitle with the new text.
+   *
+   * @param {Subtitle} subtitle - The subtitle object to be updated.
+   * @param {string} newText - The new text for the subtitle.
+   */
+  function updateSubtitle(subtitle: Subtitle, newText: string) {
+    const editedSubtitles = props.subtitles;
+
+    const _subtitle = editedSubtitles.find(
+      (_subtitle) => _subtitle.id === subtitle.id
+    );
+
+    if (_subtitle) {
+      const translation = subtitle.translations.find(
+        (_subtitle) => _subtitle.lang === props.lang
+      );
+      if (translation) {
+        translation.text = newText;
+      }
+    }
+
+    props.setSubtitles(editedSubtitles);
+  }
+
+  function resetTranslation(subtitle: Subtitle): void {
+    const editedSubtitles = props.subtitles;
+    const _subtitle = editedSubtitles.find(
+      (_subtitle) => _subtitle.id === subtitle.id
+    );
+    if (_subtitle) {
+      const translation = subtitle.translations.find(
+        (_subtitle) => _subtitle.lang === props.lang
+      );
+      if (translation) {
+        translation.text = AppVariables.TranslatedVerses[props.lang].find(
+          (x) => x.id === subtitle.versePos
+        )!.translation;
+      }
+    }
+    props.setSubtitles(editedSubtitles);
   }
 
   return (
@@ -50,63 +106,72 @@ const TranslationsEditor = (props: Props) => {
       <div className="h-full mt-20 mb-20 overflow-y-auto  w-full relative">
         {props.subtitles.length > 0 ? (
           <>
-            {props.subtitles.map((subtitle: Subtitle) => (
+            {props.subtitles.map((subtitle: Subtitle, index) => (
               <>
-                {subtitle.versePos !== -1 && (
-                  <div className="border-2 p-4">
-                    <p className="arabic text-2xl lg:text-5xl/[80px] text-white [word-spacing:10px] lg:[word-spacing:15px] leading-10">
-                      {subtitle.arabicText}
-                    </p>
-                    <span
-                      className="textarea w-full bg-opacity-10 bg-white text-white mt-5 text-lg lg:text-xl px-1 py-1 outline-none "
-                      role="textbox"
-                      contentEditable
-                      spellCheck="false"
-                      aria-multiline="false"
-                      /**
-                       * Prevent the enter key to create a new line
-                       */
-                      onKeyDown={(event) => {
-                        preventNewLine(event);
-                      }}
-                      /**
-                       * Write the translation of the verse (~ default value)
-                       */
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          props.subtitles
-                            .find(
-                              (element) =>
-                                element.versePos === subtitle.versePos
-                            )
-                            ?.translations.find((x) => x.lang === props.lang)
-                            ?.text || "",
-                      }}
-                      /**
-                       * When focus is lost, write the edited translation of the verse
-                       */
-                      onBlur={(e) => {
-                        console.log("tt");
-
-                        const editedSubtitles = props.subtitles;
-                        const _subtitle = editedSubtitles.find(
-                          (_subtitle) =>
-                            _subtitle.versePos === subtitle.versePos
-                        );
-                        if (_subtitle) {
-                          const translation = subtitle.translations.find(
-                            (_subtitle) => _subtitle.lang === props.lang
-                          );
-                          if (translation) {
-                            translation.text = e.currentTarget.innerText;
-                          }
+                {subtitle.versePos !== -1 &&
+                  subtitle.versePosRelative !== -1 && (
+                    <div className="border-2 p-4 relative">
+                      <p className="arabic text-2xl lg:text-5xl/[80px] text-white [word-spacing:10px] lg:[word-spacing:15px] leading-10">
+                        {subtitle.arabicText}
+                      </p>
+                      <span
+                        className={
+                          "textarea w-full bg-opacity-10 bg-white text-white mt-5 text-lg lg:text-xl px-1 py-1 outline-none pr-7 "
                         }
+                        role="textbox"
+                        contentEditable
+                        spellCheck="false"
+                        aria-multiline="false"
+                        ref={subtitleRefs[index]}
+                        /**
+                         * Prevent the enter key to create a new line
+                         */
+                        onKeyDown={(event) => {
+                          preventNewLine(subtitle, event);
+                        }}
+                        /**
+                         * Write the translation of the verse (~ default value)
+                         */
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            props.subtitles
+                              .find(
+                                (element) =>
+                                  element.versePos === subtitle.versePos
+                              )
+                              ?.translations.find((x) => x.lang === props.lang)
+                              ?.text || "",
+                        }}
+                        /**
+                         * When focus is lost, write the edited translation of the verse
+                         */
+                        onBlur={(e) => {
+                          updateSubtitle(subtitle, e.currentTarget.innerText);
+                        }}
+                      ></span>
 
-                        props.setSubtitles(editedSubtitles);
-                      }}
-                    ></span>
-                  </div>
-                )}
+                      {/* If the user changed the default translation, show the undo button*/}
+                      {subtitle.translations.some(
+                        (x) => x.lang === props.lang
+                      ) && (
+                        <>
+                          {subtitle.translations.find(
+                            (x) => x.lang === props.lang
+                          )!.text !==
+                            AppVariables.TranslatedVerses[props.lang].find(
+                              (x) => x.id === subtitle.versePos
+                            )!.translation && (
+                            <img
+                              src={UndoIcon}
+                              className="absolute bottom-5 right-6 w-8 h-8 cursor-pointer"
+                              alt="undo"
+                              onClick={() => resetTranslation(subtitle)}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
               </>
             ))}
           </>
