@@ -22,8 +22,10 @@ const Editor = (props: Props) => {
   const [selectedSurahPosition, setSelectedSurahPosition] = useState<number>(1);
   // Les versets de la récitation uploadé, par défaut Al-Fatiha de 1 à 7 (set dans useEffect)
   const [selectedVerses, setSelectedVerses] = useState<Verse[]>([]);
-  // Le blob de la récitation
-  const [recitationFile, setRecitationFile] = useState<string>("");
+  // Le blob de la récitation et l'url de la récitation
+  const [recitationFileBlobUrl, setRecitationFileBlobUrl] =
+    useState<string>("");
+  const [recitationFileBlob, setRecitationFileBlob] = useState<Blob>();
   // Est-ce que l'utilisateur est en train de créé les sous titres ?
   const [hasSyncBegan, setHasSyncBegan] = useState<boolean>(false);
 
@@ -89,7 +91,8 @@ const Editor = (props: Props) => {
       if (!audioData) return;
 
       const audioBlob = new Blob([audioData], { type });
-      setRecitationFile(URL.createObjectURL(audioBlob));
+      setRecitationFileBlobUrl(URL.createObjectURL(audioBlob));
+      setRecitationFileBlob(audioBlob);
     };
 
     reader.readAsArrayBuffer(file);
@@ -129,9 +132,12 @@ const Editor = (props: Props) => {
 
   return (
     <>
-      {isOnGenerateVideoPage ? (
+      {isOnGenerateVideoPage && recitationFileBlob ? (
         <>
-          <VideoGenerator subtitles={subtitles} />
+          <VideoGenerator
+            subtitles={subtitles}
+            videoBlob={recitationFileBlob}
+          />
         </>
       ) : (
         <div className="w-screen h-screen flex flex-row">
@@ -239,7 +245,7 @@ const Editor = (props: Props) => {
                       setSubtitles={setSubtitles}
                       selectedVerses={selectedVerses}
                       subtitles={subtitles}
-                      recitationFile={recitationFile}
+                      recitationFile={recitationFileBlobUrl}
                       triggerResetWork={triggerResetWork}
                       setCurrentSelectedWordsRange={
                         setCurrentSelectedWordsRange
@@ -273,11 +279,11 @@ const Editor = (props: Props) => {
               <button
                 className="bg-blue-500 hover:bg-blue-700 w-96 mb-32 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-12 shadow-lg shadow-black leading-10"
                 onClick={() => {
-                  if (selectedVerses.length > 0 && recitationFile !== "")
+                  if (selectedVerses.length > 0 && recitationFileBlobUrl !== "")
                     beginSync();
                 }}
               >
-                {selectedVerses.length > 0 && recitationFile !== "" ? (
+                {selectedVerses.length > 0 && recitationFileBlobUrl !== "" ? (
                   <p>
                     Start with surah{" "}
                     {props.Quran[selectedSurahPosition - 1].transliteration}{" "}
@@ -298,7 +304,7 @@ const Editor = (props: Props) => {
                   </p>
                 ) : (
                   <p>
-                    {recitationFile === ""
+                    {recitationFileBlobUrl === ""
                       ? "Please select a recitation file"
                       : "Wrong 'from verse' and 'to verse' input values"}
                   </p>
