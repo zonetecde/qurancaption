@@ -5,29 +5,12 @@ import AppVariables from "../AppVariables";
 
 interface Props {
   subtitles: Subtitle[];
-  setSubtitleText: React.Dispatch<React.SetStateAction<string>>;
+  setGenerateVideo: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SubtitlesHistory = (props: Props) => {
-  function showSubtitle() {
-    // Sync fini, on transforme ça en fichier sous-titre
-    let subtitleFileText = "";
-    let silenceCounter: number = 0; // Permet de compenser les pauses pour pas que le numéro de sous titre soit erroné
-    props.subtitles.forEach((subtitle, index) => {
-      if (subtitle.arabicText !== "") {
-        subtitleFileText += String(index + 1 - silenceCounter) + "\n";
-        subtitleFileText +=
-          TimeExt.secondsToHHMMSSms(subtitle.startTime) +
-          " --> " +
-          TimeExt.secondsToHHMMSSms(subtitle.endTime) +
-          "\n";
-        subtitleFileText += subtitle.arabicText + "\n\n";
-      } else {
-        silenceCounter++;
-      }
-    });
-
-    props.setSubtitleText(subtitleFileText.trim());
+  function generateVideoButtonClicked() {
+    props.setGenerateVideo(true);
   }
 
   const subtitlesEndRef = useRef<HTMLDivElement>(null);
@@ -89,9 +72,9 @@ const SubtitlesHistory = (props: Props) => {
         <div className=" w-12/12 h-16 mb-12  mt-4 flex flex-row">
           <button
             className="bg-blue-500 hover:bg-blue-700  text-white font-bold px-4 mx-2 rounded text-lg duration-75 shadow-lg shadow-black"
-            onClick={showSubtitle}
+            onClick={generateVideoButtonClicked}
           >
-            Generate subtitles
+            Generate video
           </button>
         </div>
       )}

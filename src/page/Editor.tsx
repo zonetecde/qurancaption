@@ -11,6 +11,7 @@ import SubtitleViewer from "../components/subtitleViewer";
 import TranslationsEditor from "../components/translationsEditor";
 import ArabicSubtitleEditor from "../components/arabicSubtitleEditor";
 import TabControl, { TabItem } from "../components/tabControl";
+import VideoGenerator from "./VideoGenerator";
 
 interface Props {
   Quran: Surah[];
@@ -47,7 +48,7 @@ const Editor = (props: Props) => {
 
   // Sync useSate
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
-  const [subtitleFileText, setSubtitleFileText] = useState<string>("");
+  const [isOnGenerateVideoPage, setGenerateVideo] = useState<boolean>(false);
 
   // Ref
   const fromVerseInputRef = React.useRef<HTMLInputElement>(null);
@@ -121,200 +122,193 @@ const Editor = (props: Props) => {
 
   function beginSync() {
     setSubtitles([]);
-    setSubtitleFileText("");
+    setGenerateVideo(false);
     setHasSyncBegan(true);
     setTriggerResetWork(!triggerResetWork);
   }
 
   return (
-    <div className="w-screen h-screen flex flex-row">
-      {hasSyncBegan === false && (
-        <div className="bg-black bg-opacity-25 h-full w-[30%] max-w-[350px] text-white flex justify-start items-center flex-col">
-          <p className="mt-3 text-xl">Surah</p>
-          <select
-            name="surahs"
-            id="surahs"
-            className="h-8 w-5/6 text-black outline-none mt-3 px-1 "
-            defaultValue={selectedSurahPosition - 1}
-            onChange={(e) => {
-              /**
-               * On change surah
-               */
-              const selectedSurahPosition = Number(e.target.value);
+    <>
+      {isOnGenerateVideoPage ? (
+        <>
+          <VideoGenerator subtitles={subtitles} />
+        </>
+      ) : (
+        <div className="w-screen h-screen flex flex-row">
+          {hasSyncBegan === false && (
+            <div className="bg-black bg-opacity-25 h-full w-[30%] max-w-[350px] text-white flex justify-start items-center flex-col">
+              <p className="mt-3 text-xl">Surah</p>
+              <select
+                name="surahs"
+                id="surahs"
+                className="h-8 w-5/6 text-black outline-none mt-3 px-1 "
+                defaultValue={selectedSurahPosition - 1}
+                onChange={(e) => {
+                  /**
+                   * On change surah
+                   */
+                  const selectedSurahPosition = Number(e.target.value);
 
-              if (fromVerseInputRef.current && toVerseInputRef.current) {
-                // Update les deux bornes pour qu'elles correspondent
-                // à celle de la sourate sélectionné
-                fromVerseInputRef.current.value = "1";
-                toVerseInputRef.current.value = String(
-                  props.Quran[selectedSurahPosition - 1].total_verses
-                );
-              }
+                  if (fromVerseInputRef.current && toVerseInputRef.current) {
+                    // Update les deux bornes pour qu'elles correspondent
+                    // à celle de la sourate sélectionné
+                    fromVerseInputRef.current.value = "1";
+                    toVerseInputRef.current.value = String(
+                      props.Quran[selectedSurahPosition - 1].total_verses
+                    );
+                  }
 
-              setSelectedSurahPosition(selectedSurahPosition);
-            }}
-          >
-            {props.Quran.map((surah) => {
-              return (
-                <option key={surah.id} value={surah.id}>
-                  {surah.id +
-                    ". " +
-                    surah.transliteration +
-                    " (" +
-                    surah.translation +
-                    ")"}
-                </option>
-              );
-            })}
-          </select>
-          <div className="flex flex-row w-full px-3 relative mt-5">
-            <p className="mt-3 text-lg">From verse : </p>
-            <input
-              type="number"
-              name="verse-begin"
-              id="verse-begin"
-              min={1}
-              defaultValue={1}
-              max={props.Quran[selectedSurahPosition - 1].total_verses}
-              className="h-8 w-[60px] ml-2 bg-slate-400 text-black outline-none mt-3 pl-1"
-              ref={fromVerseInputRef}
-              onChange={updateSelectedVerses}
-            />
-          </div>
-          <p className="w-full pl-3 opacity-40"></p>
-          <div className="flex flex-row w-full px-3 relative">
-            <p className="mt-3 text-lg">To verse : </p>
-            <input
-              type="number"
-              name="verse-begin"
-              id="verse-begin"
-              min={1}
-              defaultValue={7}
-              max={props.Quran[selectedSurahPosition - 1].total_verses}
-              className="h-8 w-[60px] ml-[31px] bg-slate-400 text-black outline-none mt-3 pl-1"
-              ref={toVerseInputRef}
-              onChange={updateSelectedVerses}
-            />
-          </div>
+                  setSelectedSurahPosition(selectedSurahPosition);
+                }}
+              >
+                {props.Quran.map((surah) => {
+                  return (
+                    <option key={surah.id} value={surah.id}>
+                      {surah.id +
+                        ". " +
+                        surah.transliteration +
+                        " (" +
+                        surah.translation +
+                        ")"}
+                    </option>
+                  );
+                })}
+              </select>
+              <div className="flex flex-row w-full px-3 relative mt-5">
+                <p className="mt-3 text-lg">From verse : </p>
+                <input
+                  type="number"
+                  name="verse-begin"
+                  id="verse-begin"
+                  min={1}
+                  defaultValue={1}
+                  max={props.Quran[selectedSurahPosition - 1].total_verses}
+                  className="h-8 w-[60px] ml-2 bg-slate-400 text-black outline-none mt-3 pl-1"
+                  ref={fromVerseInputRef}
+                  onChange={updateSelectedVerses}
+                />
+              </div>
+              <p className="w-full pl-3 opacity-40"></p>
+              <div className="flex flex-row w-full px-3 relative">
+                <p className="mt-3 text-lg">To verse : </p>
+                <input
+                  type="number"
+                  name="verse-begin"
+                  id="verse-begin"
+                  min={1}
+                  defaultValue={7}
+                  max={props.Quran[selectedSurahPosition - 1].total_verses}
+                  className="h-8 w-[60px] ml-[31px] bg-slate-400 text-black outline-none mt-3 pl-1"
+                  ref={toVerseInputRef}
+                  onChange={updateSelectedVerses}
+                />
+              </div>
 
-          <div className="mt-10 w-full pl-3 flex flex-col">
-            <p className="">{"Recitation file (audio or video) :"}</p>
+              <div className="mt-10 w-full pl-3 flex flex-col">
+                <p className="">{"Recitation file (audio or video) :"}</p>
 
-            <input
-              type="file"
-              accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
-              onChange={handleFileUpload}
-              className="max-w-[400px]"
-            />
+                <input
+                  type="file"
+                  accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
+                  onChange={handleFileUpload}
+                  className="max-w-[400px]"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-black">
+            {hasSyncBegan ? (
+              <>
+                <div className="flex flex-col w-full h-full max-w-[full]">
+                  <TabControl
+                    tabItems={tabItems}
+                    setTabItems={setTabItems}
+                    surahName={props.Quran[selectedSurahPosition - 1].name}
+                    selectedVerses={selectedVerses}
+                    subtitles={subtitles}
+                    setSubtitles={setSubtitles}
+                  />
+
+                  {/* Si on est dans la tab "Arabe" alors on affiche l'éditeur de sous-titre arabe,
+        Sinon on affiche l'éditeur de sous-titre dans les autres langues */}
+                  {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
+                    <ArabicSubtitleEditor
+                      currentVerse={currentVerse}
+                      setCurrentVerse={setCurrentVerse}
+                      setSubtitles={setSubtitles}
+                      selectedVerses={selectedVerses}
+                      subtitles={subtitles}
+                      recitationFile={recitationFile}
+                      triggerResetWork={triggerResetWork}
+                      setCurrentSelectedWordsRange={
+                        setCurrentSelectedWordsRange
+                      }
+                      currentSelectedWordsRange={currentSelectedWordsRange}
+                      setPreviousSelectedWordIndexInVerse={
+                        setPreviousSelectedWordIndexInVerse
+                      }
+                      previousSelectedWordIndexInVerse={
+                        previousSelectedWordIndexInVerse
+                      }
+                    />
+                  ) : (
+                    <div className="w-full h-[95vh]">
+                      <TranslationsEditor
+                        setSubtitles={setSubtitles}
+                        subtitles={subtitles}
+                        lang={tabItems.find((x) => x.isShown)?.lang!}
+                      />
+                    </div>
+                  )}
+                </div>
+                <div className="h-full w-42 md:w-96 border-l-2 border-black">
+                  <SubtitlesHistory
+                    subtitles={subtitles}
+                    setGenerateVideo={setGenerateVideo}
+                  />
+                </div>
+              </>
+            ) : (
+              <button
+                className="bg-blue-500 hover:bg-blue-700 w-96 mb-32 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-12 shadow-lg shadow-black leading-10"
+                onClick={() => {
+                  if (selectedVerses.length > 0 && recitationFile !== "")
+                    beginSync();
+                }}
+              >
+                {selectedVerses.length > 0 && recitationFile !== "" ? (
+                  <p>
+                    Start with surah{" "}
+                    {props.Quran[selectedSurahPosition - 1].transliteration}{" "}
+                    from verse :
+                    <br />
+                    <span className="arabic text-2xl font-normal">
+                      {selectedVerses !== undefined &&
+                        StringExt.ReduceString(selectedVerses[0].text)}
+                    </span>
+                    <br />
+                    to verse :<br />
+                    <span className="arabic text-2xl font-normal">
+                      {selectedVerses !== undefined &&
+                        StringExt.ReduceString(
+                          selectedVerses[selectedVerses.length - 1].text
+                        )}
+                    </span>
+                  </p>
+                ) : (
+                  <p>
+                    {recitationFile === ""
+                      ? "Please select a recitation file"
+                      : "Wrong 'from verse' and 'to verse' input values"}
+                  </p>
+                )}
+              </button>
+            )}
           </div>
         </div>
       )}
-
-      <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-black">
-        {hasSyncBegan ? (
-          <>
-            <div className="flex flex-col w-full h-full max-w-[full]">
-              <TabControl
-                tabItems={tabItems}
-                setTabItems={setTabItems}
-                surahName={props.Quran[selectedSurahPosition - 1].name}
-                selectedVerses={selectedVerses}
-                subtitles={subtitles}
-                setSubtitles={setSubtitles}
-              />
-
-              {/* Si on est dans la tab "Arabe" alors on affiche l'éditeur de sous-titre arabe,
-              Sinon on affiche l'éditeur de sous-titre dans les autres langues */}
-              {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
-                <ArabicSubtitleEditor
-                  currentVerse={currentVerse}
-                  setCurrentVerse={setCurrentVerse}
-                  setSubtitles={setSubtitles}
-                  subtitleFileText={subtitleFileText}
-                  selectedVerses={selectedVerses}
-                  subtitles={subtitles}
-                  recitationFile={recitationFile}
-                  triggerResetWork={triggerResetWork}
-                  setCurrentSelectedWordsRange={setCurrentSelectedWordsRange}
-                  currentSelectedWordsRange={currentSelectedWordsRange}
-                  setPreviousSelectedWordIndexInVerse={
-                    setPreviousSelectedWordIndexInVerse
-                  }
-                  previousSelectedWordIndexInVerse={
-                    previousSelectedWordIndexInVerse
-                  }
-                />
-              ) : (
-                <div className="w-full h-[95vh]">
-                  <TranslationsEditor
-                    setSubtitles={setSubtitles}
-                    subtitles={subtitles}
-                    lang={tabItems.find((x) => x.isShown)?.lang!}
-                  />
-                </div>
-              )}
-              <>
-                {subtitleFileText !== "" && (
-                  <SubtitleViewer
-                    subtitleText={subtitleFileText}
-                    setSubtitleText={setSubtitleFileText}
-                    subtitleFileName={
-                      props.Quran[selectedSurahPosition - 1].transliteration +
-                      " " +
-                      selectedVerses[0].id +
-                      "-" +
-                      selectedVerses[selectedVerses.length - 1].id +
-                      ".srt"
-                    }
-                  />
-                )}
-              </>
-            </div>
-            <div className="h-full w-42 md:w-96 border-l-2 border-black">
-              <SubtitlesHistory
-                subtitles={subtitles}
-                setSubtitleText={setSubtitleFileText}
-              />
-            </div>
-          </>
-        ) : (
-          <button
-            className="bg-blue-500 hover:bg-blue-700 w-96 mb-32 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-12 shadow-lg shadow-black leading-10"
-            onClick={() => {
-              if (selectedVerses.length > 0 && recitationFile !== "")
-                beginSync();
-            }}
-          >
-            {selectedVerses.length > 0 && recitationFile !== "" ? (
-              <p>
-                Start with surah{" "}
-                {props.Quran[selectedSurahPosition - 1].transliteration} from
-                verse :
-                <br />
-                <span className="arabic text-2xl font-normal">
-                  {selectedVerses !== undefined &&
-                    StringExt.ReduceString(selectedVerses[0].text)}
-                </span>
-                <br />
-                to verse :<br />
-                <span className="arabic text-2xl font-normal">
-                  {selectedVerses !== undefined &&
-                    StringExt.ReduceString(
-                      selectedVerses[selectedVerses.length - 1].text
-                    )}
-                </span>
-              </p>
-            ) : (
-              <p>
-                {recitationFile === ""
-                  ? "Please select a recitation file"
-                  : "Wrong 'from verse' and 'to verse' input values"}
-              </p>
-            )}
-          </button>
-        )}
-      </div>
-    </div>
+    </>
   );
 };
 

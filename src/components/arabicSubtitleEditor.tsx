@@ -8,7 +8,6 @@ interface Props {
   selectedVerses: Verse[];
   setSubtitles: React.Dispatch<React.SetStateAction<Subtitle[]>>;
   subtitles: Subtitle[];
-  subtitleFileText: string;
   recitationFile: string;
 
   triggerResetWork: boolean;
@@ -307,7 +306,6 @@ const ArabicSubtitleEditor = (props: Props) => {
     props.currentSelectedWordsRange,
     props.previousSelectedWordIndexInVerse,
     props.currentVerse,
-    props.subtitleFileText,
     props.subtitles,
   ]);
 
