@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactAudioPlayer from "react-audio-player";
 import Word from "./word";
-import { Verse } from "../api/quran";
+import { Surah, Verse } from "../api/quran";
 import Subtitle from "../models/subtitle";
 
 interface Props {
+  Quran: Surah[];
+
   selectedVerses: Verse[];
   setSubtitles: React.Dispatch<React.SetStateAction<Subtitle[]>>;
   subtitles: Subtitle[];
@@ -38,21 +40,6 @@ const ArabicSubtitleEditor = (props: Props) => {
   }
 
   useEffect(() => {
-    // Si la page vient de charger et que des sous-titres ont déjà été ajouté au paravant,
-    // affiche le dernier verset en cours de sous-titrage
-    // Appelé uniquement lors de l'affichage de la tab
-    // if (props.subtitles.length > 0 && props.currentVerse === 0 && isFirstShow) {
-    //   const nextVerse = Math.max(...props.subtitles.map((o) => o.versePos));
-    //   if (nextVerse < props.selectedVerses.length) {
-    //     props.setCurrentVerse(nextVerse);
-    //   } else {
-    //     props.setCurrentVerse(props.selectedVerses.length - 1);
-    //   }
-
-    //   // Permet que ceci ne soit plus appelé
-    //   setIsFirstShow(false);
-    // }
-
     function handleKeyDown(e: KeyboardEvent) {
       // Resume/Pause recitation
       switch (e.key) {
@@ -150,6 +137,7 @@ const ArabicSubtitleEditor = (props: Props) => {
               props.subtitles.length + 1,
               -1,
               -1,
+              -1,
               props.currentSelectedWordsRange[0],
               props.currentSelectedWordsRange[1],
               lastSubtitleEndTime(props.subtitles),
@@ -165,6 +153,7 @@ const ArabicSubtitleEditor = (props: Props) => {
             ...props.subtitles,
             new Subtitle(
               props.subtitles.length + 1,
+              -1,
               -1,
               -1,
               props.currentSelectedWordsRange[0],
@@ -203,6 +192,7 @@ const ArabicSubtitleEditor = (props: Props) => {
             ...props.subtitles,
             new Subtitle(
               props.subtitles.length + 1,
+              -1,
               -1,
               -1,
               props.currentSelectedWordsRange[0],
@@ -249,6 +239,7 @@ const ArabicSubtitleEditor = (props: Props) => {
             ...props.subtitles,
             new Subtitle(
               props.subtitles.length + 1,
+              0,
               props.selectedVerses[props.currentVerse].id,
               props.currentVerse,
               props.currentSelectedWordsRange[0],
@@ -313,7 +304,42 @@ const ArabicSubtitleEditor = (props: Props) => {
     <>
       {" "}
       <div className="w-full h-full bg-[#1e242c] flex items-center justify-center flex-row">
-        <div className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-full h-full relative">
+          <div className="absolute top-2 right-5 text-white flex flex-row items-center">
+            <select
+              name="surahs"
+              id="surahs"
+              className="h-8 w-5/6  outline-none mt-3 px-1 bg-opacity-20 bg-black"
+            >
+              {props.Quran.map((surah) => {
+                return (
+                  <option
+                    key={surah.id}
+                    value={surah.id}
+                    className="text-black"
+                  >
+                    {surah.id +
+                      ". " +
+                      surah.transliteration +
+                      " (" +
+                      surah.translation +
+                      ")"}
+                  </option>
+                );
+              })}
+            </select>
+
+            <p className="ml-3 mt-3">Verse</p>
+
+            <input
+              type="number"
+              name="verse-begin"
+              id="verse-begin"
+              min={1}
+              defaultValue={7}
+              className="h-8 w-[60px] ml-3 bg-black bg-opacity-20 outline-none mt-3 pl-1"
+            />
+          </div>
           <div className="flex flex-row-reverse ml-auto flex-wrap self-end my-auto pt-10 mr-5 overflow-y-auto">
             {props.selectedVerses[props.currentVerse].text
               .split(" ")

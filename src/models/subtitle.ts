@@ -10,6 +10,7 @@ class Translation {
 
 export default class Subtitle {
   id: number;
+  surahNumber: number;
   versePos: number;
   versePosRelative: number; // verse pos par rapport aux versets sélectionnés
 
@@ -24,6 +25,7 @@ export default class Subtitle {
 
   constructor(
     id: number,
+    surahNumber: number,
     versePos: number,
     versePosRelative: number,
     fromWordIndex: number,
@@ -34,6 +36,7 @@ export default class Subtitle {
     translatedText: Translation[] = []
   ) {
     this.id = id;
+    this.surahNumber = surahNumber;
     this.versePos = versePos;
     this.versePosRelative = versePosRelative;
     this.fromWordIndex = fromWordIndex;

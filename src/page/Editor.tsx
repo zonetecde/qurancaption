@@ -240,6 +240,7 @@ const Editor = (props: Props) => {
         Sinon on affiche l'éditeur de sous-titre dans les autres langues */}
                   {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
                     <ArabicSubtitleEditor
+                      Quran={props.Quran}
                       currentVerse={currentVerse}
                       setCurrentVerse={setCurrentVerse}
                       setSubtitles={setSubtitles}

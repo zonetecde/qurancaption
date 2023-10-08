@@ -2,11 +2,6 @@ import React from "react";
 import TimeExt from "../extensions/timeExt";
 import Subtitle from "../models/subtitle";
 
-// pour générer les vidéos
-import fluentffmpeg from "fluent-ffmpeg";
-// pour transformer le blob de la vidéo en buffer
-import blobToBuffer from "blob-to-buffer";
-
 interface Props {
   subtitles: Subtitle[];
   videoBlob: Blob;
@@ -15,12 +10,18 @@ interface Props {
 const VideoGenerator = (props: Props) => {
   async function generateVideo(): Promise<void> {
     // Assuming you have the BLOB data stored in a variable called 'videoBlob' or 'audioBlob'
-    const apiUrl = "https://rayanestaszewski.fr/api/QVM/generate-video"; // Replace with your API endpoint
+    const apiUrl =
+      "https://localhost:7133/api/QVM/generate-video?authorizeKeep=true";
     console.log(apiUrl);
 
     // Create a FormData object to send the BLOB data
     const formData = new FormData();
-    formData.append("file", props.videoBlob, "video.mp4"); // Adjust the filename and content type as needed
+    formData.append(
+      "file",
+      props.videoBlob,
+      "_." + props.videoBlob.type.split("/")[1]
+    );
+    formData.append("subtitle", generateAssSubtitles("fr"));
 
     // Send the BLOB data to the API
     fetch(apiUrl, {
@@ -51,7 +52,7 @@ const VideoGenerator = (props: Props) => {
       });
   }
 
-  function generateSubtitles() {
+  function generateSrtSubtitles(lang: string = "ar") {
     let subtitleFileText = "";
     let silenceCounter: number = 0; // Permet de compenser les pauses pour pas que le numéro de sous titre soit erroné
     props.subtitles.forEach((subtitle, index) => {
@@ -62,11 +63,60 @@ const VideoGenerator = (props: Props) => {
           " --> " +
           TimeExt.secondsToHHMMSSms(subtitle.endTime) +
           "\n";
-        subtitleFileText += subtitle.arabicText + "\n\n";
+        subtitleFileText +=
+          (lang === "ar"
+            ? subtitle.arabicText
+            : subtitle.translations.find((x) => x.lang === lang)?.text) +
+          "\n\n";
       } else {
         silenceCounter++;
       }
     });
+
+    console.log(subtitleFileText);
+    return subtitleFileText;
+  }
+
+  function generateAssSubtitles(
+    secondLang: string = "",
+    font: string = "me_quran",
+    fontSize: number = 32,
+    shadow: boolean = true
+  ) {
+    let subtitleFileText =
+      `
+[Script Info]
+ScriptType: v4.00+
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,` +
+      font +
+      `,` +
+      fontSize +
+      `,&Hffffff,&Hffffff,&H00000000,&H0,0,0,0,0,100,100,0,0,1,1,` +
+      (shadow ? "1" : "0") +
+      `,2,10,10,10,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
+
+    props.subtitles.forEach((subtitle, index) => {
+      subtitleFileText +=
+        "Dialogue: 0," +
+        TimeExt.secondsToHHMMSSms(subtitle.startTime) +
+        "," +
+        TimeExt.secondsToHHMMSSms(subtitle.endTime) +
+        ",Default,,40,40,0,,{\\fade(200,200)\\blur5}" +
+        subtitle.arabicText +
+        (secondLang === "" || subtitle.versePos === -1 // si on veut la traduction avec et que ce n'est pas une basmala ou autre
+          ? ""
+          : "\\N{\\fs10}{\\fnArial}" +
+            subtitle.translations.find((x) => x.lang === secondLang)?.text) +
+        "\n";
+    });
+    return subtitleFileText;
   }
 
   return (

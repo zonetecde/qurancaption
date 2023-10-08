@@ -18,7 +18,7 @@ function App() {
     QuranApi.getQuran("en").then((quran: Surah[]) => {
       setQuran(quran);
     });
-  });
+  }, []);
 
   return (
     <div className="bg-slate-600 h-screen w-screen">

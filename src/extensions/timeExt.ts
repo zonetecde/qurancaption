@@ -1,10 +1,14 @@
 export default class TimeExt {
   static secondsToHHMMSSms(seconds: number): string {
     const date = new Date(seconds * 1000);
-    const hh = date.getUTCHours().toString().padStart(2, "0");
+    const hh = date.getUTCHours().toString();
     const mm = date.getUTCMinutes().toString().padStart(2, "0");
     const ss = date.getUTCSeconds().toString().padStart(2, "0");
-    const ms = date.getUTCMilliseconds().toString().padStart(3, "0");
+    const ms = date
+      .getUTCMilliseconds()
+      .toString()
+      .padStart(3, "0")
+      .substring(0, 2);
 
     return `${hh}:${mm}:${ss}.${ms}`;
   }
