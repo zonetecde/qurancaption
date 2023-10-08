@@ -2,6 +2,7 @@
   "name": "quran-video-maker",
   "private": true,
   "version": "0.0.0",
+  "homepage": "/quran-video-maker",
   "type": "module",
   "scripts": {
     "dev": "vite",

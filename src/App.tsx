@@ -1,5 +1,3 @@
-import { useEffect, useRef, useState } from "react";
-
 // Pages
 import Home from "./page/Home";
 import Editor from "./page/Editor";
@@ -8,6 +6,7 @@ import Editor from "./page/Editor";
 import QuranApi, { Surah } from "./api/quran";
 import Page from "./models/page";
 import AppVariables from "./AppVariables";
+import { useEffect, useState } from "react";
 
 function App() {
   const [page, setPage] = useState<Page>(Page.HOME);
