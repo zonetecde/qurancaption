@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import QuranApi, { Surah, Verse } from "../api/quran";
 import AppVariables from "../AppVariables";
-import Subtitle from "../models/subtitle";
+import Subtitle, { Translation } from "../models/subtitle";
 
 interface Props {
-  surahName: string;
-  selectedVerses: Verse[];
   setTabItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
   tabItems: TabItem[];
 
@@ -35,22 +33,20 @@ const TabControl = (props: Props) => {
   function addTranslation(selectedLang: string): void {
     // Télécharge les traductions des versets voulu
 
-    // Ajoute uniquement les versets de la sourate choisi
-    let versesTranslated: Verse[] = [];
-
     // Fait une requête à l'API pour obtenir le
     // Coran dans la langue voulu
+    console.log(selectedLang);
     QuranApi.getQuran(selectedLang)
       .then((quran: Surah[]) => {
-        quran
-          // Cherche uniquement les versets de la sourate sélectionné
-          .find((x) => x.name === props.surahName)!
-          .verses.forEach((verse) => {
-            versesTranslated.push(verse);
+        quran.map((surah: Surah) => {
+          surah.verses.forEach((verse: Verse) => {
+            AppVariables.Quran[surah.id - 1].verses[
+              verse.id - 1
+            ].translations.push(
+              new Translation(verse.translation, selectedLang)
+            );
           });
-
-        // Ajoute les versets traduits pour qu'ils puissent être accessible sans les retelecharger
-        AppVariables.TranslatedVerses[selectedLang] = versesTranslated;
+        });
       })
       .finally(() => {
         // Cache la tabItem qui est actuellement visible
@@ -66,12 +62,12 @@ const TabControl = (props: Props) => {
         const editedSubtitles = props.subtitles.map((subtitle) => {
           // Push la nouvelle traduction
           // Vérifie juste que c'est pas une basmala ou autre
-          if (subtitle.versePos !== -1) {
+          if (subtitle && subtitle.versePos && selectedLang) {
             subtitle.translations.push({
               lang: selectedLang,
-              text: versesTranslated.find(
-                (x) => x.id === subtitle.versePos // trouve le bon verset pour lui attribuer sa traduction
-              )!.translation,
+              text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
+                subtitle.versePos.verse - 1
+              ].translations.find((y) => y.lang === selectedLang)!.text,
             });
 
             return subtitle;

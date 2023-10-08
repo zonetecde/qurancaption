@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // Pages
 import Home from "./page/Home";
@@ -7,16 +7,22 @@ import Editor from "./page/Editor";
 // APi
 import QuranApi, { Surah } from "./api/quran";
 import Page from "./models/page";
-import Cinema from "./page/Cinema";
+import AppVariables from "./AppVariables";
 
 function App() {
-  const [Quran, setQuran] = useState<Surah[]>([]);
-
   const [page, setPage] = useState<Page>(Page.HOME);
 
   useEffect(() => {
     QuranApi.getQuran("en").then((quran: Surah[]) => {
-      setQuran(quran);
+      AppVariables.Quran = quran;
+
+      // Init les listes de traductions et remove ۞
+      quran.forEach((surah) => {
+        surah.verses.forEach((verse) => {
+          verse.translations = [];
+          verse.text = verse.text.replace("۞", "");
+        });
+      });
     });
   }, []);
 
@@ -26,11 +32,7 @@ function App() {
         <Home setPage={setPage} />
       ) : page === Page.EDITOR ? (
         <div>
-          <Editor Quran={Quran} />
-        </div>
-      ) : page === Page.WATCH ? (
-        <div>
-          <Cinema />
+          <Editor />
         </div>
       ) : (
         <></>

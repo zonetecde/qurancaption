@@ -1,4 +1,4 @@
-import { Surah, Verse } from "./api/quran";
+import { Surah } from "./api/quran";
 
 export default class AppVariables {
   static Langs: { [key: string]: string } = {
@@ -29,5 +29,5 @@ export default class AppVariables {
     ur: "🇵🇰",
   };
 
-  static TranslatedVerses: { [key: string]: Verse[] } = {};
+  static Quran: Surah[];
 }

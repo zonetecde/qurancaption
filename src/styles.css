@@ -9,9 +9,42 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "me_quran";
+  src: url("./assets/fonts/me_quran.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Amiri";
+  src: url("./assets/fonts/Amiri-Bold.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
 .arabic {
   direction: rtl;
   font-family: "Hafs", "Courier New", Courier, monospace;
+}
+
+.me_quran {
+  direction: rtl;
+  font-family: "me_quran", "Courier New", Courier, monospace;
+}
+.Amiri {
+  direction: rtl;
+  font-family: "Amiri", "Courier New", Courier, monospace;
+}
+
+.letter-outline {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    2px 2px 0 #000;
+}
+
+.arial {
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* width */

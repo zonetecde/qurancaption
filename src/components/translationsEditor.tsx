@@ -28,13 +28,13 @@ const TranslationsEditor = (props: Props) => {
       ) {
         // Ajoute la traduction
         // Si ce n'est pas une basmala ou autre
-        if (subtitle.versePos !== -1) {
+        if (subtitle.versePos) {
           subtitle.translations.push({
             lang: props.lang,
             // La traduction est sauvegardé dans les variables statique du site
-            text: AppVariables.TranslatedVerses[props.lang].find(
-              (x) => x.id === subtitle.versePos
-            )!.translation,
+            text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
+              subtitle.versePos.verse - 1
+            ].translations.find((x) => x.lang === props.lang)!.text,
           });
         }
       }
@@ -65,7 +65,7 @@ const TranslationsEditor = (props: Props) => {
    * @param {string} newText - The new text for the subtitle.
    */
   function updateSubtitle(subtitle: Subtitle, newText: string) {
-    const editedSubtitles = props.subtitles;
+    const editedSubtitles = [...props.subtitles];
 
     const _subtitle = editedSubtitles.find(
       (_subtitle) => _subtitle.id === subtitle.id
@@ -84,20 +84,26 @@ const TranslationsEditor = (props: Props) => {
   }
 
   function resetTranslation(subtitle: Subtitle): void {
-    const editedSubtitles = props.subtitles;
+    const editedSubtitles = [...props.subtitles];
+
     const _subtitle = editedSubtitles.find(
       (_subtitle) => _subtitle.id === subtitle.id
     );
+
     if (_subtitle) {
       const translation = subtitle.translations.find(
         (_subtitle) => _subtitle.lang === props.lang
       );
-      if (translation) {
-        translation.text = AppVariables.TranslatedVerses[props.lang].find(
-          (x) => x.id === subtitle.versePos
-        )!.translation;
+
+      if (translation && _subtitle.versePos) {
+        translation.text = AppVariables.Quran[
+          _subtitle.versePos.surah - 1
+        ].verses[_subtitle.versePos.verse - 1].translations.find(
+          (x) => x.lang === props.lang
+        )!.text;
       }
     }
+
     props.setSubtitles(editedSubtitles);
   }
 
@@ -107,72 +113,82 @@ const TranslationsEditor = (props: Props) => {
         {props.subtitles.length > 0 ? (
           <>
             {props.subtitles.map((subtitle: Subtitle, index) => (
-              <>
-                {subtitle.versePos !== -1 &&
-                  subtitle.versePosRelative !== -1 && (
-                    <div className="border-2 p-4 relative">
-                      <p className="arabic text-2xl lg:text-5xl/[80px] text-white [word-spacing:10px] lg:[word-spacing:15px] leading-10">
-                        {subtitle.arabicText}
-                      </p>
-                      <span
-                        className={
-                          "textarea w-full bg-opacity-10 bg-white text-white mt-5 text-lg lg:text-xl px-1 py-1 outline-none pr-7 "
-                        }
-                        role="textbox"
-                        contentEditable
-                        spellCheck="false"
-                        aria-multiline="false"
-                        ref={subtitleRefs[index]}
-                        /**
-                         * Prevent the enter key to create a new line
-                         */
-                        onKeyDown={(event) => {
-                          preventNewLine(subtitle, event);
-                        }}
-                        /**
-                         * Write the translation of the verse (~ default value)
-                         */
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            props.subtitles
-                              .find(
-                                (element) =>
-                                  element.versePos === subtitle.versePos
-                              )
-                              ?.translations.find((x) => x.lang === props.lang)
-                              ?.text || "",
-                        }}
-                        /**
-                         * When focus is lost, write the edited translation of the verse
-                         */
-                        onBlur={(e) => {
-                          updateSubtitle(subtitle, e.currentTarget.innerText);
-                        }}
-                      ></span>
+              <div className="relative">
+                <div className="absolute top-2 left-5 text-white">
+                  {subtitle.versePos?.surah}:{subtitle.versePos?.verse}
+                </div>
 
-                      {/* If the user changed the default translation, show the undo button*/}
-                      {subtitle.translations.some(
-                        (x) => x.lang === props.lang
-                      ) && (
-                        <>
-                          {subtitle.translations.find(
-                            (x) => x.lang === props.lang
-                          )!.text !==
-                            AppVariables.TranslatedVerses[props.lang].find(
-                              (x) => x.id === subtitle.versePos
-                            )!.translation && (
-                            <img
-                              src={UndoIcon}
-                              className="absolute bottom-5 right-6 w-8 h-8 cursor-pointer"
-                              alt="undo"
-                              onClick={() => resetTranslation(subtitle)}
-                            />
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )}
-              </>
+                {subtitle.versePos && (
+                  <div className="border-2 p-4 relative">
+                    <p className="arabic text-2xl lg:text-5xl/[80px] text-white [word-spacing:10px] lg:[word-spacing:15px] leading-10">
+                      {subtitle.arabicText}
+                    </p>
+                    <span
+                      className={
+                        "textarea w-full bg-opacity-10 bg-white text-white mt-5 text-lg lg:text-xl px-1 py-1 outline-none pr-7 "
+                      }
+                      role="textbox"
+                      contentEditable
+                      spellCheck="false"
+                      aria-multiline="false"
+                      ref={subtitleRefs[index]}
+                      /**
+                       * Prevent the enter key to create a new line
+                       */
+                      onKeyDown={(event) => {
+                        preventNewLine(subtitle, event);
+                      }}
+                      /**
+                       * Write the translation of the verse (~ default value)
+                       */
+                      dangerouslySetInnerHTML={{
+                        __html:
+                          props.subtitles
+                            .find(
+                              (element) =>
+                                element.versePos?.verse ===
+                                  subtitle.versePos?.verse &&
+                                element.versePos?.surah ===
+                                  subtitle.versePos?.surah
+                            )
+                            ?.translations.find((x) => x.lang === props.lang)
+                            ?.text || "",
+                      }}
+                      /**
+                       * When focus is lost, write the edited translation of the verse
+                       */
+                      onBlur={(e) => {
+                        updateSubtitle(subtitle, e.currentTarget.innerText);
+                      }}
+                    ></span>
+
+                    {/* If the user changed the default translation, show the undo button*/}
+                    {subtitle.translations.some(
+                      (x) => x.lang === props.lang
+                    ) && (
+                      <>
+                        {subtitle.translations.find((x) => {
+                          console.log(subtitle);
+                          return x.lang === props.lang;
+                        })!.text !==
+                          AppVariables.Quran[
+                            subtitle.versePos.surah - 1
+                          ].verses[
+                            subtitle.versePos.verse - 1
+                          ].translations.find((x) => x.lang === props.lang)
+                            ?.text && (
+                          <img
+                            src={UndoIcon}
+                            className="absolute bottom-5 right-6 w-8 h-8 cursor-pointer"
+                            alt="undo"
+                            onClick={() => resetTranslation(subtitle)}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             ))}
           </>
         ) : (

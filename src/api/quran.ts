@@ -1,4 +1,5 @@
 import AppVariables from "../AppVariables";
+import { Translation } from "../models/subtitle";
 
 export default class QuranApi {
   static getQuran(lang: string) {
@@ -29,5 +30,16 @@ export enum Type {
 export interface Verse {
   id: number;
   text: string;
-  translation: string;
+  translation: string; // de la deserialization
+  translations: Translation[];
+}
+
+export class VersePosition {
+  verse: number;
+  surah: number;
+
+  constructor(surah: number, verse: number) {
+    this.surah = surah;
+    this.verse = verse;
+  }
 }

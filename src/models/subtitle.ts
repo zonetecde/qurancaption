@@ -1,4 +1,6 @@
-class Translation {
+import { VersePosition } from "../api/quran";
+
+export class Translation {
   text: string;
   lang: string;
 
@@ -10,9 +12,8 @@ class Translation {
 
 export default class Subtitle {
   id: number;
-  surahNumber: number;
-  versePos: number;
-  versePosRelative: number; // verse pos par rapport aux versets sélectionnés
+
+  versePos: VersePosition | undefined;
 
   fromWordIndex: number;
   toWordIndex: number;
@@ -25,9 +26,7 @@ export default class Subtitle {
 
   constructor(
     id: number,
-    surahNumber: number,
-    versePos: number,
-    versePosRelative: number,
+    versePos: VersePosition | undefined,
     fromWordIndex: number,
     toWordIndex: number,
     startTime: number,
@@ -36,9 +35,7 @@ export default class Subtitle {
     translatedText: Translation[] = []
   ) {
     this.id = id;
-    this.surahNumber = surahNumber;
     this.versePos = versePos;
-    this.versePosRelative = versePosRelative;
     this.fromWordIndex = fromWordIndex;
     this.toWordIndex = toWordIndex;
     this.startTime = startTime;

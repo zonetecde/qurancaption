@@ -1,5 +1,6 @@
 import React from "react";
 import Page from "../models/page";
+import { Surah } from "../api/quran";
 
 interface Props {
   setPage: React.Dispatch<React.SetStateAction<Page>>;
@@ -19,16 +20,7 @@ const Home = (props: Props) => {
         className="relative bg-blue-500 hover:bg-blue-700 text-white font-bold mt-8 py-2 px-6 rounded-full text-xl duration-75 shadow-lg shadow-black"
         onClick={() => props.setPage(Page.EDITOR)}
       >
-        Create subtitle
-      </button>
-
-      <p className="mt-7 font-bold text-xl">or</p>
-
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-6 shadow-lg shadow-black"
-        onClick={() => props.setPage(Page.WATCH)}
-      >
-        Watch recitation
+        Access the editor
       </button>
     </div>
   );

@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import QuranApi, { Surah, Verse } from "../api/quran";
+import Subtitle from "../models/subtitle";
+import { SubtitleGenerator } from "../extensions/subtitleGenerator";
+import AppVariables from "../AppVariables";
 
 interface Props {
-  subtitleText: string;
-  setSubtitleText: React.Dispatch<React.SetStateAction<string>>;
-  subtitleFileName: string;
+  subtitles: Subtitle[];
+  setShowSubtitle: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 /**
@@ -13,13 +15,17 @@ interface Props {
  * @returns
  */
 const subtitleViewer = (props: Props) => {
+  const [srtSubtitle, setSrtSubtitle] = React.useState<string>("");
+
   const saveFile = async () => {
     try {
-      const blob = new Blob([props.subtitleText], { type: "text/srt" });
+      const blob = new Blob([subtitleTextAreaRef.current?.value ?? ""], {
+        type: "text/srt",
+      });
 
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = props.subtitleFileName;
+      a.download = "subtitles.srt";
 
       a.click();
 
@@ -29,13 +35,59 @@ const subtitleViewer = (props: Props) => {
     }
   };
 
+  const subtitleTextAreaRef = React.createRef<HTMLTextAreaElement>();
+  const translationRef = React.createRef<HTMLSelectElement>();
+
+  useEffect(() => {
+    setSrtSubtitle(
+      SubtitleGenerator.generateSrtSubtitles(
+        props.subtitles,
+        translationRef.current?.value
+      )
+    );
+  }, []);
+
   return (
-    <div className="absolute bg-white lg:left-10 top-10 -left-40 right-0 lg:right-80 bottom-10 border-3 pb-10 border-2 border-black shadow-2xl shadow-black p-10 rounded-lg">
+    <div className="absolute bg-white left-10 right-10 top-20 bottom-20 border-3 pb-10 border-2 border-black shadow-2xl shadow-black p-10 rounded-lg">
       <div className="flex flex-row">
-        <p className="text-2xl">Generated subtitles :</p>
+        <div className="flex flex-row items-center  mt-2 ml-4">
+          <p>Translation :</p>
+          <select
+            defaultValue={"none"}
+            ref={translationRef}
+            className="text-black px-2 py-1 ml-3 border border-black"
+            onChange={(e) => {
+              setSrtSubtitle(
+                SubtitleGenerator.generateSrtSubtitles(
+                  props.subtitles,
+                  translationRef.current?.value
+                )
+              );
+            }}
+          >
+            <option value="none">None</option>
+            {props.subtitles
+              .find((x) => x.versePos !== undefined)
+              ?.translations.map((translation, index) => {
+                return (
+                  <option
+                    className="text-black"
+                    key={index}
+                    value={translation.lang}
+                  >
+                    {AppVariables.Langs[translation.lang]}
+                  </option>
+                );
+              })}
+          </select>
+        </div>
         <button
           className="ml-auto border border-black bg-green-600 rounded-lg px-3 py-2 active:bg-green-800 duration-150"
-          onClick={() => navigator.clipboard.writeText(props.subtitleText)}
+          onClick={() =>
+            navigator.clipboard.writeText(
+              subtitleTextAreaRef.current?.value ?? ""
+            )
+          }
         >
           Copy to clipboard
         </button>
@@ -49,14 +101,15 @@ const subtitleViewer = (props: Props) => {
         </button>
         <button
           className="border -mr-5 border-black bg-red-400 rounded-lg px-3 py-2"
-          onClick={() => props.setSubtitleText("")}
+          onClick={() => props.setShowSubtitle(false)}
         >
           Close
         </button>
       </div>
       <textarea
+        ref={subtitleTextAreaRef}
         aria-multiline
-        value={props.subtitleText}
+        value={srtSubtitle}
         className="absolute bottom-20 top-28 left-5 p-3 rounded-lg bg-slate-400 right-5 arabic"
         style={{ direction: "ltr" }}
         readOnly

@@ -6,6 +6,7 @@ import AppVariables from "../AppVariables";
 interface Props {
   subtitles: Subtitle[];
   setGenerateVideo: React.Dispatch<React.SetStateAction<boolean>>;
+  isOnGenerateVideoPage: boolean;
 }
 
 const SubtitlesHistory = (props: Props) => {
@@ -35,8 +36,10 @@ const SubtitlesHistory = (props: Props) => {
                 {subtitle.startTime.toFixed(3)}s - {subtitle.endTime.toFixed(3)}
                 s
               </p>
-              {subtitle.versePos !== -1 && (
-                <p className="mr-1 ml-auto">Verse {subtitle.versePos}</p>
+              {subtitle.versePos && (
+                <p className="mr-1 ml-auto">
+                  {subtitle.versePos.surah}:{subtitle.versePos.verse}
+                </p>
               )}
             </div>
 
@@ -68,16 +71,17 @@ const SubtitlesHistory = (props: Props) => {
         ))}
         <div ref={subtitlesEndRef} />
       </div>
-      {props.subtitles.length > 0 && (
-        <div className=" w-12/12 h-16 mb-12  mt-4 flex flex-row">
-          <button
-            className="bg-blue-500 hover:bg-blue-700  text-white font-bold px-4 mx-2 rounded text-lg duration-75 shadow-lg shadow-black"
-            onClick={generateVideoButtonClicked}
-          >
-            Generate video
-          </button>
-        </div>
-      )}
+      {props.subtitles.some((x) => x.versePos) &&
+        props.isOnGenerateVideoPage === false && (
+          <div className=" w-12/12 h-16 mb-12  mt-4 flex flex-row">
+            <button
+              className="bg-blue-500 hover:bg-blue-700  text-white font-bold px-4 mx-2 rounded text-lg duration-75 shadow-lg shadow-black"
+              onClick={generateVideoButtonClicked}
+            >
+              Generate video
+            </button>
+          </div>
+        )}
     </div>
   );
 };
