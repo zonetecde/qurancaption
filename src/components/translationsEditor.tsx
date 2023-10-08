@@ -19,9 +19,10 @@ const TranslationsEditor = (props: Props) => {
 
   // Au chargement du component, on regarde si certaines des traductions sont manquantes
   useEffect(() => {
+    const editedSubtitles = [...props.subtitles];
     // Si des traductions sont manquantes (= qu'ils viennent d'être ajouté depuis le sync arabe)
     // alors on les ajoutes ici
-    props.subtitles.forEach((subtitle) => {
+    editedSubtitles.forEach((subtitle) => {
       // Si la traduction est manquante
       if (
         subtitle.translations.find((x) => x.lang === props.lang) === undefined
@@ -39,6 +40,8 @@ const TranslationsEditor = (props: Props) => {
         }
       }
     });
+
+    props.setSubtitles(editedSubtitles);
   }, [props.subtitles]);
 
   /**
@@ -51,7 +54,7 @@ const TranslationsEditor = (props: Props) => {
     subtitle: Subtitle,
     event: React.KeyboardEvent<HTMLSpanElement>
   ) {
-    if (event.key === "Enter" || event.keyCode === 13) {
+    if (event.key === "Enter") {
       updateSubtitle(subtitle, event.currentTarget.innerText);
 
       event.preventDefault();
@@ -144,13 +147,7 @@ const TranslationsEditor = (props: Props) => {
                       dangerouslySetInnerHTML={{
                         __html:
                           props.subtitles
-                            .find(
-                              (element) =>
-                                element.versePos?.verse ===
-                                  subtitle.versePos?.verse &&
-                                element.versePos?.surah ===
-                                  subtitle.versePos?.surah
-                            )
+                            .find((element) => element.id === subtitle.id)
                             ?.translations.find((x) => x.lang === props.lang)
                             ?.text || "",
                       }}
@@ -168,7 +165,6 @@ const TranslationsEditor = (props: Props) => {
                     ) && (
                       <>
                         {subtitle.translations.find((x) => {
-                          console.log(subtitle);
                           return x.lang === props.lang;
                         })!.text !==
                           AppVariables.Quran[

@@ -18,6 +18,7 @@ const VideoGenerator = (props: Props) => {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [isVideoGenerating, setIsVideoGenerating] = useState<boolean>(false);
   const [showSubtitle, setShowSubtitle] = useState<boolean>(false);
+  const [downloadUrl, setDownloadUrl] = useState<string>("");
 
   useEffect(() => {
     const handleTimeUpdate = () => {
@@ -39,6 +40,8 @@ const VideoGenerator = (props: Props) => {
 
   async function generateVideo(): Promise<void> {
     if (isVideoGenerating) return;
+    setDownloadUrl("");
+
     let verses: string = "";
 
     for (let i = 0; i < props.subtitles.length; i++) {
@@ -88,6 +91,7 @@ const VideoGenerator = (props: Props) => {
           response.blob().then((blob) => {
             // Create a download link for the received BLOB data
             const url = window.URL.createObjectURL(blob);
+            setDownloadUrl(url);
             const a = document.createElement("a");
             a.href = url;
             a.download =
@@ -105,12 +109,11 @@ const VideoGenerator = (props: Props) => {
         } else {
           // Handle errors
           console.error("Failed to upload file  " + response.body?.getReader());
+          setIsVideoGenerating(false);
         }
       })
       .catch((error) => {
         console.error("Error:", error);
-      })
-      .finally(() => {
         setIsVideoGenerating(false);
       });
   }
@@ -326,11 +329,26 @@ const VideoGenerator = (props: Props) => {
               This process may take a few minutes.
             </p>
 
-            <img
-              src={Loading}
-              className="top-2/3 -translate-y-1/3 absolute "
-              width={300}
-            />
+            {downloadUrl ? (
+              <p className="top-2/3 -translate-y-1/3 absolute text-3xl px-4 py-2 text-center">
+                Download will start in a few seconds.
+                <br />
+                Click{" "}
+                <b
+                  className="text-green-500 cursor-pointer"
+                  onClick={() => setIsVideoGenerating(false)}
+                >
+                  here
+                </b>{" "}
+                to close
+              </p>
+            ) : (
+              <img
+                src={Loading}
+                className="top-2/3 -translate-y-1/3 absolute "
+                width={300}
+              />
+            )}
           </div>
         </div>
       )}
