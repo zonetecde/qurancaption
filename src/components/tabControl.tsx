@@ -105,10 +105,6 @@ const TabControl = (props: Props) => {
     setToDeleteTabItem(tabItem); // Affiche le modal de confirmation
   }
 
-  useEffect(() => {
-    console.log("props.tabItems in useEffect:", props.tabItems);
-  }, [props.subtitles]);
-
   function deleteTabItem(langToDelete: string) {
     // delete from the subtitles
     const editedSubtitles = props.subtitles;

@@ -51,7 +51,7 @@ const subtitleViewer = (props: Props) => {
     <div className="absolute bg-white left-10 right-10 top-20 bottom-20 border-3 pb-10 border-2 border-black shadow-2xl shadow-black p-10 rounded-lg">
       <div className="flex flex-row">
         <div className="flex flex-row items-center  mt-2 ml-4">
-          <p>Translation :</p>
+          <p>Content :</p>
           <select
             defaultValue={"none"}
             ref={translationRef}
@@ -65,18 +65,27 @@ const subtitleViewer = (props: Props) => {
               );
             }}
           >
-            <option value="none">None</option>
+            <option value="none">Arabic only</option>
             {props.subtitles
               .find((x) => x.versePos !== undefined)
               ?.translations.map((translation, index) => {
                 return (
-                  <option
-                    className="text-black"
-                    key={index}
-                    value={translation.lang}
-                  >
-                    {AppVariables.Langs[translation.lang]}
-                  </option>
+                  <>
+                    <option
+                      className="text-black"
+                      key={index}
+                      value={"ar+" + translation.lang}
+                    >
+                      Arabic + {AppVariables.Langs[translation.lang]}
+                    </option>
+                    <option
+                      className="text-black"
+                      key={index}
+                      value={translation.lang}
+                    >
+                      {AppVariables.Langs[translation.lang]}
+                    </option>
+                  </>
                 );
               })}
           </select>

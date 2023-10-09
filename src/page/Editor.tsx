@@ -134,22 +134,46 @@ const Editor = () => {
                 </div>
               </>
             ) : (
-              <button
-                className="bg-blue-500 hover:bg-blue-700 w-96 mb-32 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-12 shadow-lg shadow-black leading-10"
-                onClick={() => {
-                  if (recitationFileBlobUrl !== "") beginSync();
-                }}
-              >
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
-                    onChange={handleFileUpload}
-                    className="max-w-[400px] opacity-0 absolute z-40"
+              <div className="flex flex-col justify-center items-center">
+                <h1
+                  className="text-5xl font-bold select-none cursor-default text-white bg-black py-5 pb-7 px-5 rounded-full bg-opacity-30  "
+                  style={{ textShadow: "0 10px 20px hsla(0,10%,0%,.9)" }}
+                >
+                  Quran Video Maker
+                </h1>
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 w-96 mb-32 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-12 shadow-lg shadow-black leading-10"
+                  onClick={() => {
+                    if (recitationFileBlobUrl !== "") beginSync();
+                  }}
+                >
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
+                      onChange={handleFileUpload}
+                      className="opacity-0 absolute z-40 -left-10 -top-5 -bottom-5 -right-10"
+                    />
+                    <p>Select a recitation file</p>
+                  </div>
+                </button>
+                <p className="text-white text-center">
+                  Support my projects and help me continue creating amazing
+                  content for you! <br />
+                  Your contribution makes a big difference.
+                </p>{" "}
+                <a
+                  href="https://www.buymeacoffee.com/zonetecde"
+                  target="_blank"
+                  className="-mt-3"
+                >
+                  <img
+                    src="https://cdn.buymeacoffee.com/buttons/v2/arial-violet.png"
+                    alt="Buy Me A Coffee"
+                    className="max-h-[50px] mt-5"
                   />
-                  <p>Select a recitation file</p>
-                </div>
-              </button>
+                </a>
+              </div>
             )}
           </>
         </div>

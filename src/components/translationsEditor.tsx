@@ -42,7 +42,7 @@ const TranslationsEditor = (props: Props) => {
     });
 
     props.setSubtitles(editedSubtitles);
-  }, [props.subtitles]);
+  }, []);
 
   /**
    * Empêche l'utilisateur de revenir à la ligne dans les
@@ -55,7 +55,7 @@ const TranslationsEditor = (props: Props) => {
     event: React.KeyboardEvent<HTMLSpanElement>
   ) {
     if (event.key === "Enter") {
-      updateSubtitle(subtitle, event.currentTarget.innerText);
+      updateSubtitle(subtitle, event.currentTarget.innerText.trim());
 
       event.preventDefault();
     }
@@ -116,7 +116,7 @@ const TranslationsEditor = (props: Props) => {
         {props.subtitles.length > 0 ? (
           <>
             {props.subtitles.map((subtitle: Subtitle, index) => (
-              <div className="relative">
+              <div className="relative" key={index}>
                 <div className="absolute top-2 left-5 text-white">
                   {subtitle.versePos?.surah}:{subtitle.versePos?.verse}
                 </div>

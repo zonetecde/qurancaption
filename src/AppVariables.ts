@@ -1,6 +1,9 @@
 import { Surah } from "./api/quran";
 
 export default class AppVariables {
+  static ApiUrl = "https://www.rayanestaszewski.fr";
+  //static ApiUrl = "https://localhost:7133";
+
   static Langs: { [key: string]: string } = {
     ar: "Arabic",
     en: "English",

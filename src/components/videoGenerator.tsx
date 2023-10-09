@@ -18,7 +18,8 @@ const VideoGenerator = (props: Props) => {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [isVideoGenerating, setIsVideoGenerating] = useState<boolean>(false);
   const [showSubtitle, setShowSubtitle] = useState<boolean>(false);
-  const [downloadUrl, setDownloadUrl] = useState<string>("");
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [videoName, setVideoName] = useState<string>("");
 
   useEffect(() => {
     const handleTimeUpdate = () => {
@@ -40,7 +41,7 @@ const VideoGenerator = (props: Props) => {
 
   async function generateVideo(): Promise<void> {
     if (isVideoGenerating) return;
-    setDownloadUrl("");
+    setVideoUrl("");
 
     let verses: string = "";
 
@@ -48,12 +49,19 @@ const VideoGenerator = (props: Props) => {
       const subtitle = props.subtitles[i];
       if (subtitle.versePos) {
         verses += subtitle.versePos.surah + ":" + subtitle.versePos.verse + ",";
+
+        setVideoName(
+          AppVariables.Quran[subtitle.versePos.surah - 1].transliteration +
+            "_" +
+            subtitle.versePos.verse
+        );
       }
     }
 
     // Assuming you have the BLOB data stored in a variable called 'videoBlob' or 'audioBlob'
     const apiUrl =
-      "https://www.rayanestaszewski.fr/api/QVM/generate-video?authorizeKeep=" +
+      AppVariables.ApiUrl +
+      "/api/QVM/generate-video?authorizeKeep=" +
       (allowMeToKeepRef.current?.checked ? "true" : "false") +
       "&verses=" +
       verses;
@@ -85,27 +93,26 @@ const VideoGenerator = (props: Props) => {
       method: "POST",
       body: formData,
     })
-      .then((response) => {
+      .then(async (response) => {
         if (response.ok) {
-          // Handle success
-          response.blob().then((blob) => {
-            // Create a download link for the received BLOB data
-            const url = window.URL.createObjectURL(blob);
-            setDownloadUrl(url);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download =
-              AppVariables.Quran[
-                props.subtitles.find((x) => x.versePos)!.versePos!.surah - 1
-              ].transliteration +
-              "_" +
-              props.subtitles.find((x) => x.versePos)!.versePos!.verse +
-              ".mp4"; // Adjust the filename as needed
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-          });
+          const videoId = await response.text();
+
+          var int = setInterval(() => {
+            // fait une requête au serveur pour savoir si la vidéo est prête
+            const apiUrl =
+              AppVariables.ApiUrl +
+              "/api/QVM/is-video-ready?id=" +
+              videoId.split("_output")[0]; // videoId = xxxxxxx_output.mp4 (pour ensuite la videoUrl)
+
+            fetch(apiUrl).then(async (response) => {
+              const responseText = await response.text();
+
+              if (responseText === "true") {
+                setVideoUrl(AppVariables.ApiUrl + "/QVM/" + videoId);
+                clearInterval(int);
+              }
+            });
+          }, 2500);
         } else {
           // Handle errors
           console.error("Failed to upload file  " + response.body?.getReader());
@@ -125,18 +132,38 @@ const VideoGenerator = (props: Props) => {
   const translationFontSizeRef = React.useRef<HTMLInputElement>(null);
   const allowMeToKeepRef = React.useRef<HTMLInputElement>(null);
 
+  function downloadVideo() {
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", videoUrl, true);
+    xhr.responseType = "blob";
+    xhr.onload = function () {
+      let urlCreator = window.URL || window.webkitURL;
+      let videoUrl = urlCreator.createObjectURL(this.response);
+      let tag = document.createElement("a");
+      tag.href = videoUrl;
+      tag.target = "_blank";
+      tag.download = videoName + ".mp4";
+      document.body.appendChild(tag);
+      tag.click();
+      document.body.removeChild(tag);
+    };
+    xhr.send();
+  }
+
   return (
     <div className="h-full w-full flex items-center justify-center flex-col relative">
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-6 shadow-lg shadow-black
-      absolute top-0 left-7"
-        onClick={() => {
-          props.setIsOnGenerationPage(false);
-          setIsVideoGenerating(false);
-        }}
-      >
-        Go back
-      </button>
+      {!showSubtitle && (
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-6 shadow-lg shadow-black
+            absolute top-0 left-7"
+          onClick={() => {
+            props.setIsOnGenerationPage(false);
+            setIsVideoGenerating(false);
+          }}
+        >
+          Go back
+        </button>
+      )}
 
       {props.videoBlob.type.split("/")[1] === "mp3" ||
       props.videoBlob.type.split("/")[1] === "wav" ||
@@ -160,12 +187,12 @@ const VideoGenerator = (props: Props) => {
             <div className="flex flex-row items-center ">
               <p>Arabic font : </p>
               <select
-                defaultValue={"me_quran"}
+                defaultValue={"Amiri"}
                 className="text-black px-2 py-1 ml-3"
                 ref={arabicFontRef}
               >
-                <option value="me_quran">me_quran</option>
                 <option value="Amiri">Amiri</option>
+                <option value="me_quran">me_quran (can be buggy)</option>
               </select>
             </div>
 
@@ -289,6 +316,20 @@ const VideoGenerator = (props: Props) => {
             </div>
           </div>
 
+          <div className="flex flex-row mt-5">
+            {" "}
+            <input
+              type="checkbox"
+              ref={allowMeToKeepRef}
+              defaultChecked={false}
+            />
+            <p className="text-white ml-2">
+              Allow me to retain the video on my server for use in a Quranic app
+              ? <br />
+              If not checked, the video will be deleted from my server in 2h.
+            </p>
+          </div>
+
           <div className="flex flex-row">
             <button
               className="px-10 border border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
@@ -303,51 +344,63 @@ const VideoGenerator = (props: Props) => {
               Show subtitles
             </button>
           </div>
-
-          <div className="flex flex-row">
-            {" "}
-            <input
-              type="checkbox"
-              ref={allowMeToKeepRef}
-              defaultChecked={true}
-            />
-            <p className="text-white ml-2">
-              Allow me to retain the video on my server for use in a Quranic app
-              ?
-            </p>
-          </div>
         </>
       )}
 
       {isVideoGenerating && (
         <div className="absolute left-0 top-0 right-0 bottom-0 bg-black bg-opacity-90 text-white">
           <div className="flex items-center h-full w-full flex-col">
-            <p className="mx-auto my-auto text-lg md:text-xl lg:text-2xl shadow-2xl shadow-black text-center bg-green-500 px-5 bg-opacity-30 py-5 rounded-2xl">
-              Your video is currently being generated and will be automatically
-              downloaded shortly.
-              <br />
-              This process may take a few minutes.
-            </p>
+            {videoUrl ? (
+              <div className="top-1/3 -translate-y-1/3 absolute flex flex-col items-center">
+                <p className="text-3xl text-center">Here's your video :</p>
 
-            {downloadUrl ? (
-              <p className="top-2/3 -translate-y-1/3 absolute text-3xl px-4 py-2 text-center">
-                Download will start in a few seconds.
                 <br />
-                Click{" "}
-                <b
-                  className="text-green-500 cursor-pointer"
-                  onClick={() => setIsVideoGenerating(false)}
-                >
-                  here
-                </b>{" "}
-                to close
-              </p>
+                <video src={videoUrl} controls autoPlay width={800} />
+
+                <div className="flex flex-row">
+                  <button
+                    className="mt-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75"
+                    onClick={downloadVideo}
+                  >
+                    Download
+                  </button>
+                  <button
+                    className="mt-5 ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75"
+                    onClick={() => setIsVideoGenerating(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
             ) : (
-              <img
-                src={Loading}
-                className="top-2/3 -translate-y-1/3 absolute "
-                width={300}
-              />
+              <>
+                {" "}
+                <p className="mx-auto my-auto text-lg md:text-xl lg:text-2xl shadow-2xl shadow-black text-center bg-green-500 px-5 bg-opacity-30 py-5 rounded-2xl flex flex-col justify-center items-center">
+                  Your video is currently being generated and will be available
+                  shortly.
+                  <br />
+                  This process may take a few minutes.
+                  <br />
+                  <span className="text-sm mt-3">
+                    Is it slow ? <a href="">Help me</a> buy a better server :)
+                  </span>
+                  <a
+                    href="https://www.buymeacoffee.com/zonetecde"
+                    target="_blank"
+                  >
+                    <img
+                      src="https://cdn.buymeacoffee.com/buttons/v2/arial-violet.png"
+                      alt="Buy Me A Coffee"
+                      className="max-h-[50px] mt-5"
+                    />
+                  </a>
+                </p>
+                <img
+                  src={Loading}
+                  className="top-2/3 -translate-y-1/3 absolute "
+                  width={300}
+                />
+              </>
             )}
           </div>
         </div>

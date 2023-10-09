@@ -62,11 +62,17 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
           TimeExt.secondsToHHMMSSms(subtitle.endTime) +
           "\n";
         subtitleFileText +=
-          (lang === undefined || lang === "none"
+          (lang === undefined ||
+          lang === "none" ||
+          subtitle.versePos === undefined
             ? subtitle.arabicText
-            : subtitle.arabicText +
+            : lang.includes("ar+") // Si on veut l'arabe et la traduction
+            ? subtitle.arabicText +
               "\n" +
-              subtitle.translations.find((x) => x.lang === lang)?.text) +
+              subtitle.translations.find(
+                (x) => x.lang === lang.replace("ar+", "")
+              )?.text
+            : subtitle.translations.find((x) => x.lang === lang)?.text) + // ou si on veut juste la traduction
           "\n\n";
       } else {
         silenceCounter++;

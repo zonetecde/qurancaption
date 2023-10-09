@@ -9,7 +9,7 @@ import AppVariables from "./AppVariables";
 import { useEffect, useState } from "react";
 
 function App() {
-  const [page, setPage] = useState<Page>(Page.HOME);
+  const [page, setPage] = useState<Page>(Page.EDITOR);
 
   useEffect(() => {
     QuranApi.getQuran("en").then((quran: Surah[]) => {
