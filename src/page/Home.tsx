@@ -10,7 +10,7 @@ const Home = (props: Props) => {
   return (
     <div className="h-full w-full flex justify-center items-center flex-col">
       <h1
-        className="text-5xl font-bold px-2 select-none cursor-default"
+        className="text-5xl font-bold px-2 select-none cursor-default text-center"
         style={{ textShadow: "0 10px 20px hsla(0,5%,0%,.9)" }}
       >
         Quran Video Maker

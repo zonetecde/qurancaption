@@ -1,4 +1,5 @@
 import { Surah } from "./api/quran";
+import { QuranWBW } from "./models/quranWBW";
 
 export default class AppVariables {
   static ApiUrl = "https://www.rayanestaszewski.fr";
@@ -6,6 +7,7 @@ export default class AppVariables {
 
   static Langs: { [key: string]: string } = {
     ar: "Arabic",
+    en_auto: "English (automatic)",
     en: "English",
     fr: "French",
     es: "Spanish",

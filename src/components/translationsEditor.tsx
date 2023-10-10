@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Subtitle from "../models/subtitle";
 import AppVariables from "../AppVariables";
 import UndoIcon from "../assets/UndoIcon.png";
+import TranslationExt from "../extensions/translationExt";
 
 interface Props {
   subtitles: Subtitle[];
@@ -19,29 +20,39 @@ const TranslationsEditor = (props: Props) => {
 
   // Au chargement du component, on regarde si certaines des traductions sont manquantes
   useEffect(() => {
-    const editedSubtitles = [...props.subtitles];
-    // Si des traductions sont manquantes (= qu'ils viennent d'être ajouté depuis le sync arabe)
-    // alors on les ajoutes ici
-    editedSubtitles.forEach((subtitle) => {
-      // Si la traduction est manquante
-      if (
-        subtitle.translations.find((x) => x.lang === props.lang) === undefined
-      ) {
-        // Ajoute la traduction
-        // Si ce n'est pas une basmala ou autre
-        if (subtitle.versePos) {
-          subtitle.translations.push({
-            lang: props.lang,
-            // La traduction est sauvegardé dans les variables statique du site
-            text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
-              subtitle.versePos.verse - 1
-            ].translations.find((x) => x.lang === props.lang)!.text,
-          });
+    console.log(props.lang);
+    if (props.lang !== "en_auto") {
+      const editedSubtitles = [...props.subtitles];
+      // Si des traductions sont manquantes (= qu'ils viennent d'être ajouté depuis le sync arabe)
+      // alors on les ajoutes ici
+      editedSubtitles.forEach((subtitle) => {
+        // Si la traduction est manquante
+        if (
+          subtitle.translations.find((x) => x.lang === props.lang) === undefined
+        ) {
+          // Ajoute la traduction
+          // Si ce n'est pas une basmala ou autre
+          if (subtitle.versePos) {
+            subtitle.translations.push({
+              lang: props.lang,
+              // La traduction est sauvegardé dans les variables statique du site
+              text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
+                subtitle.versePos.verse - 1
+              ].translations.find((x) => x.lang === props.lang)!.text,
+            });
+          }
         }
-      }
-    });
+      });
 
-    props.setSubtitles(editedSubtitles);
+      props.setSubtitles(editedSubtitles);
+    } else {
+      //Ajoute les traductions anglaise automatique aux sous-titre qui n'en n'ont pas
+      TranslationExt.automaticEnglishTranslation(props.subtitles).then(
+        (subtitle) => {
+          props.setSubtitles(subtitle);
+        }
+      );
+    }
   }, []);
 
   /**
@@ -161,7 +172,7 @@ const TranslationsEditor = (props: Props) => {
 
                     {/* If the user changed the default translation, show the undo button*/}
                     {subtitle.translations.some(
-                      (x) => x.lang === props.lang
+                      (x) => x.lang === props.lang && x.lang !== "en_auto"
                     ) && (
                       <>
                         {subtitle.translations.find((x) => {

@@ -136,7 +136,7 @@ const Editor = () => {
             ) : (
               <div className="flex flex-col justify-center items-center">
                 <h1
-                  className="text-5xl font-bold select-none cursor-default text-white bg-black py-5 pb-7 px-5 rounded-full bg-opacity-30  "
+                  className="text-5xl text-center font-bold select-none cursor-default text-white bg-black py-5 pb-7 px-5 rounded-full bg-opacity-30  "
                   style={{ textShadow: "0 10px 20px hsla(0,10%,0%,.9)" }}
                 >
                   Quran Video Maker

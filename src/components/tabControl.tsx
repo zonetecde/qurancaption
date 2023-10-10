@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import QuranApi, { Surah, Verse } from "../api/quran";
 import AppVariables from "../AppVariables";
 import Subtitle, { Translation } from "../models/subtitle";
+import TranslationExt from "../extensions/translationExt";
 
 interface Props {
   setTabItems: React.Dispatch<React.SetStateAction<TabItem[]>>;
@@ -30,54 +31,69 @@ const TabControl = (props: Props) => {
    * Ajout du page de traduction avec la langue voulu
    * @param _selectedLang La langue de la traduction à ajouté
    */
-  function addTranslation(selectedLang: string): void {
+  async function addTranslation(selectedLang: string) {
     // Télécharge les traductions des versets voulu
 
     // Fait une requête à l'API pour obtenir le
     // Coran dans la langue voulu
-    console.log(selectedLang);
-    QuranApi.getQuran(selectedLang)
-      .then((quran: Surah[]) => {
-        quran.map((surah: Surah) => {
-          surah.verses.forEach((verse: Verse) => {
-            AppVariables.Quran[surah.id - 1].verses[
-              verse.id - 1
-            ].translations.push(
-              new Translation(verse.translation, selectedLang)
-            );
-          });
-        });
-      })
-      .finally(() => {
-        // Cache la tabItem qui est actuellement visible
-        const updatedTabItems = makeAllTabsHidden(props);
-
-        // Ajoute une nouvelle tabItem contenant les tranductions dans cette langue et l'affiche
-        props.setTabItems([
-          ...updatedTabItems,
-          { isShown: true, lang: selectedLang },
-        ]);
-
-        // Ajoute dans chaque sous-titre ajouté au texte arabe sa nouvelle traduction avec la langue choisi
-        const editedSubtitles = props.subtitles.map((subtitle) => {
-          // Push la nouvelle traduction
-          // Vérifie juste que c'est pas une basmala ou autre
-          if (subtitle && subtitle.versePos && selectedLang) {
-            subtitle.translations.push({
-              lang: selectedLang,
-              text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
-                subtitle.versePos.verse - 1
-              ].translations.find((y) => y.lang === selectedLang)!.text,
+    if (selectedLang !== "en_auto") {
+      QuranApi.getQuran(selectedLang)
+        .then((quran: Surah[]) => {
+          quran.map((surah: Surah) => {
+            surah.verses.forEach((verse: Verse) => {
+              AppVariables.Quran[surah.id - 1].verses[
+                verse.id - 1
+              ].translations.push(
+                new Translation(verse.translation, selectedLang)
+              );
             });
+          });
+        })
+        .finally(() => {
+          // Cache la tabItem qui est actuellement visible
+          const updatedTabItems = makeAllTabsHidden(props);
+
+          // Ajoute une nouvelle tabItem contenant les tranductions dans cette langue et l'affiche
+          props.setTabItems([
+            ...updatedTabItems,
+            { isShown: true, lang: selectedLang },
+          ]);
+
+          // Ajoute dans chaque sous-titre ajouté au texte arabe sa nouvelle traduction avec la langue choisi
+          const editedSubtitles = props.subtitles.map((subtitle) => {
+            // Push la nouvelle traduction
+            // Vérifie juste que c'est pas une basmala ou autre
+            if (subtitle && subtitle.versePos && selectedLang) {
+              subtitle.translations.push({
+                lang: selectedLang,
+                text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
+                  subtitle.versePos.verse - 1
+                ].translations.find((y) => y.lang === selectedLang)!.text,
+              });
+
+              return subtitle;
+            }
 
             return subtitle;
-          }
+          });
 
-          return subtitle;
+          props.setSubtitles(editedSubtitles);
         });
+    } else {
+      // Ajoute les traductions anglaise automatique
+      TranslationExt.automaticEnglishTranslation(props.subtitles)
+        .then((subtitles) => {
+          props.setSubtitles(subtitles);
+        })
+        .finally(() => {
+          const updatedTabItems = makeAllTabsHidden(props);
 
-        props.setSubtitles(editedSubtitles);
-      });
+          props.setTabItems([
+            ...updatedTabItems,
+            { isShown: true, lang: selectedLang },
+          ]);
+        });
+    }
   }
 
   /**
