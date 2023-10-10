@@ -460,10 +460,12 @@ const VideoGenerator = (props: Props) => {
                   Your video is currently being generated and will be available
                   shortly.
                   <br />
-                  This process may take a few minutes. {videoId}
+                  This process may take a few minutes.
                   <br />
                   {videoId !== "" && (
-                    <span className="mt-2">Video id : {videoId}</span>
+                    <span className="mt-2 text-sm italic">
+                      Video id : {videoId.split("_output")[0]}
+                    </span>
                   )}
                   <span className="text-sm mt-3">
                     Is it slow ? <a href="">Help me</a> buy a better server :)
