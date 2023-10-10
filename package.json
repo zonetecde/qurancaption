@@ -18,7 +18,7 @@
   "devDependencies": {
     "@types/blob-to-buffer": "^1.2.0",
     "@types/fluent-ffmpeg": "^2.1.22",
-    "@types/react": "^18.2.15",
+    "@types/react": "^18.2.27",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",

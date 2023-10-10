@@ -16,10 +16,13 @@ interface Props {
 
 const VideoGenerator = (props: Props) => {
   const [currentTime, setCurrentTime] = useState<number>(0);
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+
   const [isVideoGenerating, setIsVideoGenerating] = useState<boolean>(false);
   const [showSubtitle, setShowSubtitle] = useState<boolean>(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [videoName, setVideoName] = useState<string>("");
+  const [videoId, setVideoId] = useState<string>("");
 
   useEffect(() => {
     const handleTimeUpdate = () => {
@@ -40,8 +43,11 @@ const VideoGenerator = (props: Props) => {
   }, []);
 
   async function generateVideo(): Promise<void> {
+    setIsMuted(true);
+
     if (isVideoGenerating) return;
     setVideoUrl("");
+    setVideoId("");
 
     let verses: string = "";
 
@@ -83,7 +89,8 @@ const VideoGenerator = (props: Props) => {
         arabicFontRef.current?.value,
         Number(arabicFontSizeRef.current!.value) ?? 32,
         Number(translationFontSizeRef.current!.value) ?? 10,
-        true
+        true,
+        arabicVersesBetweenRef.current?.checked
       )
     );
 
@@ -96,6 +103,7 @@ const VideoGenerator = (props: Props) => {
       .then(async (response) => {
         if (response.ok) {
           const videoId = await response.text();
+          setVideoId(videoId);
 
           var int = setInterval(() => {
             // fait une requête au serveur pour savoir si la vidéo est prête
@@ -131,6 +139,9 @@ const VideoGenerator = (props: Props) => {
   const translationRef = React.useRef<HTMLSelectElement>(null);
   const translationFontSizeRef = React.useRef<HTMLInputElement>(null);
   const allowMeToKeepRef = React.useRef<HTMLInputElement>(null);
+  const verseNumberInTranslationRef = React.useRef<HTMLInputElement>(null);
+  const verseNumberInArabicRef = React.useRef<HTMLInputElement>(null);
+  const arabicVersesBetweenRef = React.useRef<HTMLInputElement>(null);
 
   function downloadVideo() {
     let xhr = new XMLHttpRequest();
@@ -151,20 +162,7 @@ const VideoGenerator = (props: Props) => {
   }
 
   return (
-    <div className="h-full w-full flex items-center justify-center flex-col relative">
-      {!showSubtitle && (
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full text-xl duration-75 mt-6 shadow-lg shadow-black
-            absolute top-0 left-7"
-          onClick={() => {
-            props.setIsOnGenerationPage(false);
-            setIsVideoGenerating(false);
-          }}
-        >
-          Go back
-        </button>
-      )}
-
+    <div className="h-full w-full flex items-center justify-center flex-col relative overflow-auto">
       {props.videoBlob.type.split("/")[1] === "mp3" ||
       props.videoBlob.type.split("/")[1] === "wav" ||
       props.videoBlob.type.split("/")[1] === "ogg" ||
@@ -182,82 +180,147 @@ const VideoGenerator = (props: Props) => {
           file in the editor (top left corner)."
         </p>
       ) : (
-        <>
-          <div className="text-white flex flex-row flex-wrap text-sm md:text-lg large:text-xl">
-            <div className="flex flex-row items-center ">
-              <p>Arabic font : </p>
-              <select
-                defaultValue={"Amiri"}
-                className="text-black px-2 py-1 ml-3"
-                ref={arabicFontRef}
-              >
-                <option value="Amiri">Amiri</option>
-                <option value="me_quran">me_quran (can be buggy)</option>
-              </select>
+        <div className="overflow-auto flex flex-col items-center bg-[#2b333f] my-10">
+          <div className="flex items-center justify-center flex-col">
+            <div className="text-white flex flex-row flex-wrap text-sm md:text-lg large:text-xl">
+              <div className="flex flex-row items-center justify-center  ">
+                <p>Arabic font : </p>
+                <select
+                  defaultValue={"Amiri"}
+                  className="text-black px-2 py-1 ml-3"
+                  ref={arabicFontRef}
+                >
+                  <option value="Amiri">Amiri</option>
+                  <option value="me_quran">me_quran (can be buggy)</option>
+                </select>
+              </div>
+
+              <div className="flex flex-row items-center  mt-2 ml-4">
+                <p>Arabic font size :</p>
+                <input
+                  defaultValue={32}
+                  min={1}
+                  max={200}
+                  className="text-black px-2 py-1 ml-3 "
+                  type="number"
+                  ref={arabicFontSizeRef}
+                />
+              </div>
+
+              <div className="flex flex-row items-center  mt-2 ml-4">
+                <p>Translation :</p>
+                <select
+                  defaultValue={"none"}
+                  className="text-black px-2 py-1 ml-3"
+                  ref={translationRef}
+                >
+                  <option value="none">None</option>
+                  {props.subtitles
+                    .find((x) => x.versePos !== undefined)
+                    ?.translations.map((translation, index) => {
+                      return (
+                        <option
+                          className="text-black"
+                          key={index}
+                          value={translation.lang}
+                        >
+                          {AppVariables.Langs[translation.lang]}
+                        </option>
+                      );
+                    })}
+                </select>
+              </div>
+
+              <div className="flex flex-row items-center  mt-2 ml-4">
+                <p>Translation font size :</p>
+                <input
+                  ref={translationFontSizeRef}
+                  defaultValue={10}
+                  min={1}
+                  max={200}
+                  className="text-black px-2 py-1 ml-3 "
+                  type="number"
+                />
+              </div>
             </div>
 
-            <div className="flex flex-row items-center  mt-2 ml-4">
-              <p>Arabic font size :</p>
-              <input
-                defaultValue={32}
-                min={1}
-                max={200}
-                className="text-black px-2 py-1 ml-3 "
-                type="number"
-                ref={arabicFontSizeRef}
-              />
-            </div>
-
-            <div className="flex flex-row items-center  mt-2 ml-4">
-              <p>Translation :</p>
-              <select
-                defaultValue={"none"}
-                className="text-black px-2 py-1 ml-3"
-                ref={translationRef}
-              >
-                <option value="none">None</option>
-                {props.subtitles
-                  .find((x) => x.versePos !== undefined)
-                  ?.translations.map((translation, index) => {
-                    return (
-                      <option
-                        className="text-black"
-                        key={index}
-                        value={translation.lang}
-                      >
-                        {AppVariables.Langs[translation.lang]}
-                      </option>
-                    );
-                  })}
-              </select>
-            </div>
-
-            <div className="flex flex-row items-center  mt-2 ml-4">
-              <p>Translation font size :</p>
-              <input
-                ref={translationFontSizeRef}
-                defaultValue={10}
-                min={1}
-                max={200}
-                className="text-black px-2 py-1 ml-3 "
-                type="number"
-              />
+            <div className="text-white flex flex-row flex-wrap text-sm md:text-lg large:text-xl mt-3">
+              <div className="flex flex-row items-center ">
+                <input
+                  className="mr-2"
+                  type="checkbox"
+                  ref={arabicVersesBetweenRef}
+                />
+                <p>
+                  Arabic verses between <span className="Amiri">﴾ ... ﴿</span>
+                </p>
+              </div>
+              <div className="flex flex-row items-center ml-5">
+                <input
+                  className="mr-2"
+                  type="checkbox"
+                  ref={verseNumberInArabicRef}
+                />
+                <p>Verse number in arabic verse </p>
+              </div>
+              <div className="flex flex-row items-center ml-5">
+                <input
+                  className="mr-2"
+                  type="checkbox"
+                  ref={verseNumberInTranslationRef}
+                />
+                <p>Verse number in translation </p>
+              </div>
             </div>
           </div>
 
-          <div className="w-8/12 bg-black relative mt-5">
+          <div className="w-[1000px] bg-black relative mt-10">
             <video
-              className="w-full h-full"
+              className="w-full h-full shadow-2xl shadow-black "
               src={props.videoBlobUrl}
               ref={videoRef}
-              muted
               autoPlay
+              muted={isMuted}
               loop
             ></video>
             <div className="absolute left-0 top-0 right-0 bottom-0 overflow-hidden">
+              {isMuted ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="white"
+                  className="w-10 h-10 absolute bottom-2 right-2 cursor-pointer"
+                  onClick={() => setIsMuted(false)}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.25 9.75L19.5 12m0 0l2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6l4.72-4.72a.75.75 0 011.28.531V19.94a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.506-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.395C2.806 8.757 3.63 8.25 4.51 8.25H6.75z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="white"
+                  className="w-10 h-10 absolute  bottom-2 right-2 cursor-pointer"
+                  onClick={() => setIsMuted(true)}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"
+                  />
+                </svg>
+              )}
+
               <div
                 className={
-                  "flex justify-center flex-col items-center h-full text-white  text-center mx-20 letter-outline " +
+                  "flex justify-center flex-col items-center h-full text-white  text-center mx-20 letter-outline select-none " +
                   (arabicFontRef.current?.value === "me_quran"
                     ? "me_quran "
                     : "Amiri ")
@@ -269,6 +332,7 @@ const VideoGenerator = (props: Props) => {
                       : 32) + "px",
                 }}
               >
+                {arabicVersesBetweenRef.current?.checked === true && "﴿"}{" "}
                 {props.subtitles.length > 0
                   ? props.subtitles.find((subtitle) => {
                       if (
@@ -281,6 +345,7 @@ const VideoGenerator = (props: Props) => {
                       return false;
                     })?.arabicText ?? `` // Use the updated current time here
                   : "No subtitles"}
+                {arabicVersesBetweenRef.current?.checked === true && " ﴾"}{" "}
                 {"\n"}
                 {translationRef.current?.value !== "none" && (
                   <p
@@ -316,7 +381,7 @@ const VideoGenerator = (props: Props) => {
             </div>
           </div>
 
-          <div className="flex flex-row mt-5">
+          <div className="flex flex-row mt-5 ">
             {" "}
             <input
               type="checkbox"
@@ -330,21 +395,33 @@ const VideoGenerator = (props: Props) => {
             </p>
           </div>
 
-          <div className="flex flex-row">
+          <div className="flex flex-row justify-center">
             <button
-              className="px-10 border border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
+              className="px-10 border ml-5 border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
+              onClick={() => {
+                props.setIsOnGenerationPage(false);
+                setIsVideoGenerating(false);
+              }}
+            >
+              Go back
+            </button>
+            <button
+              className="px-10 border ml-5 border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
               onClick={generateVideo}
             >
               Generate video
             </button>
             <button
               className="px-10 border ml-5 border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
-              onClick={() => setShowSubtitle(true)}
+              onClick={() => {
+                setShowSubtitle(true);
+                setIsMuted(true);
+              }}
             >
               Show subtitles
             </button>
           </div>
-        </>
+        </div>
       )}
 
       {isVideoGenerating && (
@@ -379,8 +456,11 @@ const VideoGenerator = (props: Props) => {
                   Your video is currently being generated and will be available
                   shortly.
                   <br />
-                  This process may take a few minutes.
+                  This process may take a few minutes. {videoId}
                   <br />
+                  {videoId !== "" && (
+                    <span className="mt-2">Video id : {videoId}</span>
+                  )}
                   <span className="text-sm mt-3">
                     Is it slow ? <a href="">Help me</a> buy a better server :)
                   </span>
@@ -407,10 +487,12 @@ const VideoGenerator = (props: Props) => {
       )}
 
       {showSubtitle && (
-        <SubtitleViewer
-          setShowSubtitle={setShowSubtitle}
-          subtitles={props.subtitles}
-        />
+        <div className="absolute left-0 top-0 right-0 bottom-0 bg-black bg-opacity-80">
+          <SubtitleViewer
+            setShowSubtitle={setShowSubtitle}
+            subtitles={props.subtitles}
+          />
+        </div>
       )}
     </div>
   );

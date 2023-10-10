@@ -26,10 +26,10 @@ const SubtitlesHistory = (props: Props) => {
       {" "}
       <p className="text-2xl mb-5">Subtitles</p>
       <div className="w-11/12 overflow-y-scroll h-full flex flex-col items-center pr-1">
-        {props.subtitles.map((subtitle) => (
+        {props.subtitles.map((subtitle, index) => (
           <div
             className="flex flex-col border rounded-lg w-full mb-2 p-2"
-            key={subtitle.id}
+            key={index}
           >
             <div className="flex flex-row">
               <p>

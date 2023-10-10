@@ -22,29 +22,13 @@ const TranslationsEditor = (props: Props) => {
   useEffect(() => {
     console.log(props.lang);
     if (props.lang !== "en_auto") {
-      const editedSubtitles = [...props.subtitles];
-      // Si des traductions sont manquantes (= qu'ils viennent d'être ajouté depuis le sync arabe)
-      // alors on les ajoutes ici
-      editedSubtitles.forEach((subtitle) => {
-        // Si la traduction est manquante
-        if (
-          subtitle.translations.find((x) => x.lang === props.lang) === undefined
-        ) {
-          // Ajoute la traduction
-          // Si ce n'est pas une basmala ou autre
-          if (subtitle.versePos) {
-            subtitle.translations.push({
-              lang: props.lang,
-              // La traduction est sauvegardé dans les variables statique du site
-              text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
-                subtitle.versePos.verse - 1
-              ].translations.find((x) => x.lang === props.lang)!.text,
-            });
-          }
-        }
+      //Ajoute les traductions aux versets qui n'en ont pas
+      TranslationExt.addTranslationToSubtitles(
+        props.lang,
+        props.subtitles
+      ).then((subtitle) => {
+        props.setSubtitles(subtitle);
       });
-
-      props.setSubtitles(editedSubtitles);
     } else {
       //Ajoute les traductions anglaise automatique aux sous-titre qui n'en n'ont pas
       TranslationExt.automaticEnglishTranslation(props.subtitles).then(

@@ -8,7 +8,8 @@ export class SubtitleGenerator {
     font: string = "me_quran",
     arabicFontSize: number = 32,
     translationFontSize: number = 10,
-    shadow: boolean = true
+    shadow: boolean = true,
+    arabicVersesBetweenParentheses: boolean = false
   ) {
     let subtitleFileText =
       `
@@ -38,7 +39,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
         "," +
         TimeExt.secondsToHHMMSSms(subtitle.endTime) +
         ",Default,,40,40,0,,{\\fade(200,200)\\blur5}" +
-        subtitle.arabicText +
+        (arabicVersesBetweenParentheses
+          ? "﴾ " + subtitle.arabicText + " ﴿"
+          : subtitle.arabicText) +
         (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre
           ? ""
           : "\\N{\\fs" +
