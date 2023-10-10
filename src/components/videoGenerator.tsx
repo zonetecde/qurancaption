@@ -106,20 +106,24 @@ const VideoGenerator = (props: Props) => {
           setVideoId(videoId);
 
           var int = setInterval(() => {
-            // fait une requête au serveur pour savoir si la vidéo est prête
-            const apiUrl =
-              AppVariables.ApiUrl +
-              "/api/QVM/is-video-ready?id=" +
-              videoId.split("_output")[0]; // videoId = xxxxxxx_output.mp4 (pour ensuite la videoUrl)
+            try {
+              // fait une requête au serveur pour savoir si la vidéo est prête
+              const apiUrl =
+                AppVariables.ApiUrl +
+                "/api/QVM/is-video-ready?id=" +
+                videoId.split("_output")[0]; // videoId = xxxxxxx_output.mp4 (pour ensuite la videoUrl)
 
-            fetch(apiUrl).then(async (response) => {
-              const responseText = await response.text();
+              fetch(apiUrl).then(async (response) => {
+                const responseText = await response.text();
 
-              if (responseText === "true") {
-                setVideoUrl(AppVariables.ApiUrl + "/QVM/" + videoId);
-                clearInterval(int);
-              }
-            });
+                if (responseText === "true") {
+                  setVideoUrl(AppVariables.ApiUrl + "/QVM/" + videoId);
+                  clearInterval(int);
+                }
+              });
+            } catch {
+              // internet lost
+            }
           }, 2500);
         } else {
           // Handle errors
