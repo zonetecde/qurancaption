@@ -9,7 +9,9 @@ export class SubtitleGenerator {
     arabicFontSize: number = 32,
     translationFontSize: number = 10,
     shadow: boolean = true,
-    arabicVersesBetweenParentheses: boolean = false
+    arabicVersesBetweenParentheses: boolean = false,
+    verseNumberInArabic: boolean = false,
+    verseNumberInTranslation: boolean = false
   ) {
     let subtitleFileText =
       `
@@ -47,6 +49,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
           : "\\N{\\fs" +
             translationFontSize +
             "}{\\fnArial}" +
+            (verseNumberInTranslation && "q50") +
             subtitle.translations.find((x) => x.lang === secondLang)?.text) +
         "\n";
     });

@@ -47,6 +47,10 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.lft {
+  direction: ltr;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 16px;

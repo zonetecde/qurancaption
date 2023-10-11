@@ -24,6 +24,26 @@ const VideoGenerator = (props: Props) => {
   const [videoName, setVideoName] = useState<string>("");
   const [videoId, setVideoId] = useState<string>("");
 
+  // dans le video player
+  const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | undefined>(
+    props.subtitles[0]
+  );
+
+  useEffect(() => {
+    setCurrentSubtitle(
+      props.subtitles.find((subtitle) => {
+        if (
+          subtitle.startTime <= currentTime && // Use the updated current time here
+          subtitle.endTime >= currentTime // Use the updated current time here
+        ) {
+          return true;
+        }
+
+        return false;
+      })
+    );
+  });
+
   useEffect(() => {
     const handleTimeUpdate = () => {
       if (videoRef.current) {
@@ -90,7 +110,9 @@ const VideoGenerator = (props: Props) => {
         Number(arabicFontSizeRef.current!.value) ?? 32,
         Number(translationFontSizeRef.current!.value) ?? 10,
         true,
-        arabicVersesBetweenRef.current?.checked
+        arabicVersesBetweenRef.current?.checked,
+        verseNumberInArabicRef.current?.checked,
+        verseNumberInTranslationRef.current?.checked
       )
     );
 
@@ -336,24 +358,19 @@ const VideoGenerator = (props: Props) => {
                       : 32) + "px",
                 }}
               >
-                {arabicVersesBetweenRef.current?.checked === true && "﴿"}{" "}
-                {props.subtitles.length > 0
-                  ? props.subtitles.find((subtitle) => {
-                      if (
-                        subtitle.startTime <= currentTime && // Use the updated current time here
-                        subtitle.endTime >= currentTime // Use the updated current time here
-                      ) {
-                        return true;
-                      }
+                {currentSubtitle && (
+                  <>
+                    {arabicVersesBetweenRef.current?.checked === true && "﴿"}{" "}
+                    {currentSubtitle?.arabicText}
+                    {arabicVersesBetweenRef.current?.checked === true &&
+                      " ﴾"}{" "}
+                  </>
+                )}
 
-                      return false;
-                    })?.arabicText ?? `` // Use the updated current time here
-                  : "No subtitles"}
-                {arabicVersesBetweenRef.current?.checked === true && " ﴾"}{" "}
                 {"\n"}
                 {translationRef.current?.value !== "none" && (
                   <p
-                    className="arial mt-2"
+                    className="arial mt-2 "
                     style={{
                       fontSize:
                         (translationFontSizeRef.current
@@ -363,22 +380,17 @@ const VideoGenerator = (props: Props) => {
                         "px",
                     }}
                   >
-                    {props.subtitles.length > 0
-                      ? props.subtitles
-                          .find((subtitle) => {
-                            if (
-                              subtitle.startTime <= currentTime && // Use the updated current time here
-                              subtitle.endTime >= currentTime // Use the updated current time here
-                            ) {
-                              return true;
-                            }
-
-                            return false;
-                          })
-                          ?.translations.find(
+                    {
+                      (currentSubtitle &&
+                        (verseNumberInTranslationRef.current?.checked ===
+                          true && currentSubtitle?.fromWordIndex === 0
+                          ? currentSubtitle.versePos?.verse.toString() + ". "
+                          : "") +
+                          currentSubtitle?.translations.find(
                             (x) => x.lang === translationRef.current?.value
-                          )?.text ?? `` // Use the updated current time here
-                      : "No subtitles"}
+                          )?.text) ??
+                        `` // Use the updated current time here
+                    }
                   </p>
                 )}
               </div>
