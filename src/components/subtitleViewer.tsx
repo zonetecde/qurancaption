@@ -7,6 +7,11 @@ import AppVariables from "../AppVariables";
 interface Props {
   subtitles: Subtitle[];
   setShowSubtitle: React.Dispatch<React.SetStateAction<boolean>>;
+
+  // subtitles param
+  arabicVersesBetween: boolean;
+  arabicVersesPosition: boolean;
+  translationVersesPosition: boolean;
 }
 
 /**
@@ -16,6 +21,7 @@ interface Props {
  */
 const subtitleViewer = (props: Props) => {
   const [srtSubtitle, setSrtSubtitle] = React.useState<string>("");
+  const [updateSubtitle, setUpdateSubtitle] = React.useState<boolean>(false);
 
   const saveFile = async () => {
     try {
@@ -42,10 +48,13 @@ const subtitleViewer = (props: Props) => {
     setSrtSubtitle(
       SubtitleGenerator.generateSrtSubtitles(
         props.subtitles,
-        translationRef.current?.value
+        translationRef.current?.value,
+        props.arabicVersesBetween,
+        props.arabicVersesPosition,
+        props.translationVersesPosition
       )
     );
-  }, []);
+  }, [updateSubtitle]);
 
   return (
     <div className="absolute bg-white left-10 right-10 top-20 bottom-20 border-3 pb-10 border-2 border-black shadow-2xl shadow-black p-10 rounded-lg">
@@ -57,12 +66,7 @@ const subtitleViewer = (props: Props) => {
             ref={translationRef}
             className="text-black px-2 py-1 ml-3 border border-black"
             onChange={(e) => {
-              setSrtSubtitle(
-                SubtitleGenerator.generateSrtSubtitles(
-                  props.subtitles,
-                  translationRef.current?.value
-                )
-              );
+              setUpdateSubtitle(!updateSubtitle);
             }}
           >
             <option value="none">Arabic only</option>
@@ -72,17 +76,13 @@ const subtitleViewer = (props: Props) => {
                 return (
                   <>
                     <option
-                      className="text-black"
                       key={index}
+                      className="text-black"
                       value={"ar+" + translation.lang}
                     >
                       Arabic + {AppVariables.Langs[translation.lang]}
                     </option>
-                    <option
-                      className="text-black"
-                      key={index}
-                      value={translation.lang}
-                    >
+                    <option className="text-black" value={translation.lang}>
                       {AppVariables.Langs[translation.lang]}
                     </option>
                   </>
@@ -119,7 +119,7 @@ const subtitleViewer = (props: Props) => {
         ref={subtitleTextAreaRef}
         aria-multiline
         value={srtSubtitle}
-        className="absolute bottom-20 top-28 left-5 p-3 rounded-lg bg-slate-400 right-5 arabic"
+        className="absolute bottom-20 top-28 left-5 p-3 rounded-lg bg-slate-400 right-5 arabic arial"
         style={{ direction: "ltr" }}
         readOnly
       ></textarea>

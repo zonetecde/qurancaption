@@ -1,7 +1,19 @@
+import AppVariables from "../AppVariables";
 import Subtitle from "../models/subtitle";
+import StringExt from "./stringExt";
 import TimeExt from "./timeExt";
 
 export class SubtitleGenerator {
+  static NEW_SUBTITLE_LINE = "\\N";
+
+  static setFontExpression(fontName: string) {
+    return "{\\fn" + fontName + "}";
+  }
+
+  static setFontSizeExpression(fontSize: number) {
+    return "{\\fs" + fontSize + "}";
+  }
+
   static generateAssSubtitles(
     subtitles: Subtitle[],
     secondLang: string = "",
@@ -37,49 +49,82 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
     subtitles.forEach((subtitle, index) => {
       subtitleFileText +=
         "Dialogue: 0," +
-        TimeExt.secondsToHHMMSSms(subtitle.startTime) +
+        subtitle.getStartTimeHHMMSSms() +
         "," +
-        TimeExt.secondsToHHMMSSms(subtitle.endTime) +
+        subtitle.getEndTimeHHMMSSms() +
         ",Default,,40,40,0,,{\\fade(200,200)\\blur5}" +
-        (arabicVersesBetweenParentheses
-          ? "﴾ " + subtitle.arabicText + " ﴿"
-          : subtitle.arabicText) +
+        (verseNumberInArabic && subtitle.IsLastWordsFromVerse()
+          ? this.setFontExpression("Arial") +
+            "‎" +
+            this.setFontExpression("me_quran") +
+            "﴾" +
+            StringExt.toArabicNumber(subtitle.versePos!.verse) +
+            "﴿"
+          : "") +
+        this.setFontExpression("Arial") +
+        "‎\\h" + // espace video nécéssaire pour que le n° de verset arabe s'affiche correctement, \\h pour l'espace entre le texte arabe et le n° du verset
+        this.setFontExpression(font) +
+        subtitle.getArabicText(arabicVersesBetweenParentheses) +
         (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre
           ? ""
-          : "\\N{\\fs" +
-            translationFontSize +
-            "}{\\fnArial}" +
-            (verseNumberInTranslation && "q50") +
-            subtitle.translations.find((x) => x.lang === secondLang)?.text) +
+          : this.NEW_SUBTITLE_LINE + // la trad est sur une autre ligne
+            this.setFontSizeExpression(translationFontSize) + // taille de la trad
+            this.setFontExpression("Arial") + // police d'écriture de la trad
+            (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse()
+              ? subtitle.getVersePose("V. ")
+              : "") +
+            subtitle.getTranslationText(secondLang)) +
         "\n";
     });
+
     return subtitleFileText;
   }
 
-  static generateSrtSubtitles(subtitles: Subtitle[], lang: string | undefined) {
+  static generateSrtSubtitles(
+    subtitles: Subtitle[],
+    lang: string | undefined,
+    arabicVersesBetweenParentheses: boolean,
+    verseNumberInArabic: boolean,
+    verseNumberInTranslation: boolean
+  ) {
     let subtitleFileText = "";
-    let silenceCounter: number = 0; // Permet de compenser les pauses pour pas que le numéro de sous titre soit erroné
+    let silenceCounter = 0;
+
     subtitles.forEach((subtitle, index) => {
-      if (subtitle.arabicText !== "") {
-        subtitleFileText += String(index + 1 - silenceCounter) + "\n";
-        subtitleFileText +=
-          TimeExt.secondsToHHMMSSms(subtitle.startTime) +
-          " --> " +
-          TimeExt.secondsToHHMMSSms(subtitle.endTime) +
-          "\n";
-        subtitleFileText +=
-          (lang === undefined ||
+      if (subtitle.arabicText) {
+        subtitleFileText += `${index + 1 - silenceCounter}\n`;
+        subtitleFileText += `${TimeExt.secondsToHHMMSSms(
+          subtitle.startTime
+        )} --> ${TimeExt.secondsToHHMMSSms(subtitle.endTime)}\n`;
+
+        if (
+          lang === undefined ||
           lang === "none" ||
           subtitle.versePos === undefined
-            ? subtitle.arabicText
-            : lang.includes("ar+") // Si on veut l'arabe et la traduction
-            ? subtitle.arabicText +
-              "\n" +
-              subtitle.translations.find(
-                (x) => x.lang === lang.replace("ar+", "")
-              )?.text
-            : subtitle.translations.find((x) => x.lang === lang)?.text) + // ou si on veut juste la traduction
-          "\n\n";
+        ) {
+          subtitleFileText +=
+            (verseNumberInArabic
+              ? "﴾" + StringExt.toArabicNumber(subtitle.versePos!.verse) + "﴿ ‎"
+              : "") + subtitle.getArabicText(arabicVersesBetweenParentheses);
+        } else if (lang.includes("ar+")) {
+          subtitleFileText +=
+            (verseNumberInArabic
+              ? "﴾" + StringExt.toArabicNumber(subtitle.versePos!.verse) + "﴿ ‎"
+              : "") +
+            subtitle.getArabicText(arabicVersesBetweenParentheses) +
+            "\n";
+          subtitleFileText +=
+            (verseNumberInTranslation && subtitle.fromWordIndex === 0
+              ? subtitle.getVersePose("V. ")
+              : "") + subtitle.getTranslationText(lang.replace("ar+", ""));
+        } else {
+          subtitleFileText +=
+            (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse()
+              ? subtitle.getVersePose("V. ")
+              : "") + subtitle.getTranslationText(lang);
+        }
+
+        subtitleFileText += "\n\n";
       } else {
         silenceCounter++;
       }

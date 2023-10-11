@@ -6,6 +6,7 @@ import AppVariables from "../AppVariables";
 import Loading from "../assets/loading.gif";
 import SubtitleViewer from "./subtitleViewer";
 import { SubtitleGenerator } from "../extensions/subtitleGenerator";
+import StringExt from "../extensions/stringExt";
 
 interface Props {
   subtitles: Subtitle[];
@@ -208,7 +209,7 @@ const VideoGenerator = (props: Props) => {
       ) : (
         <div className="overflow-auto flex flex-col items-center bg-[#2b333f] my-10">
           <div className="flex items-center justify-center flex-col">
-            <div className="text-white flex flex-row flex-wrap text-sm md:text-lg large:text-xl">
+            <div className="text-white flex flex-row flex-wrap justify-center items-center  w-8/12 lg:w-full text-sm md:text-lg large:text-xl">
               <div className="flex flex-row items-center justify-center  ">
                 <p>Arabic font : </p>
                 <select
@@ -300,7 +301,7 @@ const VideoGenerator = (props: Props) => {
             </div>
           </div>
 
-          <div className="w-[1000px] bg-black relative mt-10">
+          <div className="w-[1000px] bg-black relative mt-10 ">
             <video
               className="w-full h-full shadow-2xl shadow-black "
               src={props.videoBlobUrl}
@@ -346,10 +347,7 @@ const VideoGenerator = (props: Props) => {
 
               <div
                 className={
-                  "flex justify-center flex-col items-center h-full text-white  text-center mx-20 letter-outline select-none " +
-                  (arabicFontRef.current?.value === "me_quran"
-                    ? "me_quran "
-                    : "Amiri ")
+                  "flex justify-center flex-col items-center h-full text-white  text-center mx-20 letter-outline select-none "
                 }
                 style={{
                   fontSize:
@@ -359,12 +357,32 @@ const VideoGenerator = (props: Props) => {
                 }}
               >
                 {currentSubtitle && (
-                  <>
+                  <p
+                    className={
+                      arabicFontRef.current?.value === "me_quran"
+                        ? "me_quran "
+                        : "Amiri"
+                    }
+                  >
                     {arabicVersesBetweenRef.current?.checked === true && "﴿"}{" "}
                     {currentSubtitle?.arabicText}
                     {arabicVersesBetweenRef.current?.checked === true &&
                       " ﴾"}{" "}
-                  </>
+                    {currentSubtitle &&
+                    verseNumberInArabicRef.current?.checked === true &&
+                    currentSubtitle.IsLastWordsFromVerse() ? (
+                      // Les numéros de verset arabe fonctionne qu'avec la police me_quran
+                      <span className="me_quran">
+                        {"﴿" +
+                          StringExt.toArabicNumber(
+                            currentSubtitle.versePos!.verse
+                          ) +
+                          "﴾"}
+                      </span>
+                    ) : (
+                      ""
+                    )}
+                  </p>
                 )}
 
                 {"\n"}
@@ -509,6 +527,15 @@ const VideoGenerator = (props: Props) => {
           <SubtitleViewer
             setShowSubtitle={setShowSubtitle}
             subtitles={props.subtitles}
+            arabicVersesBetween={
+              arabicVersesBetweenRef.current?.checked ?? false
+            }
+            arabicVersesPosition={
+              verseNumberInArabicRef.current?.checked ?? false
+            }
+            translationVersesPosition={
+              verseNumberInTranslationRef.current?.checked ?? false
+            }
           />
         </div>
       )}

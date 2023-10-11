@@ -35,6 +35,7 @@
 .Amiri {
   direction: rtl;
   font-family: "Amiri", "Courier New", Courier, monospace;
+  font-weight: bold;
 }
 
 .letter-outline {

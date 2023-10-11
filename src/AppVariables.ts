@@ -1,9 +1,10 @@
-import { Surah } from "./api/quran";
-import { QuranWBW } from "./models/quranWBW";
+import { Surah, VersePosition } from "./api/quran";
 
 export default class AppVariables {
   static ApiUrl = "https://www.rayanestaszewski.fr";
   //static ApiUrl = "https://localhost:7133";
+
+  static WbwTranslations: { [key: string]: any } = {};
 
   static Langs: { [key: string]: string } = {
     ar: "Arabic",

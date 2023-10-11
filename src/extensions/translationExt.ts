@@ -66,9 +66,22 @@ export default class TranslationExt {
         let translation: string = "";
 
         try {
-          const response = await fetch(url);
-          const jsonText = await response.text();
-          const json = JSON.parse(jsonText);
+          let json: any;
+          // Si on a déjà téléchargé la traduction de ce verset
+          if (
+            subtitle.versePos.surah + ":" + subtitle.versePos.verse in
+            AppVariables.WbwTranslations
+          ) {
+            json =
+              AppVariables.WbwTranslations[
+                subtitle.versePos.surah + ":" + subtitle.versePos.verse
+              ];
+          } else {
+            json = JSON.parse(await (await fetch(url)).text());
+            AppVariables.WbwTranslations[
+              subtitle.versePos.surah + ":" + subtitle.versePos.verse
+            ] = json;
+          }
 
           for (
             let index = subtitle.fromWordIndex;
