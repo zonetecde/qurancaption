@@ -324,7 +324,12 @@ const VideoGenerator = (props: Props) => {
                 <p>Verse number in translation </p>
               </div>
               <div className="flex flex-row items-center ml-5">
-                <input className="mr-2" type="checkbox" ref={textOutlineRef} />
+                <input
+                  className="mr-2"
+                  type="checkbox"
+                  ref={textOutlineRef}
+                  defaultChecked
+                />
                 <p>Text outline</p>
               </div>
               <div className="flex flex-row items-center ml-5">
