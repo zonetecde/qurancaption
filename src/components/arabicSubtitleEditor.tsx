@@ -192,7 +192,6 @@ const ArabicSubtitleEditor = (props: Props) => {
 
               // > 1 car la length n'est pas actualisé après son set
               if (props.subtitles.length > 1) {
-                console.log(props.subtitles);
                 props.setCurrentSelectedWordsRange([
                   props.subtitles[props.subtitles.length - 1].toWordIndex,
                   props.subtitles[props.subtitles.length - 1].toWordIndex,

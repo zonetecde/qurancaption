@@ -38,7 +38,6 @@ const TabControl = (props: Props) => {
     // Coran dans la langue voulu
     TranslationExt.addTranslationToSubtitles(selectedLang, props.subtitles)
       .then((subtitles) => {
-        console.log(subtitles);
         props.setSubtitles(subtitles);
       })
       .finally(() => {

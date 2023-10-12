@@ -49,8 +49,6 @@ Style: Default,` +
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
 
-    console.log(subtitleFileText);
-
     subtitles.forEach((subtitle, index) => {
       subtitleFileText +=
         "Dialogue: 0," +

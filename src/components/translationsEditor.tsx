@@ -20,7 +20,6 @@ const TranslationsEditor = (props: Props) => {
 
   // Au chargement du component, on regarde si certaines des traductions sont manquantes
   useEffect(() => {
-    console.log(props.lang);
     //Ajoute les traductions aux versets qui n'en ont pas
     TranslationExt.addTranslationToSubtitles(props.lang, props.subtitles).then(
       (subtitle) => {

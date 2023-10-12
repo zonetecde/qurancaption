@@ -109,8 +109,6 @@ const VideoGenerator = (props: Props) => {
       "&blackOpacity=" +
       blackOpacityInputRef.current?.value;
 
-    console.log(apiUrl);
-
     // Create a FormData object to send the BLOB data
     const formData = new FormData();
     formData.append(
