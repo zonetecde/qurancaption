@@ -1,5 +1,5 @@
 import AppVariables from "../AppVariables";
-import QuranApi, { Surah, Verse } from "../api/quran";
+import QuranApi, { Surah, Verse, VersePosition } from "../api/quran";
 import Subtitle, { Translation } from "../models/subtitle";
 
 export default class TranslationExt {
@@ -23,17 +23,10 @@ export default class TranslationExt {
         // Push la nouvelle traduction
         // Vérifie juste que ce n'est pas une basmala ou autre
         if (
-          subtitle &&
-          subtitle.versePos &&
-          selectedLang &&
-          subtitle.translations.some((x) => x.lang === selectedLang) === false
+          subtitle.versePos && // Si ce n'est pas une basmala ou autre
+          subtitle.hasTranslation(selectedLang) === false
         ) {
-          subtitle.translations.push({
-            lang: selectedLang,
-            text: AppVariables.Quran[subtitle.versePos.surah - 1].verses[
-              subtitle.versePos.verse - 1
-            ].translations.find((y) => y.lang === selectedLang)!.text,
-          });
+          subtitle.AddTranslation(selectedLang);
 
           return subtitle;
         }
@@ -63,53 +56,19 @@ export default class TranslationExt {
           subtitle.versePos?.verse +
           "?language=en&words=true";
 
-        let translation: string = "";
-
         try {
-          let json: any;
-          // Si on a déjà téléchargé la traduction de ce verset
+          // Télécharge la traduction mot à mot du verset si pas déjà fait
           if (
             subtitle.versePos.surah + ":" + subtitle.versePos.verse in
-            AppVariables.WbwTranslations
+              AppVariables.WbwTranslations ===
+            false
           ) {
-            json =
-              AppVariables.WbwTranslations[
-                subtitle.versePos.surah + ":" + subtitle.versePos.verse
-              ];
-          } else {
-            json = JSON.parse(await (await fetch(url)).text());
             AppVariables.WbwTranslations[
               subtitle.versePos.surah + ":" + subtitle.versePos.verse
-            ] = json;
+            ] = JSON.parse(await (await fetch(url)).text()); // Ajoute la traduction mot à mot manquante
           }
 
-          for (
-            let index = subtitle.fromWordIndex;
-            index <= subtitle.toWordIndex;
-            index++
-          ) {
-            // Le mot arabe correspondant
-            // const arabicWord =
-            //   subtitle.arabicText.split(" ")[index - subtitle.fromWordIndex];
-            const word = json.verse.words[index].translation.text;
-
-            translation += word + " ";
-          }
-
-          // Ajoute uniquement aux subtitles qui n'ont pas encore leur trad
-          if (
-            !subtitle.translations.some((x) => x.lang === selectedLang) ||
-            subtitle.translations.find((x) => x.lang === selectedLang) ===
-              undefined
-          ) {
-            subtitle.translations.push({
-              lang: selectedLang,
-              text:
-                translation === ""
-                  ? "Something went wrong"
-                  : translation.trim(),
-            });
-          }
+          subtitle.AddTranslation(selectedLang);
 
           return subtitle;
         } catch (error) {

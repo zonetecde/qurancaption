@@ -81,6 +81,11 @@ const TranslationsEditor = (props: Props) => {
     props.setSubtitles(editedSubtitles);
   }
 
+  /**
+   * Appelé lorsqu'on clique sur la flèche 'undo' d'un verset
+   * Remet la traduction d'internet d'un verset
+   * @param subtitle Le sous titre à reset
+   */
   function resetTranslation(subtitle: Subtitle): void {
     const editedSubtitles = [...props.subtitles];
 
@@ -89,16 +94,9 @@ const TranslationsEditor = (props: Props) => {
     );
 
     if (_subtitle) {
-      const translation = subtitle.translations.find(
-        (_subtitle) => _subtitle.lang === props.lang
-      );
-
-      if (translation && _subtitle.versePos) {
-        translation.text = AppVariables.Quran[
-          _subtitle.versePos.surah - 1
-        ].verses[_subtitle.versePos.verse - 1].translations.find(
-          (x) => x.lang === props.lang
-        )!.text;
+      if (_subtitle.hasTranslation(props.lang) && _subtitle.versePos) {
+        _subtitle.getTranslation(props.lang)!.text =
+          _subtitle.getOriginalTranslation(props.lang);
       }
     }
 
@@ -155,27 +153,16 @@ const TranslationsEditor = (props: Props) => {
                     ></span>
 
                     {/* If the user changed the default translation, show the undo button*/}
-                    {subtitle.translations.some(
-                      (x) => x.lang === props.lang && x.lang !== "en_auto"
-                    ) && (
-                      <>
-                        {subtitle.translations.find((x) => {
-                          return x.lang === props.lang;
-                        })!.text !==
-                          AppVariables.Quran[
-                            subtitle.versePos.surah - 1
-                          ].verses[
-                            subtitle.versePos.verse - 1
-                          ].translations.find((x) => x.lang === props.lang)
-                            ?.text && (
-                          <img
-                            src={UndoIcon}
-                            className="absolute bottom-5 right-6 w-8 h-8 cursor-pointer"
-                            alt="undo"
-                            onClick={() => resetTranslation(subtitle)}
-                          />
-                        )}
-                      </>
+                    {subtitle.getTranslationText(props.lang).trim() !==
+                      subtitle.getOriginalTranslation(props.lang).trim() && (
+                      <img
+                        src={UndoIcon}
+                        className="absolute bottom-5 right-6 w-8 h-8 cursor-pointer"
+                        alt="undo"
+                        onClick={() => {
+                          resetTranslation(subtitle);
+                        }}
+                      />
                     )}
                   </div>
                 )}

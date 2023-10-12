@@ -44,7 +44,7 @@ const TabControl = (props: Props) => {
         })
         .finally(() => {
           // Cache la tabItem qui est actuellement visible
-          const updatedTabItems = makeAllTabsHidden(props);
+          const updatedTabItems = makeAllTabsHidden();
 
           // Ajoute une nouvelle tabItem contenant les tranductions dans cette langue et l'affiche
           props.setTabItems([
@@ -59,7 +59,7 @@ const TabControl = (props: Props) => {
           props.setSubtitles(subtitles);
         })
         .finally(() => {
-          const updatedTabItems = makeAllTabsHidden(props);
+          const updatedTabItems = makeAllTabsHidden();
 
           props.setTabItems([
             ...updatedTabItems,
@@ -74,12 +74,12 @@ const TabControl = (props: Props) => {
    * @param tabItem The clicked tabItem
    */
   function bringTabToView(tabItemLang: string): void {
-    const updatedTabItems = makeAllTabsHidden(props);
+    const updatedTabItems = makeAllTabsHidden();
     updatedTabItems.find((x) => x.lang === tabItemLang)!.isShown = true; // Show the selected tab
     props.setTabItems(updatedTabItems);
   }
 
-  function makeAllTabsHidden(props: Props) {
+  function makeAllTabsHidden() {
     return props.tabItems.map((item) => ({
       ...item,
       isShown: false,
@@ -188,7 +188,7 @@ const TabControl = (props: Props) => {
                     props.tabItems.find((x) => x.lang === key) === undefined
                   ) {
                     return (
-                      <option key={key} value={key}>
+                      <option key={index} value={key}>
                         {AppVariables.Langs[key]}
                       </option>
                     );
