@@ -105,7 +105,9 @@ const VideoGenerator = (props: Props) => {
       "/api/QVM/generate-video?authorizeKeep=" +
       (allowMeToKeepRef.current?.checked ? "true" : "false") +
       "&verses=" +
-      verses;
+      verses +
+      "&blackOpacity=" +
+      blackOpacityInputRef.current?.value;
 
     console.log(apiUrl);
 
@@ -127,7 +129,8 @@ const VideoGenerator = (props: Props) => {
         true,
         arabicVersesBetweenRef.current?.checked,
         verseNumberInArabicRef.current?.checked,
-        verseNumberInTranslationRef.current?.checked
+        verseNumberInTranslationRef.current?.checked,
+        textOutlineRef.current?.checked
       )
     );
 
@@ -189,6 +192,8 @@ const VideoGenerator = (props: Props) => {
   const verseNumberInTranslationRef = React.useRef<HTMLInputElement>(null);
   const verseNumberInArabicRef = React.useRef<HTMLInputElement>(null);
   const arabicVersesBetweenRef = React.useRef<HTMLInputElement>(null);
+  const blackOpacityInputRef = React.useRef<HTMLInputElement>(null);
+  const textOutlineRef = React.useRef<HTMLInputElement>(null);
 
   function downloadVideo() {
     let xhr = new XMLHttpRequest();
@@ -318,6 +323,23 @@ const VideoGenerator = (props: Props) => {
                 />
                 <p>Verse number in translation </p>
               </div>
+              <div className="flex flex-row items-center ml-5">
+                <input className="mr-2" type="checkbox" ref={textOutlineRef} />
+                <p>Text outline</p>
+              </div>
+              <div className="flex flex-row items-center ml-5">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step={0.01}
+                  defaultValue={0.7}
+                  className=" outline-none mr-2 mt-0.5"
+                  ref={blackOpacityInputRef}
+                />
+
+                <p>Black overlay opacity</p>
+              </div>
             </div>
           </div>
 
@@ -330,7 +352,12 @@ const VideoGenerator = (props: Props) => {
               muted={isMuted}
               loop
             ></video>
-            <div className="absolute left-0 top-0 right-0 bottom-0 overflow-hidden">
+            {/* Black overlay */}
+            <div
+              className="absolute left-0 top-0 right-0 bottom-0 overflow-hidden bg-black"
+              style={{ opacity: blackOpacityInputRef.current?.value }}
+            />
+            <div className="absolute left-0 top-0 right-0 bottom-0 overflow-hidden ">
               {isMuted ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -367,7 +394,8 @@ const VideoGenerator = (props: Props) => {
 
               <div
                 className={
-                  "flex justify-center flex-col items-center h-full text-white  text-center mx-20 letter-outline select-none "
+                  "flex justify-center flex-col items-center h-full text-white  text-center mx-20 select-none " +
+                  (textOutlineRef.current?.checked ? "letter-outline" : "")
                 }
                 style={{
                   fontSize:
@@ -418,17 +446,14 @@ const VideoGenerator = (props: Props) => {
                         "px",
                     }}
                   >
-                    {
-                      (currentSubtitle &&
-                        (verseNumberInTranslationRef.current?.checked ===
-                          true && currentSubtitle?.fromWordIndex === 0
-                          ? currentSubtitle.versePos?.verse.toString() + ". "
-                          : "") +
-                          currentSubtitle?.translations.find(
-                            (x) => x.lang === translationRef.current?.value
-                          )?.text) ??
-                        `` // Use the updated current time here
-                    }
+                    {currentSubtitle &&
+                      (verseNumberInTranslationRef.current?.checked === true &&
+                      currentSubtitle?.fromWordIndex === 0
+                        ? currentSubtitle.versePos?.verse.toString() + ". "
+                        : "") +
+                        currentSubtitle.getTranslationText(
+                          translationRef.current?.value ?? "en"
+                        )}
                   </p>
                 )}
               </div>
@@ -526,7 +551,7 @@ const VideoGenerator = (props: Props) => {
                     ></textarea>
                     <img
                       src={Loading}
-                      className="absolute -right-7 -bottom-4"
+                      className="absolute -right-5 -bottom-4"
                       width={100}
                     />
                   </div>

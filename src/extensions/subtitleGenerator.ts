@@ -23,7 +23,8 @@ export class SubtitleGenerator {
     shadow: boolean = true,
     arabicVersesBetweenParentheses: boolean = false,
     verseNumberInArabic: boolean = false,
-    verseNumberInTranslation: boolean = false
+    verseNumberInTranslation: boolean = false,
+    letterOutline: boolean = false
   ) {
     let subtitleFileText =
       `
@@ -39,12 +40,16 @@ Style: Default,` +
       arabicFontSize +
       `,&Hffffff,&Hffffff,&H00000000,&H0,` +
       (font === "me_quran" ? "0" : "1") +
-      `,0,0,0,100,100,0,0,1,1,` +
+      `,0,0,0,100,100,0,0,1,` +
+      (letterOutline ? "1" : "0") +
+      `,` +
       (shadow ? "1" : "0") +
       `,2,10,10,10,0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
+
+    console.log(subtitleFileText);
 
     subtitles.forEach((subtitle, index) => {
       subtitleFileText +=
@@ -52,17 +57,19 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
         subtitle.getStartTimeHHMMSSms() +
         "," +
         subtitle.getEndTimeHHMMSSms() +
-        ",Default,,40,40,0,,{\\fade(200,200)\\blur5}" +
+        ",Default,,40,40,0,,{\\fade(200,200)" +
+        (letterOutline ? "\\blur5}" : "}") + // Si on ne veut pas avoir l'outline alors dans ce cas on pas d'effet de blur
         (verseNumberInArabic && subtitle.IsLastWordsFromVerse()
-          ? this.setFontExpression("Arial") +
-            "‎" +
-            this.setFontExpression("me_quran") +
+          ? this.setFontSizeExpression(25) + // taille du nbre arabe
+            this.setFontExpression("me_quran") + // police du nbre arabe
+            // nbre arabe --
             "﴾" +
             StringExt.toArabicNumber(subtitle.versePos!.verse) +
             "﴿"
-          : "") +
-        this.setFontExpression("Arial") +
-        "‎\\h" + // espace video nécéssaire pour que le n° de verset arabe s'affiche correctement, \\h pour l'espace entre le texte arabe et le n° du verset
+          : // --
+            "") +
+        "\\h" + // espace entre le nbre arabe et le texte
+        this.setFontSizeExpression(arabicFontSize) +
         this.setFontExpression(font) +
         subtitle.getArabicText(arabicVersesBetweenParentheses) +
         (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre

@@ -75,7 +75,8 @@ export default class Subtitle {
           : "";
 
       return base + this.translations.find((x) => x.lang === lang)!.text;
-    } else return "Translation unavailable";
+    } else if (this.versePos) return "";
+    else return "Translation unavailable";
   }
   IsBeginingWordsFromVerse() {
     return this.fromWordIndex === 0;
