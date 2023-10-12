@@ -48,6 +48,10 @@ const Editor = () => {
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [isOnGenerateVideoPage, setGenerateVideo] = useState<boolean>(false);
 
+  // Est-ce que on affiche les mots arabe en phonétiques ?
+  const [showTransliteration, setShowTransliteration] =
+    useState<boolean>(false);
+
   function beginSync() {
     setSubtitles([]);
     setGenerateVideo(false);
@@ -113,6 +117,8 @@ const Editor = () => {
                         previousSelectedWordIndexInVerse={
                           previousSelectedWordIndexInVerse
                         }
+                        showTransliteration={showTransliteration}
+                        setShowTransliteration={setShowTransliteration}
                       />
                     ) : (
                       <div className="w-full h-[95vh]">

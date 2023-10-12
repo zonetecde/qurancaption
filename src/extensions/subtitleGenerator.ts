@@ -82,7 +82,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
 
   static generateSrtSubtitles(
     subtitles: Subtitle[],
-    lang: string | undefined,
+    lang: string,
     arabicVersesBetweenParentheses: boolean,
     verseNumberInArabic: boolean,
     verseNumberInTranslation: boolean
@@ -102,21 +102,22 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
           lang === "none" ||
           subtitle.versePos === undefined
         ) {
-          subtitleFileText +=
-            (verseNumberInArabic
-              ? "﴾" + StringExt.toArabicNumber(subtitle.versePos!.verse) + "﴿ ‎"
-              : "") + subtitle.getArabicText(arabicVersesBetweenParentheses);
+          subtitleFileText += subtitle.getArabicText(
+            arabicVersesBetweenParentheses,
+            verseNumberInArabic
+          );
         } else if (lang.includes("ar+")) {
+          // sinon si on veut l'arabe et sa traduction
+          // Alors on ajoute le verset en arabe
           subtitleFileText +=
-            (verseNumberInArabic
-              ? "﴾" + StringExt.toArabicNumber(subtitle.versePos!.verse) + "﴿ ‎"
-              : "") +
-            subtitle.getArabicText(arabicVersesBetweenParentheses) +
-            "\n";
-          subtitleFileText +=
-            (verseNumberInTranslation && subtitle.fromWordIndex === 0
-              ? subtitle.getVersePose("V. ")
-              : "") + subtitle.getTranslationText(lang.replace("ar+", ""));
+            subtitle.getArabicText(
+              arabicVersesBetweenParentheses,
+              verseNumberInArabic
+            ) + "\n";
+          subtitleFileText += subtitle.getTranslationText(
+            lang.replace("ar+", ""),
+            verseNumberInTranslation
+          );
         } else {
           subtitleFileText +=
             (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse()

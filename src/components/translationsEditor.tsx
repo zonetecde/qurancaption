@@ -21,22 +21,12 @@ const TranslationsEditor = (props: Props) => {
   // Au chargement du component, on regarde si certaines des traductions sont manquantes
   useEffect(() => {
     console.log(props.lang);
-    if (props.lang !== "en_auto") {
-      //Ajoute les traductions aux versets qui n'en ont pas
-      TranslationExt.addTranslationToSubtitles(
-        props.lang,
-        props.subtitles
-      ).then((subtitle) => {
+    //Ajoute les traductions aux versets qui n'en ont pas
+    TranslationExt.addTranslationToSubtitles(props.lang, props.subtitles).then(
+      (subtitle) => {
         props.setSubtitles(subtitle);
-      });
-    } else {
-      //Ajoute les traductions anglaise automatique aux sous-titre qui n'en n'ont pas
-      TranslationExt.automaticEnglishTranslation(props.subtitles).then(
-        (subtitle) => {
-          props.setSubtitles(subtitle);
-        }
-      );
-    }
+      }
+    );
   }, []);
 
   /**

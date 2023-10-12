@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import TimeExt from "../extensions/timeExt";
 import Subtitle from "../models/subtitle";
 import { VersePosition } from "../api/quran";
@@ -17,18 +17,21 @@ interface Props {
 
 const VideoGenerator = (props: Props) => {
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isMuted, setIsMuted] = useState<boolean>(true);
 
   const [isVideoGenerating, setIsVideoGenerating] = useState<boolean>(false);
   const [showSubtitle, setShowSubtitle] = useState<boolean>(false);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [videoName, setVideoName] = useState<string>("");
   const [videoId, setVideoId] = useState<string>("");
+  const [videoProcessLogs, setVideoProcessLogs] = useState<string>("");
 
   // dans le video player
   const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | undefined>(
     props.subtitles[0]
   );
+
+  const textAreaLogs = React.useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     setCurrentSubtitle(
@@ -63,13 +66,24 @@ const VideoGenerator = (props: Props) => {
     };
   }, []);
 
+  /**
+   * Allow the text area displaying the video logs to automatically scroll to the bottom
+   */
+  useEffect(() => {
+    if (textAreaLogs.current) {
+      textAreaLogs.current.scrollTop = textAreaLogs.current.scrollHeight;
+    }
+  }, [videoProcessLogs, textAreaLogs]);
+
   async function generateVideo(): Promise<void> {
     setIsMuted(true);
 
     if (isVideoGenerating) return;
     setVideoUrl("");
     setVideoId("");
+    setVideoProcessLogs("Uploading the video...");
 
+    // Get all the verses of the video
     let verses: string = "";
 
     for (let i = 0; i < props.subtitles.length; i++) {
@@ -142,12 +156,18 @@ const VideoGenerator = (props: Props) => {
                 if (responseText === "true") {
                   setVideoUrl(AppVariables.ApiUrl + "/QVM/" + videoId);
                   clearInterval(int);
+                } else {
+                  // Récupère ici l'avancée de la requête sur le serveur
+                  // Add a new logs and set it to display it
+                  setVideoProcessLogs(
+                    (prevText) => prevText + "\n" + responseText
+                  );
                 }
               });
             } catch {
               // internet lost
             }
-          }, 2500);
+          }, 500);
         } else {
           // Handle errors
           console.error("Failed to upload file  " + response.body?.getReader());
@@ -497,6 +517,19 @@ const VideoGenerator = (props: Props) => {
                       Video id : {videoId.split("_output")[0]}
                     </span>
                   )}
+                  <div className="w-10/12 h-60 mt-3 relative">
+                    <textarea
+                      className="w-full h-full bg-gray-700 border border-black shadow-black shadow-lg p-3 text-sm"
+                      readOnly
+                      ref={textAreaLogs}
+                      value={videoProcessLogs}
+                    ></textarea>
+                    <img
+                      src={Loading}
+                      className="absolute -right-7 -bottom-4"
+                      width={100}
+                    />
+                  </div>
                   <span className="text-sm mt-3">
                     Is it slow ? <a href="">Help me</a> buy a better server :)
                   </span>
@@ -511,11 +544,6 @@ const VideoGenerator = (props: Props) => {
                     />
                   </a>
                 </p>
-                <img
-                  src={Loading}
-                  className="top-2/3 -translate-y-1/3 absolute "
-                  width={300}
-                />
               </>
             )}
           </div>

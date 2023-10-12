@@ -48,7 +48,7 @@ const subtitleViewer = (props: Props) => {
     setSrtSubtitle(
       SubtitleGenerator.generateSrtSubtitles(
         props.subtitles,
-        translationRef.current?.value,
+        translationRef.current?.value ?? "none",
         props.arabicVersesBetween,
         props.arabicVersesPosition,
         props.translationVersesPosition

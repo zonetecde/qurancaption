@@ -1,6 +1,8 @@
 import AppVariables from "../AppVariables";
-import { VersePosition } from "../api/quran";
+import QuranApi, { Surah, Verse, VersePosition } from "../api/quran";
+import StringExt from "../extensions/stringExt";
 import TimeExt from "../extensions/timeExt";
+import TranslationExt from "../extensions/translationExt";
 
 export class Translation {
   text: string;
@@ -16,7 +18,17 @@ export default class Subtitle {
   getTranslation(lang: string): Translation | undefined {
     return this.translations.find((x) => x.lang === lang);
   }
-  AddTranslation(selectedLang: string) {
+
+  /**
+   * Ajoute une traduction au sous-titre ; si elle n'est pas disponnible alors la télécharge
+   * @param selectedLang La langue voulu
+   */
+  async AddTranslation(selectedLang: string) {
+    // Vérifie que la traduction existe, sinon la télécharge
+    if (this.versePos) {
+      await TranslationExt.downloadTranslation(selectedLang, this.versePos);
+    }
+
     if (this.hasTranslation(selectedLang) === false) {
       this.translations.push({
         lang: selectedLang,
@@ -27,6 +39,7 @@ export default class Subtitle {
       });
     }
   }
+
   hasTranslation(selectedLang: string) {
     return this.translations.some((x) => x.lang === selectedLang);
   }
@@ -54,9 +67,14 @@ export default class Subtitle {
     return TimeExt.secondsToHHMMSSms(this.endTime);
   }
 
-  getTranslationText(lang: string): string {
+  getTranslationText(lang: string, verseNumber: boolean = false): string {
     if (this.translations.some((x) => x.lang === lang)) {
-      return this.translations.find((x) => x.lang === lang)!.text;
+      const base =
+        verseNumber && this.IsBeginingWordsFromVerse()
+          ? this.getVersePose("V. ")
+          : "";
+
+      return base + this.translations.find((x) => x.lang === lang)!.text;
     } else return "Translation unavailable";
   }
   IsBeginingWordsFromVerse() {
@@ -74,7 +92,12 @@ export default class Subtitle {
 
   getWbwTranslation() {
     let translation: string = "";
-    if (this.versePos) {
+
+    if (
+      this.versePos &&
+      this.versePos.surah + ":" + this.versePos.verse in
+        AppVariables.WbwTranslations
+    ) {
       for (let index = this.fromWordIndex; index <= this.toWordIndex; index++) {
         // Le mot arabe correspondant
         // const arabicWord =
@@ -130,8 +153,19 @@ export default class Subtitle {
    * @param {boolean} betweenParentheses - Indicates whether the subtitle text should be enclosed in parentheses.
    * @return {string} The Arabic subtitle text.
    */
-  getArabicText(betweenParentheses: boolean = false) {
-    return betweenParentheses ? "﴾ " + this.arabicText + " ﴿" : this.arabicText;
+  getArabicText(
+    betweenParentheses: boolean = false,
+    verseNumber: boolean = false
+  ) {
+    const base =
+      verseNumber && this.IsLastWordsFromVerse()
+        ? "﴾" + StringExt.toArabicNumber(this.versePos!.verse) + "﴿ ‎"
+        : "";
+
+    return (
+      base +
+      (betweenParentheses ? "﴾ " + this.arabicText + " ﴿" : this.arabicText)
+    );
   }
 
   IsLastWordsFromVerse() {

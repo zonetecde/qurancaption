@@ -16,6 +16,9 @@ interface Props {
   setCurrentVerse: React.Dispatch<React.SetStateAction<VersePosition>>;
   currentVerse: VersePosition;
 
+  showTransliteration: boolean;
+  setShowTransliteration: React.Dispatch<React.SetStateAction<boolean>>;
+
   currentSelectedWordsRange: [number, number];
   setCurrentSelectedWordsRange: React.Dispatch<
     React.SetStateAction<[number, number]>
@@ -43,271 +46,277 @@ const ArabicSubtitleEditor = (props: Props) => {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Resume/Pause recitation
-      switch (e.key) {
-        case " ":
-          if (audioPlayerRef.current?.audioEl.current?.paused) {
-            audioPlayerRef.current?.audioEl.current?.play();
-          } else {
-            audioPlayerRef.current?.audioEl.current?.pause();
-          }
-          break;
-
-        case "ArrowLeft":
-          // Reculer de 2 secondes
-          if (audioPlayerRef.current?.audioEl.current) {
-            audioPlayerRef.current.audioEl.current.currentTime -= 2;
-          }
-          break;
-
-        case "ArrowRight":
-          // Avancer de deux secondes
-          if (audioPlayerRef.current?.audioEl.current) {
-            audioPlayerRef.current.audioEl.current.currentTime += 2;
-          }
-          break;
-
-        case "ArrowUp":
-          // On vérifie qu'on ne sélectionne pas un mot en dehors des limites du verset
-          if (
-            props.currentSelectedWordsRange[1] <
-            AppVariables.Quran[props.currentVerse.surah - 1].verses[
-              props.currentVerse.verse - 1
-            ].text.split(" ").length -
-              1
-          ) {
-            // Sélectionne le mot suivant
-            props.setCurrentSelectedWordsRange([
-              props.currentSelectedWordsRange[0],
-              props.currentSelectedWordsRange[1] + 1,
-            ]);
-          } else {
-            // Vérifie qu'on va pas out of range
-            if (
-              AppVariables.Quran.find((x) => x.id === props.currentVerse.surah)!
-                .total_verses > props.currentVerse.verse
-            ) {
-              // Dans ce cas on va au verset suivant
-              props.setCurrentVerse(
-                new VersePosition(
-                  props.currentVerse.surah,
-                  props.currentVerse.verse + 1
-                )
-              );
-              props.setCurrentSelectedWordsRange([0, 0]);
-            }
-          }
-          break;
-
-        case "ArrowDown":
-          // On vérifie qu'on ne sélectionne pas un mot négatif
-          if (
-            props.currentSelectedWordsRange[1] >=
-            props.currentSelectedWordsRange[0] + 1
-          ) {
-            // Revient sur le mot précédent
-            props.setCurrentSelectedWordsRange([
-              props.currentSelectedWordsRange[0],
-              props.currentSelectedWordsRange[1] - 1,
-            ]);
-          } else if (props.currentSelectedWordsRange[0] > 0) {
-            // Change la born min (= le réciteur se répète)
-            props.setCurrentSelectedWordsRange([
-              props.currentSelectedWordsRange[0] - 1,
-              props.currentSelectedWordsRange[1] - 1,
-            ]);
-          } else {
-            // On sélectionne un mot en dehors des ranges du verset,
-            // càd on retourne au verset précédent
-            if (props.currentVerse.verse > 1) {
-              props.setCurrentVerse(
-                new VersePosition(
-                  props.currentVerse.surah,
-                  props.currentVerse.verse - 1
-                )
-              );
-              const previousVerseLength =
-                AppVariables.Quran[props.currentVerse.surah - 1].verses[
-                  props.currentVerse.verse - 2 // -2 car -1 = actualVerse (start from 0) et -2 = previousVerse
-                ].text.split(" ").length;
-
-              props.setCurrentSelectedWordsRange([
-                previousVerseLength - 1,
-                previousVerseLength - 1,
-              ]);
-              props.setPreviousSelectedWordIndexInVerse(
-                previousVerseLength - 2
-              );
-            }
-          }
-          break;
-
-        case "a":
-          // Add أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
-
-          props.setSubtitles([
-            ...props.subtitles,
-            new Subtitle(
-              props.subtitles.length + 1,
-              undefined,
-              props.currentSelectedWordsRange[0],
-              props.currentSelectedWordsRange[1],
-              lastSubtitleEndTime(props.subtitles),
-              getCurrentAudioPlayerTime(),
-              "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
-            ),
-          ]);
-          break;
-        case "b":
-          // Add the basmala
-
-          props.setSubtitles([
-            ...props.subtitles,
-            new Subtitle(
-              props.subtitles.length + 1,
-              undefined,
-
-              props.currentSelectedWordsRange[0],
-              props.currentSelectedWordsRange[1],
-              lastSubtitleEndTime(props.subtitles),
-              getCurrentAudioPlayerTime(),
-              "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-            ),
-          ]);
-          break;
-
-        case "Backspace":
-          // enlève le dernier sous titre ajouté
-          if (props.subtitles.length >= 1) {
-            props.setSubtitles(
-              props.subtitles.slice(0, props.subtitles.length - 1)
-            );
-
-            // > 1 car la length n'est pas actualisé après son set
-            if (props.subtitles.length > 1) {
-              console.log(props.subtitles);
-              props.setCurrentSelectedWordsRange([
-                props.subtitles[props.subtitles.length - 1].toWordIndex,
-                props.subtitles[props.subtitles.length - 1].toWordIndex,
-              ]);
+      // Permet de ne pas faire qqch sans faire exprès aux sous-titres alors
+      // qu'on modifie juste le num de verset
+      if (document.activeElement !== verseBeginRef.current) {
+        // Resume/Pause recitation
+        switch (e.key) {
+          case " ":
+            if (audioPlayerRef.current?.audioEl.current?.paused) {
+              audioPlayerRef.current?.audioEl.current?.play();
             } else {
-              // Si on a aucun sous-titre on remet au tout début du verset
-              props.setCurrentSelectedWordsRange([0, 0]);
+              audioPlayerRef.current?.audioEl.current?.pause();
             }
-          }
-          break;
+            break;
 
-        case "s":
-          // Du dernier temps jusqu'à maintenant un silence
-          props.setSubtitles([
-            ...props.subtitles,
-            new Subtitle(
-              props.subtitles.length + 1,
-              undefined,
+          case "ArrowLeft":
+            // Reculer de 2 secondes
+            if (audioPlayerRef.current?.audioEl.current) {
+              audioPlayerRef.current.audioEl.current.currentTime -= 2;
+            }
+            break;
 
-              props.currentSelectedWordsRange[0],
-              props.currentSelectedWordsRange[1],
-              lastSubtitleEndTime(props.subtitles),
-              getCurrentAudioPlayerTime(),
-              ""
-            ),
-          ]);
-          break;
-        /**
-         * I
-         * Sélectionne du current_end_range jusqu'au début du verset
-         */
-        case "i":
-          props.setCurrentSelectedWordsRange([
-            0,
-            props.currentSelectedWordsRange[1],
-          ]);
-          break;
-        /**
-         * E
-         * Sélectionne du current_begin_range jusqu'à la fin du verset
-         */
-        case "e":
-          props.setCurrentSelectedWordsRange([
-            props.currentSelectedWordsRange[0],
-            AppVariables.Quran[props.currentVerse.surah - 1].verses[
-              props.currentVerse.verse - 1
-            ].text.split(" ").length - 1,
-          ]);
-          break;
-        /**
-         * V
-         * Sélectionne le verset entier
-         */
-        case "v":
-          props.setCurrentSelectedWordsRange([
-            0,
-            AppVariables.Quran[props.currentVerse.surah - 1].verses[
-              props.currentVerse.verse - 1
-            ].text.split(" ").length - 1,
-          ]);
-          break;
-        case "Enter":
-          // Valide la séléction pour le temps acctuel
-          props.setSubtitles([
-            ...props.subtitles,
-            new Subtitle(
-              props.subtitles.length + 1,
-              props.currentVerse,
-              props.currentSelectedWordsRange[0],
-              props.currentSelectedWordsRange[1],
-              lastSubtitleEndTime(props.subtitles),
-              getCurrentAudioPlayerTime(),
+          case "ArrowRight":
+            // Avancer de deux secondes
+            if (audioPlayerRef.current?.audioEl.current) {
+              audioPlayerRef.current.audioEl.current.currentTime += 2;
+            }
+            break;
+
+          case "ArrowUp":
+            // On vérifie qu'on ne sélectionne pas un mot en dehors des limites du verset
+            if (
+              props.currentSelectedWordsRange[1] <
               AppVariables.Quran[props.currentVerse.surah - 1].verses[
                 props.currentVerse.verse - 1
-              ].text
-                .split(" ")
-                .slice(
-                  props.currentSelectedWordsRange[0],
-                  props.currentSelectedWordsRange[1] + 1
-                )
-                .join(" ")
-            ),
-          ]);
-
-          // Si pas tout les mots du versets en cours ont été séléctionnés,
-          if (
-            props.currentSelectedWordsRange[1] <
-            AppVariables.Quran[props.currentVerse.surah - 1].verses[
-              props.currentVerse.verse - 1
-            ].text.split(" ").length -
-              1
-          ) {
-            props.setPreviousSelectedWordIndexInVerse(
-              props.currentSelectedWordsRange[1] + 2
-            );
-            props.setCurrentSelectedWordsRange([
-              props.currentSelectedWordsRange[1] + 1,
-              props.currentSelectedWordsRange[1] + 1,
-            ]);
-          } else {
-            if (
-              AppVariables.Quran[props.currentVerse.surah - 1].total_verses >=
-              props.currentVerse.verse + 1
+              ].text.split(" ").length -
+                1
             ) {
-              // verset suivant
-              props.setCurrentVerse(
-                new VersePosition(
-                  props.currentVerse.surah,
-                  props.currentVerse.verse + 1
-                )
-              );
-              props.setCurrentSelectedWordsRange([0, 0]);
-              props.setPreviousSelectedWordIndexInVerse(1);
+              // Sélectionne le mot suivant
+              props.setCurrentSelectedWordsRange([
+                props.currentSelectedWordsRange[0],
+                props.currentSelectedWordsRange[1] + 1,
+              ]);
             } else {
-              // Fin
-              props.setCurrentSelectedWordsRange([0, 0]);
+              // Vérifie qu'on va pas out of range
+              if (
+                AppVariables.Quran.find(
+                  (x) => x.id === props.currentVerse.surah
+                )!.total_verses > props.currentVerse.verse
+              ) {
+                // Dans ce cas on va au verset suivant
+                props.setCurrentVerse(
+                  new VersePosition(
+                    props.currentVerse.surah,
+                    props.currentVerse.verse + 1
+                  )
+                );
+                props.setCurrentSelectedWordsRange([0, 0]);
+              }
             }
-          }
+            break;
 
-          break;
-        default:
-          break;
+          case "ArrowDown":
+            // On vérifie qu'on ne sélectionne pas un mot négatif
+            if (
+              props.currentSelectedWordsRange[1] >=
+              props.currentSelectedWordsRange[0] + 1
+            ) {
+              // Revient sur le mot précédent
+              props.setCurrentSelectedWordsRange([
+                props.currentSelectedWordsRange[0],
+                props.currentSelectedWordsRange[1] - 1,
+              ]);
+            } else if (props.currentSelectedWordsRange[0] > 0) {
+              // Change la born min (= le réciteur se répète)
+              props.setCurrentSelectedWordsRange([
+                props.currentSelectedWordsRange[0] - 1,
+                props.currentSelectedWordsRange[1] - 1,
+              ]);
+            } else {
+              // On sélectionne un mot en dehors des ranges du verset,
+              // càd on retourne au verset précédent
+              if (props.currentVerse.verse > 1) {
+                props.setCurrentVerse(
+                  new VersePosition(
+                    props.currentVerse.surah,
+                    props.currentVerse.verse - 1
+                  )
+                );
+                const previousVerseLength =
+                  AppVariables.Quran[props.currentVerse.surah - 1].verses[
+                    props.currentVerse.verse - 2 // -2 car -1 = actualVerse (start from 0) et -2 = previousVerse
+                  ].text.split(" ").length;
+
+                props.setCurrentSelectedWordsRange([
+                  previousVerseLength - 1,
+                  previousVerseLength - 1,
+                ]);
+                props.setPreviousSelectedWordIndexInVerse(
+                  previousVerseLength - 2
+                );
+              }
+            }
+            break;
+
+          case "a":
+            // Add أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ
+
+            props.setSubtitles([
+              ...props.subtitles,
+              new Subtitle(
+                props.subtitles.length + 1,
+                undefined,
+                props.currentSelectedWordsRange[0],
+                props.currentSelectedWordsRange[1],
+                lastSubtitleEndTime(props.subtitles),
+                getCurrentAudioPlayerTime(),
+                "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
+              ),
+            ]);
+            break;
+          case "b":
+            // Add the basmala
+
+            props.setSubtitles([
+              ...props.subtitles,
+              new Subtitle(
+                props.subtitles.length + 1,
+                undefined,
+
+                props.currentSelectedWordsRange[0],
+                props.currentSelectedWordsRange[1],
+                lastSubtitleEndTime(props.subtitles),
+                getCurrentAudioPlayerTime(),
+                "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+              ),
+            ]);
+            break;
+
+          case "Backspace":
+            // enlève le dernier sous titre ajouté
+            if (props.subtitles.length >= 1) {
+              props.setSubtitles(
+                props.subtitles.slice(0, props.subtitles.length - 1)
+              );
+
+              // > 1 car la length n'est pas actualisé après son set
+              if (props.subtitles.length > 1) {
+                console.log(props.subtitles);
+                props.setCurrentSelectedWordsRange([
+                  props.subtitles[props.subtitles.length - 1].toWordIndex,
+                  props.subtitles[props.subtitles.length - 1].toWordIndex,
+                ]);
+              } else {
+                // Si on a aucun sous-titre on remet au tout début du verset
+                props.setCurrentSelectedWordsRange([0, 0]);
+              }
+            }
+
+            break;
+
+          case "s":
+            // Du dernier temps jusqu'à maintenant un silence
+            props.setSubtitles([
+              ...props.subtitles,
+              new Subtitle(
+                props.subtitles.length + 1,
+                undefined,
+
+                props.currentSelectedWordsRange[0],
+                props.currentSelectedWordsRange[1],
+                lastSubtitleEndTime(props.subtitles),
+                getCurrentAudioPlayerTime(),
+                ""
+              ),
+            ]);
+            break;
+          /**
+           * I
+           * Sélectionne du current_end_range jusqu'au début du verset
+           */
+          case "i":
+            props.setCurrentSelectedWordsRange([
+              0,
+              props.currentSelectedWordsRange[1],
+            ]);
+            break;
+          /**
+           * E
+           * Sélectionne du current_begin_range jusqu'à la fin du verset
+           */
+          case "e":
+            props.setCurrentSelectedWordsRange([
+              props.currentSelectedWordsRange[0],
+              AppVariables.Quran[props.currentVerse.surah - 1].verses[
+                props.currentVerse.verse - 1
+              ].text.split(" ").length - 1,
+            ]);
+            break;
+          /**
+           * V
+           * Sélectionne le verset entier
+           */
+          case "v":
+            props.setCurrentSelectedWordsRange([
+              0,
+              AppVariables.Quran[props.currentVerse.surah - 1].verses[
+                props.currentVerse.verse - 1
+              ].text.split(" ").length - 1,
+            ]);
+            break;
+          case "Enter":
+            // Valide la séléction pour le temps acctuel
+            props.setSubtitles([
+              ...props.subtitles,
+              new Subtitle(
+                props.subtitles.length + 1,
+                props.currentVerse,
+                props.currentSelectedWordsRange[0],
+                props.currentSelectedWordsRange[1],
+                lastSubtitleEndTime(props.subtitles),
+                getCurrentAudioPlayerTime(),
+                AppVariables.Quran[props.currentVerse.surah - 1].verses[
+                  props.currentVerse.verse - 1
+                ].text
+                  .split(" ")
+                  .slice(
+                    props.currentSelectedWordsRange[0],
+                    props.currentSelectedWordsRange[1] + 1
+                  )
+                  .join(" ")
+              ),
+            ]);
+
+            // Si pas tout les mots du versets en cours ont été séléctionnés,
+            if (
+              props.currentSelectedWordsRange[1] <
+              AppVariables.Quran[props.currentVerse.surah - 1].verses[
+                props.currentVerse.verse - 1
+              ].text.split(" ").length -
+                1
+            ) {
+              props.setPreviousSelectedWordIndexInVerse(
+                props.currentSelectedWordsRange[1] + 2
+              );
+              props.setCurrentSelectedWordsRange([
+                props.currentSelectedWordsRange[1] + 1,
+                props.currentSelectedWordsRange[1] + 1,
+              ]);
+            } else {
+              if (
+                AppVariables.Quran[props.currentVerse.surah - 1].total_verses >=
+                props.currentVerse.verse + 1
+              ) {
+                // verset suivant
+                props.setCurrentVerse(
+                  new VersePosition(
+                    props.currentVerse.surah,
+                    props.currentVerse.verse + 1
+                  )
+                );
+                props.setCurrentSelectedWordsRange([0, 0]);
+                props.setPreviousSelectedWordIndexInVerse(1);
+              } else {
+                // Fin
+                props.setCurrentSelectedWordsRange([0, 0]);
+              }
+            }
+
+            break;
+          default:
+            break;
+        }
       }
     }
 
@@ -347,10 +356,22 @@ const ArabicSubtitleEditor = (props: Props) => {
               className="w-60 h-10 mt-1 opacity-20  ml-8 self-start hover:opacity-95"
               onChange={handleFileUpload}
             />
+
+            <div className="ml-auto mt-3 pl-2">
+              {" "}
+              <input
+                name="transliteration"
+                type="checkbox"
+                checked={props.showTransliteration}
+                onChange={(e) =>
+                  props.setShowTransliteration(e.currentTarget.checked)
+                }
+              />
+              <label className="pl-2">Show transliteration</label>
+            </div>
             <select
               name="surahs"
-              id="surahs"
-              className="h-8 ml-auto  outline-none mt-3 px-1 bg-opacity-20 bg-black"
+              className="h-8 ml-3 w-2/12 md:w-3/12 outline-none mt-3 px-1 bg-opacity-20 bg-black"
               value={props.currentVerse.surah}
               onChange={(e) => {
                 props.setCurrentSelectedWordsRange([0, 0]);
@@ -384,38 +405,36 @@ const ArabicSubtitleEditor = (props: Props) => {
             <p className="ml-3 mt-3">Verse</p>
             <input
               type="number"
-              name="verse-begin"
-              id="verse-begin"
-              max={
-                AppVariables.Quran[props.currentVerse.surah - 1].total_verses
-              }
-              value={props.currentVerse.verse}
+              defaultValue={1}
               className="h-8 w-[60px] ml-3 bg-black bg-opacity-20 outline-none mt-3 pl-1"
               ref={verseBeginRef}
-              onKeyDown={(e) => {
-                // Allow only digits and certain keycodes (e.g., backspace, arrow keys)
-                if (
-                  !/^\d$/.test(e.key) &&
-                  e.key !== "Backspace" &&
-                  e.key !== "ArrowLeft" &&
-                  e.key !== "ArrowRight"
-                ) {
-                  e.preventDefault();
-                }
-              }}
               onChange={(e) => {
                 if (
                   e.target.value !== "" &&
+                  parseInt(e.target.value) >= 1 &&
+                  parseInt(e.target.value) <=
+                    AppVariables.Quran[props.currentVerse.surah - 1]
+                      .total_verses &&
                   AppVariables.Quran[props.currentVerse.surah - 1]
                     .total_verses >= Number(e.target.value)
                 ) {
-                  props.setCurrentVerse(
-                    new VersePosition(
-                      props.currentVerse.surah,
-                      Number(e.target.value)
-                    )
-                  );
-                  props.setCurrentSelectedWordsRange([0, 0]);
+                  {
+                    props.setCurrentVerse(
+                      new VersePosition(
+                        props.currentVerse.surah,
+                        Number(e.target.value)
+                      )
+                    );
+                    props.setCurrentSelectedWordsRange([0, 0]);
+                  }
+
+                  // indication que le verset voulu n'est pas out-of-range
+                  verseBeginRef.current?.classList.remove("bg-red-500");
+                  verseBeginRef.current?.classList.add("bg-black");
+                } else {
+                  // indication que le verset voulu est out-of-range
+                  verseBeginRef.current?.classList.remove("bg-black");
+                  verseBeginRef.current?.classList.add("bg-red-500");
                 }
               }}
             />
@@ -427,8 +446,11 @@ const ArabicSubtitleEditor = (props: Props) => {
               .split(" ")
               .map((word, index) => (
                 <Word
-                  word={word}
-                  key={index}
+                  key={index} // key
+                  word={word} // the arabic word
+                  fromVersePos={props.currentVerse} // the position of the verse where the word come from
+                  wordPos={index} // the position of the word on the verse
+                  showTransliteration={props.showTransliteration} // show the transliteration ?
                   isSelected={
                     props.currentSelectedWordsRange[0] <= index &&
                     props.currentSelectedWordsRange[1] >= index
@@ -436,14 +458,14 @@ const ArabicSubtitleEditor = (props: Props) => {
                   wordClickedAction={() => {
                     // Lorsqu'on clique sur un mot on change la born min
                     // = le récitateur se répète
-                    // c'est surtout fait pour corriger un appuie d'arrowdown en trop
+                    // c'est surtout fait pour corriger un appui d'arrowdown en trop
                     if (index <= props.currentSelectedWordsRange[1]) {
                       props.setCurrentSelectedWordsRange([
                         index,
                         props.currentSelectedWordsRange[1],
                       ]);
                     } else {
-                      // Sinon on sélectionne jusqu'à ce mot
+                      // sinon on sélectionne jusqu'à ce mot
                       props.setCurrentSelectedWordsRange([
                         props.currentSelectedWordsRange[0],
                         index,

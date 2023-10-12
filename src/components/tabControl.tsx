@@ -36,37 +36,21 @@ const TabControl = (props: Props) => {
 
     // Fait une requête à l'API pour obtenir le
     // Coran dans la langue voulu
-    if (selectedLang !== "en_auto") {
-      TranslationExt.addTranslationToSubtitles(selectedLang, props.subtitles)
-        .then((subtitles) => {
-          console.log(subtitles);
-          props.setSubtitles(subtitles);
-        })
-        .finally(() => {
-          // Cache la tabItem qui est actuellement visible
-          const updatedTabItems = makeAllTabsHidden();
+    TranslationExt.addTranslationToSubtitles(selectedLang, props.subtitles)
+      .then((subtitles) => {
+        console.log(subtitles);
+        props.setSubtitles(subtitles);
+      })
+      .finally(() => {
+        // Cache la tabItem qui est actuellement visible
+        const updatedTabItems = makeAllTabsHidden();
 
-          // Ajoute une nouvelle tabItem contenant les tranductions dans cette langue et l'affiche
-          props.setTabItems([
-            ...updatedTabItems,
-            { isShown: true, lang: selectedLang },
-          ]);
-        });
-    } else {
-      // Ajoute les traductions anglaise automatique
-      TranslationExt.automaticEnglishTranslation(props.subtitles)
-        .then((subtitles) => {
-          props.setSubtitles(subtitles);
-        })
-        .finally(() => {
-          const updatedTabItems = makeAllTabsHidden();
-
-          props.setTabItems([
-            ...updatedTabItems,
-            { isShown: true, lang: selectedLang },
-          ]);
-        });
-    }
+        // Ajoute une nouvelle tabItem contenant les tranductions dans cette langue et l'affiche
+        props.setTabItems([
+          ...updatedTabItems,
+          { isShown: true, lang: selectedLang },
+        ]);
+      });
   }
 
   /**
