@@ -75,7 +75,8 @@ export default class Subtitle {
           : "";
 
       return base + this.translations.find((x) => x.lang === lang)!.text;
-    } else if (this.versePos) return "";
+    } else if (this.versePos === undefined)
+      return ""; // c'est une basmala ou autre
     else return "Translation unavailable";
   }
   IsBeginingWordsFromVerse() {
