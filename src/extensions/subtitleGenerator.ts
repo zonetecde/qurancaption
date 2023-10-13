@@ -24,7 +24,8 @@ export class SubtitleGenerator {
     arabicVersesBetweenParentheses: boolean = false,
     verseNumberInArabic: boolean = false,
     verseNumberInTranslation: boolean = false,
-    letterOutline: boolean = false
+    letterOutline: boolean = false,
+    verticalVideo: boolean = false
   ) {
     let subtitleFileText =
       `
@@ -44,42 +45,47 @@ Style: Default,` +
       (letterOutline ? "1" : "0") +
       `,` +
       (shadow ? "1" : "0") +
-      `,2,10,10,10,0
+      `,2,5,5,10,0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
 
     subtitles.forEach((subtitle, index) => {
-      subtitleFileText +=
-        "Dialogue: 0," +
-        subtitle.getStartTimeHHMMSSms() +
-        "," +
-        subtitle.getEndTimeHHMMSSms() +
-        ",Default,,40,40,0,,{\\fade(200,200)" +
-        (letterOutline ? "\\blur5}" : "}") + // Si on ne veut pas avoir l'outline alors dans ce cas on pas d'effet de blur
-        (verseNumberInArabic && subtitle.IsLastWordsFromVerse()
-          ? this.setFontSizeExpression(25) + // taille du nbre arabe
-            this.setFontExpression("me_quran") + // police du nbre arabe
-            // nbre arabe --
-            "﴾" +
-            StringExt.toArabicNumber(subtitle.versePos!.verse) +
-            "﴿"
-          : // --
-            "") +
-        "\\h" + // espace entre le nbre arabe et le texte
-        this.setFontSizeExpression(arabicFontSize) +
-        this.setFontExpression(font) +
-        subtitle.getArabicText(arabicVersesBetweenParentheses) +
-        (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre
-          ? ""
-          : this.NEW_SUBTITLE_LINE + // la trad est sur une autre ligne
-            this.setFontSizeExpression(translationFontSize) + // taille de la trad
-            this.setFontExpression("Arial") + // police d'écriture de la trad
-            (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse()
-              ? subtitle.getVersePose("V. ")
-              : "") +
-            subtitle.getTranslationText(secondLang)) +
-        "\n";
+      // if not silence
+      if (subtitle.arabicText !== "") {
+        subtitleFileText +=
+          "Dialogue: 0," +
+          subtitle.getStartTimeHHMMSSms() +
+          "," +
+          subtitle.getEndTimeHHMMSSms() +
+          ",Default,," +
+          (verticalVideo ? "2,2" : "40,40") +
+          ",0,,{\\fade(200,200)" +
+          (letterOutline ? "\\blur5}" : "}") + // Si on ne veut pas avoir l'outline alors dans ce cas on pas d'effet de blur
+          (verseNumberInArabic && subtitle.IsLastWordsFromVerse()
+            ? this.setFontSizeExpression(25) + // taille du nbre arabe
+              this.setFontExpression("me_quran") + // police du nbre arabe
+              // nbre arabe --
+              "﴾" +
+              StringExt.toArabicNumber(subtitle.versePos!.verse) +
+              "﴿"
+            : // --
+              "") +
+          "\\h" + // espace entre le nbre arabe et le texte
+          this.setFontSizeExpression(arabicFontSize) +
+          this.setFontExpression(font) +
+          subtitle.getArabicText(arabicVersesBetweenParentheses) +
+          (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre
+            ? ""
+            : this.NEW_SUBTITLE_LINE + // la trad est sur une autre ligne
+              this.setFontSizeExpression(translationFontSize) + // taille de la trad
+              this.setFontExpression("Arial") + // police d'écriture de la trad
+              (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse()
+                ? subtitle.getVersePose("V. ")
+                : "") +
+              subtitle.getTranslationText(secondLang)) +
+          "\n";
+      }
     });
 
     return subtitleFileText;

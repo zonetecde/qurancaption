@@ -38,7 +38,8 @@ const VideoGenerator = (props: Props) => {
       props.subtitles.find((subtitle) => {
         if (
           subtitle.startTime <= currentTime && // Use the updated current time here
-          subtitle.endTime >= currentTime // Use the updated current time here
+          subtitle.endTime >= currentTime && // Use the updated current time here
+          subtitle.arabicText !== "" // silence
         ) {
           return true;
         }
@@ -128,7 +129,8 @@ const VideoGenerator = (props: Props) => {
         arabicVersesBetweenRef.current?.checked,
         verseNumberInArabicRef.current?.checked,
         verseNumberInTranslationRef.current?.checked,
-        textOutlineRef.current?.checked
+        textOutlineRef.current?.checked,
+        videoRef.current!.videoWidth < videoRef.current!.videoHeight
       )
     );
 
@@ -232,7 +234,7 @@ const VideoGenerator = (props: Props) => {
       ) : (
         <div className="overflow-auto flex flex-col items-center bg-[#2b333f] my-10">
           <div className="flex items-center justify-center flex-col">
-            <div className="text-white flex flex-row flex-wrap justify-center items-center  w-8/12 lg:w-full text-sm md:text-lg large:text-xl">
+            <div className="text-white flex flex-row flex-wrap justify-center items-center w-8/12 lg:w-full text-sm md:text-lg large:text-xl">
               <div className="flex flex-row items-center justify-center  ">
                 <p>Arabic font : </p>
                 <select
@@ -294,7 +296,7 @@ const VideoGenerator = (props: Props) => {
               </div>
             </div>
 
-            <div className="text-white flex flex-row flex-wrap text-sm md:text-lg large:text-xl mt-3">
+            <div className="text-white flex flex-row flex-wrap text-sm md:text-lg w-8/12 lg:w-full px-10 large:text-xl mt-3">
               <div className="flex flex-row items-center ">
                 <input
                   className="mr-2"
@@ -346,9 +348,12 @@ const VideoGenerator = (props: Props) => {
             </div>
           </div>
 
-          <div className="w-[1000px] bg-black relative mt-10 ">
+          <div
+            className="w-10/12 bg-black relative mt-10 "
+            style={{ width: videoRef.current?.videoWidth + "px" }}
+          >
             <video
-              className="w-full h-full shadow-2xl shadow-black "
+              className="max-w-full max-h-[600px] shadow-2xl shadow-black "
               src={props.videoBlobUrl}
               ref={videoRef}
               autoPlay
@@ -357,10 +362,10 @@ const VideoGenerator = (props: Props) => {
             ></video>
             {/* Black overlay */}
             <div
-              className="absolute left-0 top-0 right-0 bottom-0 overflow-hidden bg-black"
+              className="absolute left-0 top-0 right-0 -bottom-0.5 overflow-hidden bg-black"
               style={{ opacity: blackOpacityInputRef.current?.value }}
             />
-            <div className="absolute left-0 top-0 right-0 bottom-0 overflow-hidden ">
+            <div className="absolute left-0 top-0 right-0 bottom-0 overflow-hidden mx-2 tracking-wider">
               {isMuted ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -397,14 +402,15 @@ const VideoGenerator = (props: Props) => {
 
               <div
                 className={
-                  "flex justify-center flex-col items-center h-full text-white  text-center mx-20 select-none " +
+                  "flex justify-center  flex-col items-center h-full text-white text-center select-none " +
                   (textOutlineRef.current?.checked ? "letter-outline" : "")
                 }
                 style={{
                   fontSize:
                     (arabicFontSizeRef.current
-                      ? Number(arabicFontSizeRef.current.value)
-                      : 32) + "px",
+                      ? Number(arabicFontSizeRef.current.value) /
+                        ((videoRef.current?.width ?? 1080) < 750 ? 24 : 12.25)
+                      : 1) + "vh",
                 }}
               >
                 {currentSubtitle && (
@@ -439,14 +445,17 @@ const VideoGenerator = (props: Props) => {
                 {"\n"}
                 {translationRef.current?.value !== "none" && (
                   <p
-                    className="arial mt-2 "
+                    className="arial mt-2 -mx-[7vh] font-bold w-full"
                     style={{
                       fontSize:
-                        (translationFontSizeRef.current
+                        ((translationFontSizeRef.current
                           ? Number(translationFontSizeRef.current!.value)
                           : 10) *
-                          2 +
-                        "px",
+                          2) /
+                          ((videoRef.current?.width ?? 1080) < 750
+                            ? 17
+                            : 10.5) +
+                        "vh",
                     }}
                   >
                     {currentSubtitle &&
@@ -479,7 +488,7 @@ const VideoGenerator = (props: Props) => {
 
           <div className="flex flex-row justify-center">
             <button
-              className="px-10 border ml-5 border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
+              className="lg:px-10 border ml-5 border-black py-2 lg:rounded-full rounded-3xl text-sm md:text-lg lg:text-2xl px-3 hover:bg-blue-400 duration-100 bg-blue-200 mt-5"
               onClick={() => {
                 props.setIsOnGenerationPage(false);
                 setIsVideoGenerating(false);
@@ -488,13 +497,13 @@ const VideoGenerator = (props: Props) => {
               Go back
             </button>
             <button
-              className="px-10 border ml-5 border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
+              className="lg:px-10 border ml-5 border-black  py-2 lg:rounded-full rounded-3xl text-sm md:text-lg lg:text-2xl px-3 hover:bg-blue-400 duration-100 bg-blue-200 mt-5"
               onClick={generateVideo}
             >
               Generate video
             </button>
             <button
-              className="px-10 border ml-5 border-black rounded-full text-2xl hover:bg-blue-400 duration-100 py-3 bg-blue-200 mt-5"
+              className="lg:px-10 border ml-5 py-2 border-black lg:rounded-full rounded-3xl text-sm md:text-lg lg:text-2xl px-3 hover:bg-blue-400 duration-100 bg-blue-200 mt-5"
               onClick={() => {
                 setShowSubtitle(true);
                 setIsMuted(true);
@@ -514,7 +523,12 @@ const VideoGenerator = (props: Props) => {
                 <p className="text-3xl text-center">Here's your video :</p>
 
                 <br />
-                <video src={videoUrl} controls autoPlay width={800} />
+                <video
+                  src={videoUrl}
+                  controls
+                  autoPlay
+                  className="max-h-[600px] max-w-[800px]"
+                />
 
                 <div className="flex flex-row">
                   <button

@@ -119,6 +119,7 @@ const Editor = () => {
                         }
                         showTransliteration={showTransliteration}
                         setShowTransliteration={setShowTransliteration}
+                        setGenerateVideo={setGenerateVideo}
                       />
                     ) : (
                       <div className="w-full h-[95vh]">
@@ -131,7 +132,7 @@ const Editor = () => {
                     )}
                   </div>
                 )}
-                <div className="h-full w-42 md:w-96 border-l-2 border-black">
+                <div className="h-full w-42 md:w-96 border-l-2 border-black hidden lg:block">
                   <SubtitlesHistory
                     subtitles={subtitles}
                     setGenerateVideo={setGenerateVideo}
@@ -179,6 +180,17 @@ const Editor = () => {
                     className="max-h-[50px] mt-5"
                   />
                 </a>
+                <footer className="absolute bottom-5 left-0 right-0 text-white text-center">
+                  <a
+                    href="https://github.com/zonetecde"
+                    target="_blank"
+                    className="underline"
+                  >
+                    Rayane Staszewski
+                  </a>
+                  <br />
+                  Copyright © 2023. All Rights Reserved.
+                </footer>
               </div>
             )}
           </>

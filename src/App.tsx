@@ -8,8 +8,25 @@ import Page from "./models/page";
 import AppVariables from "./AppVariables";
 import { useEffect, useState } from "react";
 
+import video from "./assets/Al-Ahzab_56.mp4";
+import sky from "./assets/sky.png";
+
 function App() {
   const [page, setPage] = useState<Page>(Page.EDITOR);
+
+  const [width, setWidth] = useState<number>(window.innerWidth);
+
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth);
+  }
+  useEffect(() => {
+    window.addEventListener("resize", handleWindowSizeChange);
+    return () => {
+      window.removeEventListener("resize", handleWindowSizeChange);
+    };
+  }, []);
+
+  const isMobile = width <= 600;
 
   useEffect(() => {
     QuranApi.getQuran("en").then((quran: Surah[]) => {
@@ -27,14 +44,44 @@ function App() {
 
   return (
     <div className="bg-slate-600 h-screen w-screen">
-      {page === Page.HOME ? (
-        <Home setPage={setPage} />
-      ) : page === Page.EDITOR ? (
-        <div>
-          <Editor />
-        </div>
+      {isMobile ? (
+        <>
+          <div className="w-full h-full text-green-200 flex justify-center pb-10 items-center pt-6 flex-col px-3 text-center ">
+            <img src={sky} className="absolute top-0 left-0 right-0 bg-cover" />
+            <p className="text-4xl">Sorry :(</p>
+            <p className="mt-5">
+              QuranCaption is not supported on mobile devices
+            </p>
+            <p>Please use a desktop computer to start captioning !</p>
+
+            <video src={video} className="mt-10" autoPlay controls></video>
+
+            <footer className="absolute bottom-5">
+              <a
+                href="https://github.com/zonetecde"
+                target="_blank"
+                className="underline"
+              >
+                Rayane Staszewski
+              </a>
+              <br />
+              Copyright © 2023. All Rights Reserved.
+            </footer>
+          </div>
+        </>
       ) : (
-        <></>
+        <>
+          {" "}
+          {page === Page.HOME ? (
+            <Home setPage={setPage} />
+          ) : page === Page.EDITOR ? (
+            <div>
+              <Editor />
+            </div>
+          ) : (
+            <></>
+          )}
+        </>
       )}
     </div>
   );

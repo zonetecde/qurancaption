@@ -94,6 +94,7 @@ export default class Subtitle {
 
   getWbwTranslation() {
     let translation: string = "";
+    let last_word_translation: string = "";
 
     if (
       this.versePos &&
@@ -109,7 +110,11 @@ export default class Subtitle {
             this.versePos.surah + ":" + this.versePos.verse
           ].verse.words[index].translation.text;
 
-        translation += word + " ";
+        // car des mots se repetent avec toute leur trad, comme yaa ayyouha lladhina
+        if (last_word_translation !== word) {
+          translation += word + " ";
+          last_word_translation = word;
+        }
       }
     }
 
@@ -166,7 +171,9 @@ export default class Subtitle {
 
     return (
       base +
-      (betweenParentheses ? "﴾ " + this.arabicText + " ﴿" : this.arabicText)
+      (betweenParentheses && this.versePos && this.arabicText !== ""
+        ? "﴾" + this.arabicText + "﴿"
+        : this.arabicText)
     );
   }
 

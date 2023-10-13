@@ -31,6 +31,8 @@ interface Props {
 
   setRecitationFileBlobUrl: React.Dispatch<React.SetStateAction<string>>;
   setRecitationFileBlob: React.Dispatch<React.SetStateAction<Blob | undefined>>;
+
+  setGenerateVideo: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ArabicSubtitleEditor = (props: Props) => {
@@ -475,7 +477,7 @@ const ArabicSubtitleEditor = (props: Props) => {
               ))}
           </div>
 
-          <ul className="absolute bottom-20 mt-auto text-white text-opacity-10 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm hover:bg-slate-800 p-5 lg:hover:scale-125 lg:hover:ml-20 lg:hover:mb-10 hidden sm:block">
+          <ul className="absolute bottom-20 mt-auto text-white text-opacity-10 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm hover:bg-slate-800 p-5 lg:hover:scale-125 lg:hover:ml-20 lg:hover:mb-10  sm:block">
             <li>Press space to pause/resume the audio</li>
             <li>Use the up and down arrow keys to select words</li>
             <li>
@@ -491,11 +493,20 @@ const ArabicSubtitleEditor = (props: Props) => {
             <li>Press 'v' to select the whole verse</li>
           </ul>
 
+          {props.subtitles.some((x) => x.versePos) && (
+            <button
+              className="bg-blue-500 hover:bg-blue-700  text-white font-bold px-4 mx-2 rounded text-lg duration-75 shadow-lg shadow-black absolute bottom-6 py-2.5 right-5 block lg:hidden"
+              onClick={() => props.setGenerateVideo(true)}
+            >
+              Generate video
+            </button>
+          )}
+
           <ReactAudioPlayer
             ref={audioPlayerRef}
             src={props.recitationFile}
             controls
-            className="w-10/12 self-center mb-5 mt-5"
+            className="w-10/12 self-center mb-5 mt-5 pr-32 lg:pr-0"
           />
         </div>
       </div>
