@@ -150,6 +150,9 @@ const Editor = () => {
                 >
                   Quran Caption
                 </h1>
+                <p className="mt-2 text-white font-bold text-sm">
+                  Creating Quranic videos has never been easier.
+                </p>
                 <img
                   src={icon}
                   className="w-28 lg:w-96 md:w-48 duration-150 select-none"

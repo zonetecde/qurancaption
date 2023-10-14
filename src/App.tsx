@@ -71,16 +71,7 @@ function App() {
         </>
       ) : (
         <>
-          {" "}
-          {page === Page.HOME ? (
-            <Home setPage={setPage} />
-          ) : page === Page.EDITOR ? (
-            <div>
-              <Editor />
-            </div>
-          ) : (
-            <></>
-          )}
+          <Editor />
         </>
       )}
     </div>
