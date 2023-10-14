@@ -71,7 +71,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
               "﴿"
             : // --
               "") +
-          "\\h" + // espace entre le nbre arabe et le texte
+          (font !== "me_quran" ? "\\h" : "") + // espace entre le nbre arabe et le texte (uniquement pour Amiri car me_quran ne supporte pas les espaces)
           this.setFontSizeExpression(arabicFontSize) +
           this.setFontExpression(font) +
           subtitle.getArabicText(arabicVersesBetweenParentheses) +

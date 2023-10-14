@@ -2,7 +2,7 @@
   "name": "qurancaption",
   "private": true,
   "version": "0.0.0",
-  "homepage": "/",
+  "homepage": "/app",
   "type": "module",
   "scripts": {
     "dev": "vite",

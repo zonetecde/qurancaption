@@ -43,18 +43,19 @@ function App() {
   }, []);
 
   return (
-    <div className="bg-slate-600 h-screen w-screen">
+    <div className="bg-slate-600 h-screen w-screen overflow-hidden">
       {isMobile ? (
         <>
           <div className="w-full h-full text-green-200 flex justify-center pb-10 items-center pt-6 flex-col px-3 text-center ">
             <img src={sky} className="absolute top-0 left-0 right-0 bg-cover" />
-            <p className="text-4xl">Sorry :(</p>
-            <p className="mt-5">
-              QuranCaption is not supported on mobile devices
-            </p>
-            <p>Please use a desktop computer to start captioning !</p>
-
-            <video src={video} className="mt-10" autoPlay controls></video>
+            <div className="z-50">
+              <p className="text-4xl -mt-16">Sorry :(</p>
+              <p className="mt-5">
+                QuranCaption is not supported on mobile devices
+              </p>
+              <p>Please use a desktop computer to start captioning !</p>
+              <video src={video} className="mt-10" autoPlay controls></video>
+            </div>
 
             <footer className="absolute bottom-5">
               <a
