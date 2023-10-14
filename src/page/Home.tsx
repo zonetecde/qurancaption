@@ -13,7 +13,7 @@ const Home = (props: Props) => {
         className="text-5xl font-bold px-2 select-none cursor-default text-center"
         style={{ textShadow: "0 10px 20px hsla(0,5%,0%,.9)" }}
       >
-        Quran Video Maker
+        Quran Caption
       </h1>
 
       <button

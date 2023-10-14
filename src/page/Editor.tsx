@@ -15,6 +15,8 @@ import AppVariables from "../AppVariables";
 import VideoGenerator from "../components/videoGenerator";
 import FileExt from "../extensions/fileExt";
 
+import icon from "../assets/icon.png";
+
 const Editor = () => {
   // Le blob de la récitation et l'url de la récitation
   const [recitationFileBlobUrl, setRecitationFileBlobUrl] =
@@ -143,23 +145,27 @@ const Editor = () => {
             ) : (
               <div className="flex flex-col justify-center items-center">
                 <h1
-                  className="text-5xl text-center font-bold select-none cursor-default text-white bg-black py-5 pb-7 px-5 rounded-full bg-opacity-30  "
+                  className="text-5xl text-center font-bold select-none cursor-default text-white bg-black py-5 pb-7 px-8 rounded-full bg-opacity-30  "
                   style={{ textShadow: "0 10px 20px hsla(0,10%,0%,.9)" }}
                 >
-                  Quran Video Maker
+                  Quran Caption
                 </h1>
+                <img
+                  src={icon}
+                  className="w-28 lg:w-96 md:w-48 duration-150 select-none"
+                />
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 w-96 mb-32 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-12 shadow-lg shadow-black leading-10"
+                  className="bg-blue-500 hover:bg-blue-700 w-96 mb-8 md:mb-16 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10"
                   onClick={() => {
                     if (recitationFileBlobUrl !== "") beginSync();
                   }}
                 >
-                  <div className="relative">
+                  <div className="relative  ">
                     <input
                       type="file"
                       accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg, .avi, .wmv"
                       onChange={handleFileUpload}
-                      className="opacity-0 absolute z-40 -left-10 -top-5 -bottom-5 -right-10"
+                      className="opacity-0 absolute z-40 -left-10 -top-5 -bottom-5 -right-10 cursor-pointer"
                     />
                     <p>Select a recitation file</p>
                   </div>

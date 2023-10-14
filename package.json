@@ -1,8 +1,8 @@
 {
-  "name": "quran-video-maker",
+  "name": "qurancaption",
   "private": true,
   "version": "0.0.0",
-  "homepage": "/quran-video-maker",
+  "homepage": "/app",
   "type": "module",
   "scripts": {
     "dev": "vite",

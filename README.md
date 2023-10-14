@@ -1,6 +1,6 @@
-# Quran Video Maker
+# Quran Caption
 
-[Quran Video Maker](https://rayanestaszewski.fr/quran-video-maker/) is a website that lets you generate Quranic videos.
+[Quran Caption](https://rayanestaszewski.fr/qurancaption/) is a website that lets you generate Quranic videos.
 
 Here's a demo :
 
