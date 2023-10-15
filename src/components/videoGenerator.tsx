@@ -162,9 +162,11 @@ const VideoGenerator = (props: Props) => {
                 } else {
                   // Récupère ici l'avancée de la requête sur le serveur
                   // Add a new logs and set it to display it
-                  setVideoProcessLogs(
-                    (prevText) => prevText + "\n" + responseText
-                  );
+                  if (responseText !== "") {
+                    setVideoProcessLogs(
+                      (prevText) => prevText + "\n" + responseText
+                    );
+                  }
                 }
               });
             } catch {

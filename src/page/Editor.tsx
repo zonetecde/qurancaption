@@ -145,7 +145,7 @@ const Editor = () => {
             ) : (
               <div className="flex flex-col justify-center items-center">
                 <h1
-                  className="text-5xl text-center font-bold select-none cursor-default text-white bg-black py-5 pb-7 px-8 rounded-full bg-opacity-30  "
+                  className="text-4xl md:text-5xl text-center font-bold select-none cursor-default text-white bg-black py-5 pb-7 px-5 md:px-8 rounded-full bg-opacity-30  "
                   style={{ textShadow: "0 10px 20px hsla(0,10%,0%,.9)" }}
                 >
                   Quran Caption
@@ -158,7 +158,7 @@ const Editor = () => {
                   className="w-28 lg:w-96 md:w-48 duration-150 select-none"
                 />
                 <button
-                  className="bg-blue-500 hover:bg-blue-700 w-96 mb-8 md:mb-16 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10"
+                  className="bg-blue-500 hover:bg-blue-700 w-58 md:w-96 mb-8 md:mb-16 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10"
                   onClick={() => {
                     if (recitationFileBlobUrl !== "") beginSync();
                   }}

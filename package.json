@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "blob-to-buffer": "^1.2.9",
+    "mobile-detect": "^1.4.5",
     "react": "^18.2.0",
     "react-audio-player": "^0.17.0",
     "react-dom": "^18.2.0"
