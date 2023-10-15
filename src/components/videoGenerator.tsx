@@ -160,7 +160,6 @@ const VideoGenerator = (props: Props) => {
                 const responseText = await response.text();
 
                 if (responseText === "true") {
-                  toast.success("Your video is ready !");
                   setVideoUrl(AppVariables.ApiUrl + "/QVM/" + videoId);
                   clearInterval(int);
                 } else {
@@ -168,7 +167,7 @@ const VideoGenerator = (props: Props) => {
                   // Add a new logs and set it to display it
                   if (responseText !== "") {
                     setVideoProcessLogs(
-                      responseText.replace("frame=", "\nframe=")
+                      responseText.replace("frame", "\nframe")
                     );
                   }
                 }
@@ -176,7 +175,7 @@ const VideoGenerator = (props: Props) => {
             } catch {
               // internet lost
             }
-          }, 500);
+          }, 1500);
         } else {
           // Handle errors
           console.error("Failed to upload file  " + response.body?.getReader());
@@ -271,7 +270,7 @@ const VideoGenerator = (props: Props) => {
                   defaultValue={32}
                   min={1}
                   max={200}
-                  className="text-black px-2 py-1 ml-3 max-w-[50px]"
+                  className="text-black px-2 py-1 ml-3 max-w-[60px]"
                   type="number"
                   ref={arabicFontSizeRef}
                 />
@@ -397,11 +396,11 @@ const VideoGenerator = (props: Props) => {
           </div>
 
           <div
-            className="w-10/12 bg-black relative mt-10 "
+            className="w-10/12 bg-black relative mt-10 flex justify-center "
             style={{ width: videoRef.current?.videoWidth + "px" }}
           >
             <video
-              className="max-w-full max-h-[600px] shadow-2xl shadow-black "
+              className="max-w-[100vh] max-h-[80vh] shadow-2xl shadow-black "
               src={props.videoBlobUrl}
               ref={videoRef}
               autoPlay

@@ -33,7 +33,7 @@ function App() {
   }, []);
 
   return (
-    <div className="bg-slate-600 h-screen w-screen overflow-hidden">
+    <div className="bg-slate-600 h-screen w-screen overflow-auto">
       {md.mobile() ? (
         <>
           <div className="w-full h-full text-green-200 flex justify-center pb-10 items-center pt-6 flex-col px-3 text-center ">
