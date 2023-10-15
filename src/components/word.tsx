@@ -40,7 +40,9 @@ const Word = (props: Props) => {
     >
       <span>{props.word}</span>
       {props.showTransliteration && (
-        <span className="text-sm text-center arial mt-4 -mb-4">{phonetic}</span>
+        <span className="text-sm text-center DejaVu-Sans mt-4 -mb-4">
+          {phonetic}
+        </span>
       )}
     </div>
   );

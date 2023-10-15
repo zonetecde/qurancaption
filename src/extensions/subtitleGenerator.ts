@@ -25,7 +25,9 @@ export class SubtitleGenerator {
     verseNumberInArabic: boolean = false,
     verseNumberInTranslation: boolean = false,
     letterOutline: boolean = false,
-    verticalVideo: boolean = false
+    verticalVideo: boolean = false,
+    translationBold: boolean = false,
+    translationFont: string = "DejaVu Sans"
   ) {
     let subtitleFileText =
       `
@@ -78,8 +80,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
           (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre
             ? ""
             : this.NEW_SUBTITLE_LINE + // la trad est sur une autre ligne
+              this.setBoldExpression(translationBold) + // bold?
               this.setFontSizeExpression(translationFontSize) + // taille de la trad
-              this.setFontExpression("Arial") + // police d'écriture de la trad
+              this.setFontExpression(translationFont) + // police d'écriture de la trad
               (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse()
                 ? subtitle.getVersePose("V. ")
                 : "") +
@@ -89,6 +92,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
     });
 
     return subtitleFileText;
+  }
+  static setBoldExpression(translationBold: boolean) {
+    return "{\\b" + (translationBold ? "1" : "0") + "}";
   }
 
   static generateSrtSubtitles(

@@ -1,8 +1,8 @@
 import { Surah, VersePosition } from "./api/quran";
 
 export default class AppVariables {
-  //static ApiUrl = "https://www.rayanestaszewski.fr";
-  static ApiUrl = "https://localhost:7133";
+  static ApiUrl = "https://www.rayanestaszewski.fr";
+  //static ApiUrl = "https://localhost:7133";
 
   static WbwTranslations: { [key: string]: any } = {};
 

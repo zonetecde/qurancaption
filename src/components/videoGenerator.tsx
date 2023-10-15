@@ -7,6 +7,7 @@ import Loading from "../assets/loading.gif";
 import SubtitleViewer from "./subtitleViewer";
 import { SubtitleGenerator } from "../extensions/subtitleGenerator";
 import StringExt from "../extensions/stringExt";
+import { Toaster, toast } from "sonner";
 
 interface Props {
   subtitles: Subtitle[];
@@ -130,7 +131,9 @@ const VideoGenerator = (props: Props) => {
         verseNumberInArabicRef.current?.checked,
         verseNumberInTranslationRef.current?.checked,
         textOutlineRef.current?.checked,
-        videoRef.current!.videoWidth < videoRef.current!.videoHeight
+        videoRef.current!.videoWidth < videoRef.current!.videoHeight,
+        translationBoldRef.current?.checked,
+        translationFontRef.current?.value
       )
     );
 
@@ -157,6 +160,7 @@ const VideoGenerator = (props: Props) => {
                 const responseText = await response.text();
 
                 if (responseText === "true") {
+                  toast.success("Your video is ready !");
                   setVideoUrl(AppVariables.ApiUrl + "/QVM/" + videoId);
                   clearInterval(int);
                 } else {
@@ -164,7 +168,7 @@ const VideoGenerator = (props: Props) => {
                   // Add a new logs and set it to display it
                   if (responseText !== "") {
                     setVideoProcessLogs(
-                      (prevText) => prevText + "\n" + responseText
+                      responseText.replace("frame=", "\nframe=")
                     );
                   }
                 }
@@ -176,12 +180,20 @@ const VideoGenerator = (props: Props) => {
         } else {
           // Handle errors
           console.error("Failed to upload file  " + response.body?.getReader());
+          toast(
+            "Sorry, something went wrong !\nPlease check your internet connection."
+          );
           setIsVideoGenerating(false);
         }
       })
       .catch((error) => {
         console.error("Error:", error);
         setIsVideoGenerating(false);
+
+        // Handle errors
+        toast.error(
+          "Sorry, something went wrong !\nPlease check your internet connection."
+        );
       });
   }
 
@@ -196,6 +208,8 @@ const VideoGenerator = (props: Props) => {
   const arabicVersesBetweenRef = React.useRef<HTMLInputElement>(null);
   const blackOpacityInputRef = React.useRef<HTMLInputElement>(null);
   const textOutlineRef = React.useRef<HTMLInputElement>(null);
+  const translationBoldRef = React.useRef<HTMLInputElement>(null);
+  const translationFontRef = React.useRef<HTMLSelectElement>(null);
 
   function downloadVideo() {
     let xhr = new XMLHttpRequest();
@@ -235,13 +249,15 @@ const VideoGenerator = (props: Props) => {
         </p>
       ) : (
         <div className="overflow-auto flex flex-col items-center bg-[#2b333f] my-10">
+          <Toaster position="bottom-right" />
+
           <div className="flex items-center justify-center flex-col">
             <div className="text-white flex flex-row flex-wrap justify-center items-center w-8/12 lg:w-full text-sm md:text-lg large:text-xl">
-              <div className="flex flex-row items-center justify-center  ">
+              <div className="flex flex-row items-center justify-center mt-2 ">
                 <p>Arabic font : </p>
                 <select
                   defaultValue={"Amiri"}
-                  className="text-black px-2 py-1 ml-3"
+                  className="text-black px-2 py-1 ml-3 max-w-[150px]"
                   ref={arabicFontRef}
                 >
                   <option value="Amiri">Amiri</option>
@@ -255,7 +271,7 @@ const VideoGenerator = (props: Props) => {
                   defaultValue={32}
                   min={1}
                   max={200}
-                  className="text-black px-2 py-1 ml-3 "
+                  className="text-black px-2 py-1 ml-3 max-w-[50px]"
                   type="number"
                   ref={arabicFontSizeRef}
                 />
@@ -292,9 +308,39 @@ const VideoGenerator = (props: Props) => {
                   defaultValue={10}
                   min={1}
                   max={200}
-                  className="text-black px-2 py-1 ml-3 "
+                  className="text-black px-2 py-1 ml-3 max-w-[50px]"
                   type="number"
                 />
+              </div>
+
+              {/**
+               * Pour ajouter des polices d'écriture sur le serveur :
+               * 1 - Mettre le fichier ttf dans zoneck/.fonts
+               * 2 - sudo mv .fonts/* /usr/share/fonts
+               */}
+
+              <div className="flex flex-row items-center justify-center ml-4 mt-2 ">
+                <p>Translation font : </p>
+                <select
+                  defaultValue={"opensans"}
+                  className="text-black px-2 py-1 ml-3 max-w-[150px]"
+                  ref={translationFontRef}
+                >
+                  <option value="Open Sans Light">Open Sans</option>
+                  <option value="DejaVu Sans">Deja Vu</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Helvetica">Helvetica</option>
+                </select>
+              </div>
+
+              <div className="flex flex-row items-center mt-1 ml-4">
+                <input
+                  className="mr-2"
+                  type="checkbox"
+                  defaultChecked
+                  ref={translationBoldRef}
+                />
+                <p>Translation bold</p>
               </div>
             </div>
 
@@ -447,7 +493,11 @@ const VideoGenerator = (props: Props) => {
                 {"\n"}
                 {translationRef.current?.value !== "none" && (
                   <p
-                    className="arial mt-2 -mx-[7vh] font-bold w-full"
+                    className={
+                      "mt-2 -mx-[7vh] w-full " +
+                      (translationFontRef.current?.value.replace(" ", "-") ??
+                        "DejaVu-Sans")
+                    }
                     style={{
                       fontSize:
                         ((translationFontSizeRef.current
@@ -458,6 +508,9 @@ const VideoGenerator = (props: Props) => {
                             ? 17
                             : 10.5) +
                         "vh",
+                      fontWeight: translationBoldRef.current?.checked
+                        ? "bold"
+                        : "normal",
                     }}
                   >
                     {currentSubtitle &&

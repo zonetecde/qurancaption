@@ -23,6 +23,42 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "DejaVuSans";
+  src: url("./assets/fonts/DejaVuSans.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Roboto";
+  src: url("./assets/fonts/Roboto-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "OpenSans";
+  src: url("./assets/fonts/OpenSans.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Arial";
+  src: url("./assets/fonts/Arial.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Helivetica";
+  src: url("./assets/fonts/Helvetica.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.DejaVu-Sans {
+  direction: rtl;
+  font-family: "DejaVuSans", "Arial", Courier, monospace;
+}
+
 .arabic {
   direction: rtl;
   font-family: "Hafs", "Courier New", Courier, monospace;
@@ -44,8 +80,14 @@
     2px 2px 0 #000;
 }
 
-.arial {
-  font-family: Arial, Helvetica, sans-serif;
+.Roboto {
+  font-family: "Roboto", "Helvetica", Courier, monospace;
+}
+.Helvetica {
+  font-family: "Helvetica", "Roboto", Courier, monospace;
+}
+.Open-Sans-Light {
+  font-family: "OpenSans", "Arial";
 }
 
 .lft {

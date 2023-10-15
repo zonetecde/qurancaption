@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import video from "./assets/Al-Ahzab_56.mp4";
 import sky from "./assets/sky.png";
 import MobileDetect from "mobile-detect";
+import { Toaster } from "sonner";
 
 function App() {
   const [page, setPage] = useState<Page>(Page.EDITOR);
