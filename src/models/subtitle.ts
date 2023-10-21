@@ -68,6 +68,8 @@ export default class Subtitle {
   }
 
   getTranslationText(lang: string, verseNumber: boolean = false): string {
+    if (this.versePos === undefined) return "";
+
     if (this.translations.some((x) => x.lang === lang)) {
       const base =
         verseNumber && this.IsBeginingWordsFromVerse()
@@ -75,11 +77,12 @@ export default class Subtitle {
           : "";
 
       return base + this.translations.find((x) => x.lang === lang)!.text;
-    } else if (this.versePos === undefined)
-      return ""; // c'est une basmala ou autre
+    } // c'est une basmala ou autre
     else return "Translation unavailable";
   }
   IsBeginingWordsFromVerse() {
+    if (this.versePos === undefined) return false;
+
     return this.fromWordIndex === 0;
   }
   getVersePose(format: string): string {
@@ -178,6 +181,8 @@ export default class Subtitle {
   }
 
   IsLastWordsFromVerse() {
+    if (this.versePos === undefined) return false;
+
     return (
       this.toWordIndex ===
       AppVariables.Quran[this.versePos!.surah - 1].verses[
