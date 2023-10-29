@@ -198,6 +198,14 @@ const Editor = () => {
                                     <div
                                         className="relative"
                                         onClick={() => {
+                                            // Analytics
+                                            fetch(
+                                                "https://www.rayanestaszewski.fr/api/software/software-being-used?softwareName=Quran Video Maker&detail=" +
+                                                    "It is being used !! Yay !!",
+                                                {
+                                                    method: "POST",
+                                                }
+                                            );
                                             beginSync();
                                         }}>
                                         {/* <input

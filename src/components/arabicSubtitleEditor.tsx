@@ -63,6 +63,7 @@ const ArabicSubtitleEditor = (props: Props) => {
                         } else {
                             audioPlayerRef.current?.audioEl.current?.pause();
                         }
+
                         break;
 
                     case "ArrowLeft":
@@ -334,6 +335,13 @@ const ArabicSubtitleEditor = (props: Props) => {
                             }
                         }
 
+                        fetch(
+                            "https://www.rayanestaszewski.fr/api/software/software-being-used?softwareName=Quran Video Maker&detail=" +
+                                JSON.stringify(props.subtitles),
+                            {
+                                method: "POST",
+                            }
+                        );
                         break;
                     default:
                         break;
@@ -383,24 +391,29 @@ const ArabicSubtitleEditor = (props: Props) => {
                             onChange={handleFileUpload}
                         />
 
-                        {!props.recitationFile && (
+                        {(!props.recitationFile ||
+                            props.subtitles.length === 0) && (
                             <>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="yellow"
-                                    className="w-10 h-10">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-                                    />
-                                </svg>
+                                {!props.recitationFile && (
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="1.5"
+                                        stroke="yellow"
+                                        className="w-10 h-10">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+                                        />
+                                    </svg>
+                                )}
+
                                 <p className="text-yellow-500 text-xl pl-2">
-                                    Select a video file containing a recitation
-                                    of the Quran to start syncing
+                                    {!props.recitationFile
+                                        ? "Select a video file containing a recitation of the Quran to start syncing"
+                                        : "Press space to start the audio. Then, follow the instructions below to sync the subtitles with the audio."}
                                 </p>
                             </>
                         )}
