@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+    ChangeEvent,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import ReactAudioPlayer from "react-audio-player";
 import Word from "./word";
 import { Surah, Verse, VersePosition } from "../api/quran";
@@ -6,6 +12,7 @@ import Subtitle from "../models/subtitle";
 import AppVariables from "../AppVariables";
 import FileExt from "../extensions/fileExt";
 import { toast } from "sonner";
+import StringExt from "../extensions/stringExt";
 
 interface Props {
     setSubtitles: React.Dispatch<React.SetStateAction<Subtitle[]>>;
@@ -34,12 +41,15 @@ interface Props {
     setRecitationFileBlob: React.Dispatch<
         React.SetStateAction<Blob | undefined>
     >;
+    recitationFileBlob: Blob | undefined;
 
     setGenerateVideo: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ArabicSubtitleEditor = (props: Props) => {
     const audioPlayerRef = React.useRef<ReactAudioPlayer>(null);
+    const [moreOptionsVisibility, setToggleMoreOptionsVisibility] =
+        useState<boolean>(false);
 
     function getCurrentAudioPlayerTime(): number {
         return audioPlayerRef.current?.audioEl.current?.currentTime ?? -1;
@@ -59,6 +69,9 @@ const ArabicSubtitleEditor = (props: Props) => {
                 // Resume/Pause recitation
                 switch (e.key) {
                     case " ":
+                        // Remove the focus of all the elements
+                        (document.activeElement as HTMLElement)?.blur();
+
                         if (audioPlayerRef.current?.audioEl.current?.paused) {
                             audioPlayerRef.current?.audioEl.current?.play();
                         } else {
@@ -400,17 +413,119 @@ const ArabicSubtitleEditor = (props: Props) => {
         );
     }
 
+    /**
+     * Export the project to a file
+     */
+    function exportProject() {
+        if (props.recitationFileBlob && props.subtitles.length > 0) {
+            toast("Exporting the project, please wait...");
+            setToggleMoreOptionsVisibility(false);
+            StringExt.blobToString(
+                props.recitationFileBlob,
+                (recitationFileString) => {
+                    const project = {
+                        recitationFile: recitationFileString,
+                        subtitles: props.subtitles,
+                        time: getCurrentAudioPlayerTime(),
+                        versePos: props.currentVerse,
+                    };
+
+                    const projectString = JSON.stringify(project);
+
+                    FileExt.DownloadFile(
+                        "QuranCaptionProject.cqp",
+                        projectString
+                    );
+
+                    toast("Project exported!");
+                }
+            );
+        }
+    }
+
+    /**
+     * Import a project from a file
+     * @param event Select file
+     */
+    function importSelectedProject(event: ChangeEvent<HTMLInputElement>): void {
+        if (props.subtitles.length > 0) {
+            toast.error(
+                "You can't import a project while you are working on one. Please reset your work first (refresh the page)."
+            );
+            return;
+        }
+
+        toast("Importing the project...");
+
+        try {
+            // Hide the more options visibility
+            setToggleMoreOptionsVisibility(false);
+
+            // Get the selected file
+            const file = event.target.files?.[0];
+
+            // If a file is selected, read its content
+            file?.text().then((fileContent: string) => {
+                // Parse the file content to a project object
+                const project: {
+                    recitationFile: string;
+                    subtitles: Subtitle[];
+                    time: number;
+                    versePos: VersePosition;
+                } = JSON.parse(fileContent);
+
+                // Map the subtitles data to Subtitle objects
+                const subtitles = project.subtitles.map((subtitleData) => {
+                    const subtitle = Object.create(Subtitle.prototype);
+                    Object.assign(subtitle, subtitleData);
+                    return subtitle;
+                });
+
+                // Set the subtitles state
+                props.setSubtitles(subtitles);
+
+                // Convert the recitation file string to a blob
+                const videoBlob = StringExt.stringToBlob(
+                    project.recitationFile
+                );
+
+                // Set the recitation file blob state
+                props.setRecitationFileBlob(videoBlob);
+
+                // Create a URL for the recitation file blob and set the state
+                const url = URL.createObjectURL(videoBlob);
+                props.setRecitationFileBlobUrl(url);
+
+                // Set the current verse state
+                props.setCurrentVerse(project.versePos);
+
+                // If the audio player is available, set its current time to the project time
+                if (
+                    audioPlayerRef.current &&
+                    audioPlayerRef.current.audioEl.current
+                )
+                    audioPlayerRef.current.audioEl.current.currentTime =
+                        project.time;
+            });
+        } catch {
+            // If an error occurs, display a toast notification to inform the user that the selected file is not valid
+            toast(
+                "The file you selected is not a valid QuranCaption project file"
+            );
+        }
+    }
+
     return (
         <>
             {" "}
             <div className="w-full h-full bg-[#1e242c] flex items-center justify-center flex-row">
                 <div className="flex flex-col w-full h-full relative">
-                    <div className="absolute top-2 right-5 w-full text-white flex flex-row items-center">
+                    <div className="absolute right-2 w-full text-white flex flex-row items-center">
                         <input
                             type="file"
                             accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg"
                             className={
-                                "w-60 h-10 mt-1 ml-8 self-start hover:opacity-95 " +
+                                "w-60 h-10 mt-3 ml-8 self-start hover:opacity-95 " +
                                 (props.recitationFile
                                     ? "opacity-20"
                                     : "opacity-100")
@@ -439,7 +554,7 @@ const ArabicSubtitleEditor = (props: Props) => {
 
                                 <p className="text-yellow-500 text-xl pl-2">
                                     {!props.recitationFile
-                                        ? "Select a video file containing a recitation of the Quran to start syncing"
+                                        ? "Select a video file containing a recitation of the Quran to start syncing, or import an existing project."
                                         : "Press space to start the audio. Then, follow the instructions below to sync the subtitles with the audio."}
                                 </p>
                             </>
@@ -538,6 +653,42 @@ const ArabicSubtitleEditor = (props: Props) => {
                                 }
                             }}
                         />
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            className="w-10 h-10 mt-3 ml-4 cursor-pointer"
+                            onClick={() => {
+                                setToggleMoreOptionsVisibility(
+                                    !moreOptionsVisibility
+                                );
+                            }}>
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+                            />
+                        </svg>
+                        {moreOptionsVisibility && (
+                            <div className="flex flex-col absolute right-0 top-14 bg-white rounded-lg px-3 py-2 border-black border-2 items-start">
+                                <button
+                                    className="text-black py-2 w-full px-2 bg-orange-300 rounded-lg lg border border-slate-700"
+                                    onClick={exportProject}>
+                                    Export the project
+                                </button>
+                                <button className="text-black py-2 mt-2  w-full px-2 bg-lime-300 rounded-lg border border-slate-700 relative">
+                                    <input
+                                        type="file"
+                                        className="opacity-0 absolute left-0 top-0 right-0 bottom-0 z-50"
+                                        onChange={
+                                            importSelectedProject
+                                        }></input>
+                                    Import a project
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-row-reverse ml-auto flex-wrap self-end my-auto pt-10 mr-5 overflow-y-auto">
                         {AppVariables.Quran[

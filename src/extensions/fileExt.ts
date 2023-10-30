@@ -1,6 +1,20 @@
 import { toast } from "sonner";
 
 export default class FileExt {
+    static DownloadFile(fileName: string, fileContent: string) {
+        const projectBlob = new Blob([fileContent], {
+            type: "application/json",
+        });
+
+        const projectBlobUrl = URL.createObjectURL(projectBlob);
+
+        const link = document.createElement("a");
+        link.href = projectBlobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
     /**
      * Take the selected recitation file of the user and transform it into a JS blob
      * @param event

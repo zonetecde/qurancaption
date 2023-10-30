@@ -65,7 +65,7 @@ const TranslationsEditor = (props: Props) => {
                     // Si c'est moite-moite
                     else if (
                         subtitle
-                            .getWholeVerse()
+                            .getWholeArabicVerse()
                             .startsWith(
                                 subtitle.getArabicText() +
                                     " " +

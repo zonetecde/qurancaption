@@ -59,16 +59,9 @@ const Editor = () => {
         setGenerateVideo(false);
         setHasSyncBegan(true);
         setTriggerResetWork(!triggerResetWork);
-    }
 
-    function handleFileUpload(event: any): void {
-        FileExt.handleFileUpload(
-            event,
-            setRecitationFileBlob,
-            setRecitationFileBlobUrl
-        );
-
-        beginSync();
+        // go to page /editor
+        window.history.pushState({}, "", "/editor");
     }
 
     return (
@@ -107,6 +100,9 @@ const Editor = () => {
                                             <ArabicSubtitleEditor
                                                 setRecitationFileBlobUrl={
                                                     setRecitationFileBlobUrl
+                                                }
+                                                recitationFileBlob={
+                                                    recitationFileBlob
                                                 }
                                                 setRecitationFileBlob={
                                                     setRecitationFileBlob

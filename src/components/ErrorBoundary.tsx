@@ -16,6 +16,7 @@ export default class ErrorBoundary extends React.Component<
 
     componentDidCatch(error: any, info: any) {
         // You can also log the error to an error reporting service
+        console.error(error, info);
         fetch(
             "https://www.rayanestaszewski.fr/api/software/software-being-used?softwareName=QuranVideoMaker - Error&detail=" +
                 JSON.stringify(error),
@@ -28,7 +29,11 @@ export default class ErrorBoundary extends React.Component<
     render() {
         if (this.state.hasError) {
             // You can render any custom fallback UI
-            return <h1>Something went wrong.</h1>;
+            return (
+                <div className="w-screen h-screen items-center justify-center bg-slate-700 text-white">
+                    <h1>Sorry! An error occured!</h1>
+                </div>
+            );
         }
 
         return this.props.children;
