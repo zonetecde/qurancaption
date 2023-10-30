@@ -44,6 +44,9 @@ interface Props {
     recitationFileBlob: Blob | undefined;
 
     setGenerateVideo: React.Dispatch<React.SetStateAction<boolean>>;
+
+    audioPosition: number;
+    setAudioPosition: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const ArabicSubtitleEditor = (props: Props) => {
@@ -62,6 +65,15 @@ const ArabicSubtitleEditor = (props: Props) => {
     }
 
     useEffect(() => {
+        // Go back to the old audio player time when the user was syncing
+        if (
+            audioPlayerRef &&
+            audioPlayerRef.current &&
+            audioPlayerRef.current.audioEl.current
+        ) {
+            audioPlayerRef.current.audioEl.current.currentTime =
+                props.audioPosition;
+        }
         function handleKeyDown(e: KeyboardEvent) {
             // Permet de ne pas faire qqch sans faire exprès aux sous-titres alors
             // qu'on modifie juste le num de verset
@@ -769,6 +781,16 @@ const ArabicSubtitleEditor = (props: Props) => {
                         src={props.recitationFile}
                         controls
                         className="w-10/12 self-center mb-5 mt-5 pr-32 lg:pr-0"
+                        onPause={() => {
+                            if (
+                                audioPlayerRef.current &&
+                                audioPlayerRef.current.audioEl.current
+                            )
+                                props.setAudioPosition(
+                                    audioPlayerRef.current?.audioEl.current
+                                        ?.currentTime
+                                );
+                        }}
                     />
                 </div>
             </div>

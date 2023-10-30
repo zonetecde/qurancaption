@@ -54,6 +54,9 @@ const Editor = () => {
     const [showTransliteration, setShowTransliteration] =
         useState<boolean>(false);
 
+    // Position de l'audio
+    const [audioPosition, setAudioPosition] = useState<number>(0);
+
     function beginSync() {
         setSubtitles([]);
         setGenerateVideo(false);
@@ -98,6 +101,10 @@ const Editor = () => {
                                             (x) => x.isShown && x.lang === "ar"
                                         ) ? (
                                             <ArabicSubtitleEditor
+                                                audioPosition={audioPosition}
+                                                setAudioPosition={
+                                                    setAudioPosition
+                                                }
                                                 setRecitationFileBlobUrl={
                                                     setRecitationFileBlobUrl
                                                 }
