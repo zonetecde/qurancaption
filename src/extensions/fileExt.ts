@@ -1,34 +1,43 @@
+import { toast } from "sonner";
+
 export default class FileExt {
-  /**
-   * Take the selected recitation file of the user and transform it into a JS blob
-   * @param event
-   * @returns
-   */
-  static handleFileUpload(
-    event: React.ChangeEvent<HTMLInputElement>,
-    setBlob: any,
-    setBlobUrl: any
-  ) {
-    const file = event.target.files?.[0];
+    /**
+     * Take the selected recitation file of the user and transform it into a JS blob
+     * @param event
+     * @returns
+     */
+    static handleFileUpload(
+        event: React.ChangeEvent<HTMLInputElement>,
+        setBlob: any,
+        setBlobUrl: any
+    ) {
+        const file = event.target.files?.[0];
 
-    if (!file) return ["", undefined];
+        if (!file) return ["", undefined];
 
-    const { type } = file;
+        if (file?.size > 1.5e8) {
+            toast.error(
+                "The file size exceeds the limit. Please upload a file smaller than 150 megabytes."
+            );
+            return ["", undefined];
+        }
 
-    const reader = new FileReader();
+        const { type } = file;
 
-    reader.onload = async (e) => {
-      const audioData = e.target?.result as ArrayBuffer;
+        const reader = new FileReader();
 
-      if (!audioData) return;
+        reader.onload = async (e) => {
+            const audioData = e.target?.result as ArrayBuffer;
 
-      const audioBlob = new Blob([audioData], { type });
-      const url = URL.createObjectURL(audioBlob);
+            if (!audioData) return;
 
-      setBlob(audioBlob);
-      setBlobUrl(url);
-    };
+            const audioBlob = new Blob([audioData], { type });
+            const url = URL.createObjectURL(audioBlob);
 
-    reader.readAsArrayBuffer(file);
-  }
+            setBlob(audioBlob);
+            setBlobUrl(url);
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
 }

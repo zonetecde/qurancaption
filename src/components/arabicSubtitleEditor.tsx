@@ -5,6 +5,7 @@ import { Surah, Verse, VersePosition } from "../api/quran";
 import Subtitle from "../models/subtitle";
 import AppVariables from "../AppVariables";
 import FileExt from "../extensions/fileExt";
+import { toast } from "sonner";
 
 interface Props {
     setSubtitles: React.Dispatch<React.SetStateAction<Subtitle[]>>;
@@ -275,6 +276,30 @@ const ArabicSubtitleEditor = (props: Props) => {
                         ]);
                         break;
                     case "Enter":
+                        // Remove the focus of all the elements
+                        (document.activeElement as HTMLElement)?.blur();
+
+                        if (getCurrentAudioPlayerTime() === 0) {
+                            if (props.recitationFile)
+                                toast.error("You must start the audio first");
+                            else
+                                toast.error(
+                                    "You must select a video file first"
+                                );
+                            return;
+                        }
+
+                        if (
+                            props.subtitles.length > 0 &&
+                            props.subtitles[props.subtitles.length - 1]
+                                .endTime > getCurrentAudioPlayerTime()
+                        ) {
+                            toast.error(
+                                "The only way to go back is by pressing the backspace key, but be careful as this will remove your last subtitle entry.\nNode that you can still change the times of the old subtitles in the right-hand panel."
+                            );
+                            return;
+                        }
+
                         // Valide la séléction pour le temps acctuel
                         props.setSubtitles([
                             ...props.subtitles,
@@ -334,14 +359,6 @@ const ArabicSubtitleEditor = (props: Props) => {
                                 props.setCurrentSelectedWordsRange([0, 0]);
                             }
                         }
-
-                        fetch(
-                            "https://www.rayanestaszewski.fr/api/software/software-being-used?softwareName=Quran Video Maker&detail=" +
-                                JSON.stringify(props.subtitles),
-                            {
-                                method: "POST",
-                            }
-                        );
                         break;
                     default:
                         break;

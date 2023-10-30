@@ -273,8 +273,6 @@ const VideoGenerator = (props: Props) => {
                 </p>
             )}
             <div className="overflow-auto flex flex-col items-center bg-[#2b333f] my-10">
-                <Toaster position="bottom-right" />
-
                 <div className="flex items-center justify-center flex-col">
                     <div className="text-white flex flex-row flex-wrap justify-center items-center w-8/12 lg:w-full text-sm md:text-lg large:text-xl">
                         <div className="flex flex-row items-center justify-center mt-2 ">
