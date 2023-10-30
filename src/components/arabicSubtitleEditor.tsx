@@ -295,7 +295,7 @@ const ArabicSubtitleEditor = (props: Props) => {
                                 .endTime > getCurrentAudioPlayerTime()
                         ) {
                             toast.error(
-                                "The only way to go back is by pressing the backspace key, but be careful as this will remove your last subtitle entry.\nNode that you can still change the times of the old subtitles in the right-hand panel."
+                                "The only way to go back is by pressing the backspace key, but be careful as this will remove your last subtitle entry."
                             );
                             return;
                         }
