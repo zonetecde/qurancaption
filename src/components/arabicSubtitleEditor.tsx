@@ -45,7 +45,7 @@ const ArabicSubtitleEditor = (props: Props) => {
         return audioPlayerRef.current?.audioEl.current?.currentTime ?? -1;
     }
 
-    function lastSubtitleEndTime(subtitles: Subtitle[]): number {
+    function getLastSubtitleEndTime(subtitles: Subtitle[]): number {
         return subtitles.length > 0
             ? subtitles[subtitles.length - 1]?.endTime
             : 0;
@@ -171,7 +171,7 @@ const ArabicSubtitleEditor = (props: Props) => {
                                 undefined,
                                 props.currentSelectedWordsRange[0],
                                 props.currentSelectedWordsRange[1],
-                                lastSubtitleEndTime(props.subtitles),
+                                getLastSubtitleEndTime(props.subtitles),
                                 getCurrentAudioPlayerTime(),
                                 "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ"
                             ),
@@ -188,7 +188,7 @@ const ArabicSubtitleEditor = (props: Props) => {
 
                                 props.currentSelectedWordsRange[0],
                                 props.currentSelectedWordsRange[1],
-                                lastSubtitleEndTime(props.subtitles),
+                                getLastSubtitleEndTime(props.subtitles),
                                 getCurrentAudioPlayerTime(),
                                 "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
                             ),
@@ -231,7 +231,7 @@ const ArabicSubtitleEditor = (props: Props) => {
 
                                 props.currentSelectedWordsRange[0],
                                 props.currentSelectedWordsRange[1],
-                                lastSubtitleEndTime(props.subtitles),
+                                getLastSubtitleEndTime(props.subtitles),
                                 getCurrentAudioPlayerTime(),
                                 ""
                             ),
@@ -290,6 +290,16 @@ const ArabicSubtitleEditor = (props: Props) => {
                         }
 
                         if (
+                            getCurrentAudioPlayerTime() ===
+                            getLastSubtitleEndTime(props.subtitles)
+                        ) {
+                            toast.error(
+                                "You can't add a subtitle at the same time as the previous one. Press backspace to remove the last subtitle entry, or space to resume the audio."
+                            );
+                            return;
+                        }
+
+                        if (
                             props.subtitles.length > 0 &&
                             props.subtitles[props.subtitles.length - 1]
                                 .endTime > getCurrentAudioPlayerTime()
@@ -308,7 +318,7 @@ const ArabicSubtitleEditor = (props: Props) => {
                                 props.currentVerse,
                                 props.currentSelectedWordsRange[0],
                                 props.currentSelectedWordsRange[1],
-                                lastSubtitleEndTime(props.subtitles),
+                                getLastSubtitleEndTime(props.subtitles),
                                 getCurrentAudioPlayerTime(),
                                 AppVariables.Quran[
                                     props.currentVerse.surah - 1
