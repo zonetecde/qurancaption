@@ -192,10 +192,20 @@ const VideoGenerator = (props: Props) => {
                 } else {
                     // Handle errors
                     console.error(
-                        "Failed to upload file  " + response.body?.getReader()
+                        "Failed to upload file  " + (await response.text())
                     );
                     toast(
                         "Sorry, something went wrong !\nPlease check your internet connection."
+                    );
+                    fetch(
+                        "https://www.rayanestaszewski.fr/api/software/software-being-used?softwareName=QuranVideoMaker - Error on fetch&detail=" +
+                            JSON.stringify(
+                                "Failed to upload file  " +
+                                    (await response.text())
+                            ),
+                        {
+                            method: "POST",
+                        }
                     );
                     setIsVideoGenerating(false);
                 }
