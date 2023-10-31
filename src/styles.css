@@ -3,147 +3,141 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: "Hafs";
-  src: url("./assets/fonts/Hafs.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "Hafs";
+    src: url("./assets/fonts/Hafs.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "me_quran";
-  src: url("./assets/fonts/me_quran.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "me_quran";
+    src: url("./assets/fonts/me_quran.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Amiri";
-  src: url("./assets/fonts/Amiri-Bold.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "Amiri";
+    src: url("./assets/fonts/Amiri-Bold.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "DejaVuSans";
-  src: url("./assets/fonts/DejaVuSans.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "DejaVuSans";
+    src: url("./assets/fonts/DejaVuSans.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 @font-face {
-  font-family: "Roboto";
-  src: url("./assets/fonts/Roboto-Regular.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "Roboto";
+    src: url("./assets/fonts/Roboto-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 @font-face {
-  font-family: "OpenSans";
-  src: url("./assets/fonts/OpenSans.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "OpenSans";
+    src: url("./assets/fonts/OpenSans.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 @font-face {
-  font-family: "Arial";
-  src: url("./assets/fonts/Arial.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-@font-face {
-  font-family: "Helivetica";
-  src: url("./assets/fonts/Helvetica.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
+    font-family: "Helivetica";
+    src: url("./assets/fonts/Helvetica.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
 }
 
 .DejaVu-Sans {
-  direction: rtl;
-  font-family: "DejaVuSans", "Arial", Courier, monospace;
+    direction: rtl;
+    font-family: "DejaVuSans", "Arial", Courier, monospace;
 }
 
 .arabic {
-  direction: rtl;
-  font-family: "Hafs", "Courier New", Courier, monospace;
+    direction: rtl;
+    font-family: "Hafs", "Courier New", Courier, monospace;
 }
 
 .me_quran {
-  direction: rtl;
-  font-family: "me_quran", "Courier New", Courier, monospace;
+    direction: rtl;
+    font-family: "me_quran", "Courier New", Courier, monospace;
 }
 .Amiri {
-  direction: rtl;
-  font-family: "Amiri", "Courier New", Courier, monospace;
-  font-weight: bold;
+    direction: rtl;
+    font-family: "Amiri", "Courier New", Courier, monospace;
+    font-weight: bold;
 }
 
 .letter-outline {
-  color: white;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
-    2px 2px 0 #000;
+    color: white;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+        2px 2px 0 #000;
 }
 
 .Roboto {
-  font-family: "Roboto", "Helvetica", Courier, monospace;
+    font-family: "Roboto", "Helvetica", Courier, monospace;
 }
 .Helvetica {
-  font-family: "Helvetica", "Roboto", Courier, monospace;
+    font-family: "Helvetica", "Roboto", Courier, monospace;
 }
 .Open-Sans-Light {
-  font-family: "OpenSans", "Arial";
+    font-family: "OpenSans", "Arial";
 }
 
 .lft {
-  direction: ltr;
+    direction: ltr;
 }
 
 /* width */
 ::-webkit-scrollbar {
-  width: 16px;
-  height: 16px;
+    width: 16px;
+    height: 16px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  border-radius: 10vh;
-  background: gray;
+    border-radius: 10vh;
+    background: gray;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #2d4351;
-  border-radius: 10vh;
-  border: 3px solid #cdcfd25b;
+    background: #2d4351;
+    border-radius: 10vh;
+    border: 3px solid #cdcfd25b;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #464849;
+    background: #464849;
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  background-color: #1e242c;
+    width: 10px;
+    background-color: #1e242c;
 }
 
 ::-webkit-scrollbar:hover {
-  width: 20px;
+    width: 20px;
 }
 
 .textarea {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  resize: both;
-  min-height: 40px;
-  line-height: 20px;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    resize: both;
+    min-height: 40px;
+    line-height: 20px;
 }
 
 .textarea[contenteditable]:empty::before {
-  color: gray;
+    color: gray;
 }
 
 .remove-tab-button {
-  display: none;
+    display: none;
 }
 
 .div-tab-item:hover .remove-tab-button {
-  display: inline-block;
+    display: inline-block;
 }

@@ -196,8 +196,6 @@ const TabControl = (props: Props) => {
                                                     </option>
                                                 );
                                             }
-
-                                            return <> </>;
                                         }
                                     )}
                                 </select>

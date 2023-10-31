@@ -16,6 +16,7 @@ import VideoGenerator from "../components/videoGenerator";
 import FileExt from "../extensions/fileExt";
 
 import icon from "../assets/icon.png";
+import { toast } from "sonner";
 
 const Editor = () => {
     // Le blob de la récitation et l'url de la récitation
@@ -58,6 +59,11 @@ const Editor = () => {
     const [audioPosition, setAudioPosition] = useState<number>(0);
 
     function beginSync() {
+        if (AppVariables.Quran === undefined) {
+            toast.error("Please wait for the Quran to load and try again");
+            return;
+        }
+
         setSubtitles([]);
         setGenerateVideo(false);
         setHasSyncBegan(true);
@@ -67,7 +73,7 @@ const Editor = () => {
     return (
         <>
             <div className="w-screen h-screen flex flex-row">
-                <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-black">
+                <div className="bg-black bg-opacity-40 flex-grow h-full flex justify-center items-center relative border-black ">
                     <>
                         {" "}
                         {hasSyncBegan ? (
