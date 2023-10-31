@@ -152,53 +152,59 @@ const TabControl = (props: Props) => {
                 </div>
             ))}
 
-            {props.subtitles.length > 0 && (
-                <div
-                    className="px-5 bg-green-800 h-full flex items-center justify-center cursor-pointer rounded-t-xl ml-0.5"
-                    onMouseLeave={() => setAddHeaderText("+")}
-                    onMouseEnter={() =>
-                        setAddHeaderText("Add a translation :")
-                    }>
-                    <div className="px-2 bg-green-800 h-full flex items-center justify-center cursor-pointer rounded-t-xl ml-0.5">
-                        <p className="text-white text-sm lg:text-lg">
-                            {addHeaderText}
-                        </p>
+            {props.subtitles.length > 0 &&
+                props.subtitles.some((x) => x.versePos) && (
+                    <div
+                        className="px-5 bg-green-800 h-full flex items-center justify-center cursor-pointer rounded-t-xl ml-0.5"
+                        onMouseLeave={() => setAddHeaderText("+")}
+                        onMouseEnter={() =>
+                            setAddHeaderText("Add a translation :")
+                        }>
+                        <div className="px-2 bg-green-800 h-full flex items-center justify-center cursor-pointer rounded-t-xl ml-0.5">
+                            <p className="text-white text-sm lg:text-lg">
+                                {addHeaderText}
+                            </p>
 
-                        {addHeaderText === "Add a translation :" && (
-                            <select
-                                className="h-8 ml-3 border border-black"
-                                defaultValue={"select"}
-                                onChange={(e) =>
-                                    addTranslation(e.currentTarget.value)
-                                }>
-                                <option value="select">
-                                    Select a language
-                                </option>
+                            {addHeaderText === "Add a translation :" && (
+                                <select
+                                    className="h-8 ml-3 border border-black"
+                                    defaultValue={"select"}
+                                    onChange={(e) =>
+                                        addTranslation(e.currentTarget.value)
+                                    }>
+                                    <option value="select">
+                                        Select a language
+                                    </option>
 
-                                {Object.keys(AppVariables.Langs).map(function (
-                                    key,
-                                    index
-                                ) {
-                                    // Si la traduction n'a toujours pas été ajouté pour cette langue
-                                    if (
-                                        props.tabItems.find(
-                                            (x) => x.lang === key
-                                        ) === undefined
-                                    ) {
-                                        return (
-                                            <option key={index} value={key}>
-                                                {AppVariables.Langs[key]}
-                                            </option>
-                                        );
-                                    }
+                                    {Object.keys(AppVariables.Langs).map(
+                                        function (key, index) {
+                                            // Si la traduction n'a toujours pas été ajouté pour cette langue
+                                            if (
+                                                props.tabItems.find(
+                                                    (x) => x.lang === key
+                                                ) === undefined
+                                            ) {
+                                                return (
+                                                    <option
+                                                        key={index}
+                                                        value={key}>
+                                                        {
+                                                            AppVariables.Langs[
+                                                                key
+                                                            ]
+                                                        }
+                                                    </option>
+                                                );
+                                            }
 
-                                    return <> </>;
-                                })}
-                            </select>
-                        )}
+                                            return <> </>;
+                                        }
+                                    )}
+                                </select>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
             {toDeleteTabItem !== undefined && (
                 <div className="absolute px-10 py-10 rounded-2xl border-blue-900 bg-blue-200 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 shadow-2xl shadow-black z-40">

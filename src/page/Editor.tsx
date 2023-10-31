@@ -62,9 +62,6 @@ const Editor = () => {
         setGenerateVideo(false);
         setHasSyncBegan(true);
         setTriggerResetWork(!triggerResetWork);
-
-        // go to page /editor
-        window.history.pushState({}, "", "/editor");
     }
 
     return (

@@ -74,6 +74,9 @@ const ArabicSubtitleEditor = (props: Props) => {
             audioPlayerRef.current.audioEl.current.currentTime =
                 props.audioPosition;
         }
+    }, []);
+
+    useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
             // Permet de ne pas faire qqch sans faire exprès aux sous-titres alors
             // qu'on modifie juste le num de verset
