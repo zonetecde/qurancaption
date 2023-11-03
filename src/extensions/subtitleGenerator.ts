@@ -38,7 +38,7 @@ ScaledBorderAndShadow: yes
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
 Style: Default,` +
-            font +
+            (font === "Hafs" ? "KFGQPC HafsEx1 Uthmanic Script" : font) +
             `,` +
             arabicFontSize +
             `,&Hffffff,&Hffffff,&H00000000,&H0,` +
