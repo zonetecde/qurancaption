@@ -501,10 +501,14 @@ const VideoGenerator = (props: Props) => {
                             {currentSubtitle && (
                                 <p className={arabicFontRef.current?.value}>
                                     {arabicVersesBetweenRef.current?.checked ===
-                                        true && "﴿"}{" "}
+                                        true && (
+                                        <span className="Amiri">﴿</span>
+                                    )}{" "}
                                     {currentSubtitle?.arabicText}
                                     {arabicVersesBetweenRef.current?.checked ===
-                                        true && " ﴾"}{" "}
+                                        true && (
+                                        <span className="Amiri">﴾</span>
+                                    )}{" "}
                                     {currentSubtitle &&
                                     verseNumberInArabicRef.current?.checked ===
                                         true &&

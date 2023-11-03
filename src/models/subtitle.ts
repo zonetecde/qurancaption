@@ -57,7 +57,9 @@ export default class Subtitle {
      */
     getArabicText(
         betweenParentheses: boolean = false,
-        verseNumber: boolean = false
+        verseNumber: boolean = false,
+        isGeneratingAss: boolean = false,
+        defaultFont: string = ""
     ) {
         const base =
             verseNumber && this.IsLastWordsFromVerse()
@@ -67,7 +69,13 @@ export default class Subtitle {
         return (
             base +
             (betweenParentheses && this.versePos && this.arabicText !== ""
-                ? "﴾" + this.arabicText + "﴿"
+                ? (isGeneratingAss ? "{\\fnAmiri}" : "") +
+                  "﴾  " +
+                  (isGeneratingAss ? "{\\fn" + defaultFont + "}" : "") +
+                  this.arabicText +
+                  (isGeneratingAss ? "{\\fnAmiri}" : "") +
+                  "  ﴿" +
+                  (isGeneratingAss ? "{\\fn" + defaultFont + "}" : "")
                 : this.arabicText)
         );
     }

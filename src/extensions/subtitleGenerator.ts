@@ -70,13 +70,19 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
                           // nbre arabe --
                           "﴾" +
                           StringExt.toArabicNumber(subtitle.versePos!.verse) +
-                          "﴿"
+                          "﴿" +
+                          " ‎‎ "
                         : // --
                           "") +
                     (font !== "me_quran" ? "\\h" : "") + // espace entre le nbre arabe et le texte (uniquement pour Amiri car me_quran ne supporte pas les espaces)
                     this.setFontSizeExpression(arabicFontSize) +
                     this.setFontExpression(font) +
-                    subtitle.getArabicText(arabicVersesBetweenParentheses) +
+                    subtitle.getArabicText(
+                        arabicVersesBetweenParentheses,
+                        false,
+                        true,
+                        font
+                    ) +
                     (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre
                         ? ""
                         : this.NEW_SUBTITLE_LINE + // la trad est sur une autre ligne
@@ -92,6 +98,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
             }
         });
 
+        console.log(subtitleFileText);
         return subtitleFileText;
     }
     static setBoldExpression(translationBold: boolean) {
