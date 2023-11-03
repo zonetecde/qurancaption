@@ -432,7 +432,7 @@ const VideoGenerator = (props: Props) => {
                 </div>
 
                 <div
-                    className="w-10/12 bg-black relative mt-10 flex justify-center "
+                    className="w-10/12 max-w-[100vh] bg-black relative mt-10 flex justify-center "
                     style={{ width: videoRef.current?.videoWidth + "px" }}>
                     <video
                         className="max-w-[100vh] max-h-[80vh] shadow-2xl shadow-black "
@@ -499,12 +499,22 @@ const VideoGenerator = (props: Props) => {
                                         : 1) + "vh",
                             }}>
                             {currentSubtitle && (
-                                <p className={arabicFontRef.current?.value}>
+                                <p
+                                    className={
+                                        arabicFontRef.current?.value +
+                                        " whitespace-pre-wrap"
+                                    }>
                                     {arabicVersesBetweenRef.current?.checked ===
                                         true && (
                                         <span className="Amiri">﴿</span>
                                     )}{" "}
-                                    {currentSubtitle?.arabicText}
+                                    {currentSubtitle?.arabicText.replaceAll(
+                                        " ",
+                                        arabicFontRef.current?.value ===
+                                            "me_quran"
+                                            ? "   "
+                                            : " "
+                                    )}
                                     {arabicVersesBetweenRef.current?.checked ===
                                         true && (
                                         <span className="Amiri">﴾</span>
