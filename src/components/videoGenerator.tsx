@@ -288,12 +288,11 @@ const VideoGenerator = (props: Props) => {
                         <div className="flex flex-row items-center justify-center mt-2 ">
                             <p>Arabic font : </p>
                             <select
-                                defaultValue={"Hafs"}
+                                defaultValue={"me_quran"}
                                 className="text-black px-2 py-1 ml-3 max-w-[150px]"
                                 ref={arabicFontRef}>
-                                <option value="Amiri">Amiri</option>
-                                <option value="Hafs">Hafs</option>
                                 <option value="me_quran">me_quran</option>
+                                <option value="Amiri">Amiri</option>
                             </select>
                         </div>
 
