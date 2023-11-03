@@ -1,6 +1,6 @@
 # Quran Caption
 
-[Quran Caption](https://rayanestaszewski.fr/qurancaption/) is a website that lets you generate Quranic videos.
+[Quran Caption](https://www.qurancaption.com) is a website that lets you generate Quranic videos.
 
 Here's a demo :
 
