@@ -288,13 +288,12 @@ const VideoGenerator = (props: Props) => {
                         <div className="flex flex-row items-center justify-center mt-2 ">
                             <p>Arabic font : </p>
                             <select
-                                defaultValue={"Amiri"}
+                                defaultValue={"Hafs"}
                                 className="text-black px-2 py-1 ml-3 max-w-[150px]"
                                 ref={arabicFontRef}>
                                 <option value="Amiri">Amiri</option>
-                                <option value="me_quran">
-                                    me_quran (can be buggy)
-                                </option>
+                                <option value="Hafs">Hafs</option>
+                                <option value="me_quran">me_quran</option>
                             </select>
                         </div>
 
@@ -501,13 +500,7 @@ const VideoGenerator = (props: Props) => {
                                         : 1) + "vh",
                             }}>
                             {currentSubtitle && (
-                                <p
-                                    className={
-                                        arabicFontRef.current?.value ===
-                                        "me_quran"
-                                            ? "me_quran "
-                                            : "Amiri"
-                                    }>
+                                <p className={arabicFontRef.current?.value}>
                                     {arabicVersesBetweenRef.current?.checked ===
                                         true && "﴿"}{" "}
                                     {currentSubtitle?.arabicText}

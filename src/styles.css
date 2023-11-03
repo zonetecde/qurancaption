@@ -53,7 +53,8 @@
     font-family: "DejaVuSans", "Arial", Courier, monospace;
 }
 
-.arabic {
+.arabic,
+.Hafs {
     direction: rtl;
     font-family: "Hafs", "Courier New", Courier, monospace;
 }

@@ -47,7 +47,7 @@ Style: Default,` +
             (letterOutline ? "1" : "0") +
             `,` +
             (shadow ? "1" : "0") +
-            `,2,5,5,10,0
+            `,5,5,5,10,0
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
