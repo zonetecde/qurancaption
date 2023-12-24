@@ -53,12 +53,7 @@ Style: Default,` +
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n`;
 
         subtitles.forEach((subtitle, index) => {
-            const text = subtitle.getArabicText(
-                arabicVersesBetweenParentheses,
-                false,
-                true,
-                font
-            );
+            const text = subtitle.getArabicText(arabicVersesBetweenParentheses, false, true, font);
 
             // if not silence
             if (subtitle.arabicText !== "") {
@@ -71,36 +66,31 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
                     (verticalVideo ? "2,2" : "40,40") +
                     ",0,,{\\fade(200,200)" +
                     (letterOutline ? "\\blur5}" : "}") + // Si on ne veut pas avoir l'outline alors dans ce cas on pas d'effet de blur
+                    (font !== "me_quran" ? "\\h" : "") + // espace entre le nbre arabe et le texte (uniquement pour Amiri car me_quran ne supporte pas les espaces)
+                    this.setFontSizeExpression(arabicFontSize) +
+                    this.setFontExpression(font) +
+                    text
+                        .replaceAll(" ", font === "me_quran" && subtitle.getArabicText().split(" ").length <= 6 ? "     " : " ")
+                        .replaceAll("{\\fnAmiri}          ", " {\\fnAmiri} ")
+                        .replaceAll("        {\\fnme_quran}", "{\\fnme_quran}")
+                        .trim() +
                     (verseNumberInArabic && subtitle.IsLastWordsFromVerse()
                         ? this.setFontSizeExpression(25) + // taille du nbre arabe
                           this.setFontExpression("me_quran") + // police du nbre arabe
                           // nbre arabe --
-                          "﴾" +
+                          "‎‎﴾" +
                           StringExt.toArabicNumber(subtitle.versePos!.verse) +
                           "﴿" +
-                          " ‎‎ "
+                          ""
                         : // --
                           "") +
-                    (font !== "me_quran" ? "\\h" : "") + // espace entre le nbre arabe et le texte (uniquement pour Amiri car me_quran ne supporte pas les espaces)
-                    this.setFontSizeExpression(arabicFontSize) +
-                    this.setFontExpression(font) +
-                    text.replaceAll(
-                        " ",
-                        font === "me_quran" &&
-                            subtitle.getArabicText().split(" ").length <= 6
-                            ? "     "
-                            : " "
-                    ) +
                     (secondLang === "none" || subtitle.versePos === undefined // si on veut la traduction avec et que ce n'est pas une basmala ou autre
                         ? ""
                         : this.NEW_SUBTITLE_LINE + // la trad est sur une autre ligne
                           this.setBoldExpression(translationBold) + // bold?
                           this.setFontSizeExpression(translationFontSize) + // taille de la trad
                           this.setFontExpression(translationFont) + // police d'écriture de la trad
-                          (verseNumberInTranslation &&
-                          subtitle.IsBeginingWordsFromVerse()
-                              ? subtitle.getVersePose("V. ")
-                              : "") +
+                          (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse() ? subtitle.getVersePose("V. ") : "") +
                           subtitle.getTranslationText(secondLang)) +
                     "\n";
             }
@@ -112,50 +102,24 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\
         return "{\\b" + (translationBold ? "1" : "0") + "}";
     }
 
-    static generateSrtSubtitles(
-        subtitles: Subtitle[],
-        lang: string,
-        arabicVersesBetweenParentheses: boolean,
-        verseNumberInArabic: boolean,
-        verseNumberInTranslation: boolean
-    ) {
+    static generateSrtSubtitles(subtitles: Subtitle[], lang: string, arabicVersesBetweenParentheses: boolean, verseNumberInArabic: boolean, verseNumberInTranslation: boolean) {
         let subtitleFileText = "";
         let silenceCounter = 0;
 
         subtitles.forEach((subtitle, index) => {
             if (subtitle.arabicText) {
                 subtitleFileText += `${index + 1 - silenceCounter}\n`;
-                subtitleFileText += `${TimeExt.secondsToHHMMSSms(
-                    subtitle.startTime
-                )} --> ${TimeExt.secondsToHHMMSSms(subtitle.endTime)}\n`;
+                subtitleFileText += `${TimeExt.secondsToHHMMSSms(subtitle.startTime)} --> ${TimeExt.secondsToHHMMSSms(subtitle.endTime)}\n`;
 
-                if (
-                    lang === undefined ||
-                    lang === "none" ||
-                    subtitle.versePos === undefined
-                ) {
-                    subtitleFileText += subtitle.getArabicText(
-                        arabicVersesBetweenParentheses,
-                        verseNumberInArabic
-                    );
+                if (lang === undefined || lang === "none" || subtitle.versePos === undefined) {
+                    subtitleFileText += subtitle.getArabicText(arabicVersesBetweenParentheses, verseNumberInArabic);
                 } else if (lang.includes("ar+")) {
                     // sinon si on veut l'arabe et sa traduction
                     // Alors on ajoute le verset en arabe
-                    subtitleFileText +=
-                        subtitle.getArabicText(
-                            arabicVersesBetweenParentheses,
-                            verseNumberInArabic
-                        ) + "\n";
-                    subtitleFileText += subtitle.getTranslationText(
-                        lang.replace("ar+", ""),
-                        verseNumberInTranslation
-                    );
+                    subtitleFileText += subtitle.getArabicText(arabicVersesBetweenParentheses, verseNumberInArabic) + "\n";
+                    subtitleFileText += subtitle.getTranslationText(lang.replace("ar+", ""), verseNumberInTranslation);
                 } else {
-                    subtitleFileText +=
-                        (verseNumberInTranslation &&
-                        subtitle.IsBeginingWordsFromVerse()
-                            ? subtitle.getVersePose("V. ")
-                            : "") + subtitle.getTranslationText(lang);
+                    subtitleFileText += (verseNumberInTranslation && subtitle.IsBeginingWordsFromVerse() ? subtitle.getVersePose("V. ") : "") + subtitle.getTranslationText(lang);
                 }
 
                 subtitleFileText += "\n\n";
