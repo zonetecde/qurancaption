@@ -753,7 +753,8 @@ const ArabicSubtitleEditor = (props: Props) => {
 
                     <ul className="absolute bottom-20 mt-auto text-white text-opacity-30 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm hover:bg-slate-800 p-5 lg:hover:scale-125 lg:hover:ml-20 lg:hover:mb-10  sm:block">
                         <li>Press space to pause/resume the audio</li>
-                        <li>Use the up and down arrow keys to select words</li>
+                        <li>Use the up and down arrow keys to select words<br/>
+                            and press enter to add the selected words as a subtitle</li>
                         <li>
                             Use the left and right arrow to navigate the audio
                             <br />
