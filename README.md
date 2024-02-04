@@ -1,6 +1,11 @@
 # Quran Caption
 
-[Quran Caption](https://www.qurancaption.com) is a website that lets you generate Quranic videos.
+### The project has come to an end.
+### If you want the server code to generate the video, please contact me.
+
+---------------------------------
+
+Quran Caption is a website that lets you generate Quranic videos.
 
 Here's a demo :
 
