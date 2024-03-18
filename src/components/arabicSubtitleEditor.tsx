@@ -1,10 +1,4 @@
-import React, {
-    ChangeEvent,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import ReactAudioPlayer from "react-audio-player";
 import Word from "./word";
 import { Surah, Verse, VersePosition } from "../api/quran";
@@ -28,19 +22,13 @@ interface Props {
     setShowTransliteration: React.Dispatch<React.SetStateAction<boolean>>;
 
     currentSelectedWordsRange: [number, number];
-    setCurrentSelectedWordsRange: React.Dispatch<
-        React.SetStateAction<[number, number]>
-    >;
+    setCurrentSelectedWordsRange: React.Dispatch<React.SetStateAction<[number, number]>>;
 
     previousSelectedWordIndexInVerse: number;
-    setPreviousSelectedWordIndexInVerse: React.Dispatch<
-        React.SetStateAction<number>
-    >;
+    setPreviousSelectedWordIndexInVerse: React.Dispatch<React.SetStateAction<number>>;
 
     setRecitationFileBlobUrl: React.Dispatch<React.SetStateAction<string>>;
-    setRecitationFileBlob: React.Dispatch<
-        React.SetStateAction<Blob | undefined>
-    >;
+    setRecitationFileBlob: React.Dispatch<React.SetStateAction<Blob | undefined>>;
     recitationFileBlob: Blob | undefined;
 
     setGenerateVideo: React.Dispatch<React.SetStateAction<boolean>>;
@@ -51,28 +39,20 @@ interface Props {
 
 const ArabicSubtitleEditor = (props: Props) => {
     const audioPlayerRef = React.useRef<ReactAudioPlayer>(null);
-    const [moreOptionsVisibility, setToggleMoreOptionsVisibility] =
-        useState<boolean>(false);
+    const [moreOptionsVisibility, setToggleMoreOptionsVisibility] = useState<boolean>(false);
 
     function getCurrentAudioPlayerTime(): number {
         return audioPlayerRef.current?.audioEl.current?.currentTime ?? -1;
     }
 
     function getLastSubtitleEndTime(subtitles: Subtitle[]): number {
-        return subtitles.length > 0
-            ? subtitles[subtitles.length - 1]?.endTime
-            : 0;
+        return subtitles.length > 0 ? subtitles[subtitles.length - 1]?.endTime : 0;
     }
 
     useEffect(() => {
         // Go back to the old audio player time when the user was syncing
-        if (
-            audioPlayerRef &&
-            audioPlayerRef.current &&
-            audioPlayerRef.current.audioEl.current
-        ) {
-            audioPlayerRef.current.audioEl.current.currentTime =
-                props.audioPosition;
+        if (audioPlayerRef && audioPlayerRef.current && audioPlayerRef.current.audioEl.current) {
+            audioPlayerRef.current.audioEl.current.currentTime = props.audioPosition;
         }
     }, []);
 
@@ -111,34 +91,14 @@ const ArabicSubtitleEditor = (props: Props) => {
 
                     case "ArrowUp":
                         // On vérifie qu'on ne sélectionne pas un mot en dehors des limites du verset
-                        if (
-                            props.currentSelectedWordsRange[1] <
-                            AppVariables.Quran[
-                                props.currentVerse.surah - 1
-                            ].verses[props.currentVerse.verse - 1].text.split(
-                                " "
-                            ).length -
-                                1
-                        ) {
+                        if (props.currentSelectedWordsRange[1] < AppVariables.Quran[props.currentVerse.surah - 1].verses[props.currentVerse.verse - 1].text.split(" ").length - 1) {
                             // Sélectionne le mot suivant
-                            props.setCurrentSelectedWordsRange([
-                                props.currentSelectedWordsRange[0],
-                                props.currentSelectedWordsRange[1] + 1,
-                            ]);
+                            props.setCurrentSelectedWordsRange([props.currentSelectedWordsRange[0], props.currentSelectedWordsRange[1] + 1]);
                         } else {
                             // Vérifie qu'on va pas out of range
-                            if (
-                                AppVariables.Quran.find(
-                                    (x) => x.id === props.currentVerse.surah
-                                )!.total_verses > props.currentVerse.verse
-                            ) {
+                            if (AppVariables.Quran.find((x) => x.id === props.currentVerse.surah)!.total_verses > props.currentVerse.verse) {
                                 // Dans ce cas on va au verset suivant
-                                props.setCurrentVerse(
-                                    new VersePosition(
-                                        props.currentVerse.surah,
-                                        props.currentVerse.verse + 1
-                                    )
-                                );
+                                props.setCurrentVerse(new VersePosition(props.currentVerse.surah, props.currentVerse.verse + 1));
                                 props.setCurrentSelectedWordsRange([0, 0]);
                             }
                         }
@@ -146,45 +106,24 @@ const ArabicSubtitleEditor = (props: Props) => {
 
                     case "ArrowDown":
                         // On vérifie qu'on ne sélectionne pas un mot négatif
-                        if (
-                            props.currentSelectedWordsRange[1] >=
-                            props.currentSelectedWordsRange[0] + 1
-                        ) {
+                        if (props.currentSelectedWordsRange[1] >= props.currentSelectedWordsRange[0] + 1) {
                             // Revient sur le mot précédent
-                            props.setCurrentSelectedWordsRange([
-                                props.currentSelectedWordsRange[0],
-                                props.currentSelectedWordsRange[1] - 1,
-                            ]);
+                            props.setCurrentSelectedWordsRange([props.currentSelectedWordsRange[0], props.currentSelectedWordsRange[1] - 1]);
                         } else if (props.currentSelectedWordsRange[0] > 0) {
                             // Change la born min (= le réciteur se répète)
-                            props.setCurrentSelectedWordsRange([
-                                props.currentSelectedWordsRange[0] - 1,
-                                props.currentSelectedWordsRange[1] - 1,
-                            ]);
+                            props.setCurrentSelectedWordsRange([props.currentSelectedWordsRange[0] - 1, props.currentSelectedWordsRange[1] - 1]);
                         } else {
                             // On sélectionne un mot en dehors des ranges du verset,
                             // càd on retourne au verset précédent
                             if (props.currentVerse.verse > 1) {
-                                props.setCurrentVerse(
-                                    new VersePosition(
-                                        props.currentVerse.surah,
-                                        props.currentVerse.verse - 1
-                                    )
-                                );
+                                props.setCurrentVerse(new VersePosition(props.currentVerse.surah, props.currentVerse.verse - 1));
                                 const previousVerseLength =
-                                    AppVariables.Quran[
-                                        props.currentVerse.surah - 1
-                                    ].verses[
+                                    AppVariables.Quran[props.currentVerse.surah - 1].verses[
                                         props.currentVerse.verse - 2 // -2 car -1 = actualVerse (start from 0) et -2 = previousVerse
                                     ].text.split(" ").length;
 
-                                props.setCurrentSelectedWordsRange([
-                                    previousVerseLength - 1,
-                                    previousVerseLength - 1,
-                                ]);
-                                props.setPreviousSelectedWordIndexInVerse(
-                                    previousVerseLength - 2
-                                );
+                                props.setCurrentSelectedWordsRange([previousVerseLength - 1, previousVerseLength - 1]);
+                                props.setPreviousSelectedWordIndexInVerse(previousVerseLength - 2);
                             }
                         }
                         break;
@@ -226,21 +165,11 @@ const ArabicSubtitleEditor = (props: Props) => {
                     case "Backspace":
                         // enlève le dernier sous titre ajouté
                         if (props.subtitles.length >= 1) {
-                            props.setSubtitles(
-                                props.subtitles.slice(
-                                    0,
-                                    props.subtitles.length - 1
-                                )
-                            );
+                            props.setSubtitles(props.subtitles.slice(0, props.subtitles.length - 1));
 
                             // > 1 car la length n'est pas actualisé après son set
                             if (props.subtitles.length > 1) {
-                                props.setCurrentSelectedWordsRange([
-                                    props.subtitles[props.subtitles.length - 1]
-                                        .toWordIndex,
-                                    props.subtitles[props.subtitles.length - 1]
-                                        .toWordIndex,
-                                ]);
+                                props.setCurrentSelectedWordsRange([props.subtitles[props.subtitles.length - 1].toWordIndex, props.subtitles[props.subtitles.length - 1].toWordIndex]);
                             } else {
                                 // Si on a aucun sous-titre on remet au tout début du verset
                                 props.setCurrentSelectedWordsRange([0, 0]);
@@ -270,71 +199,39 @@ const ArabicSubtitleEditor = (props: Props) => {
                      * Sélectionne du current_end_range jusqu'au début du verset
                      */
                     case "i":
-                        props.setCurrentSelectedWordsRange([
-                            0,
-                            props.currentSelectedWordsRange[1],
-                        ]);
+                        props.setCurrentSelectedWordsRange([0, props.currentSelectedWordsRange[1]]);
                         break;
                     /**
                      * E
                      * Sélectionne du current_begin_range jusqu'à la fin du verset
                      */
                     case "e":
-                        props.setCurrentSelectedWordsRange([
-                            props.currentSelectedWordsRange[0],
-                            AppVariables.Quran[
-                                props.currentVerse.surah - 1
-                            ].verses[props.currentVerse.verse - 1].text.split(
-                                " "
-                            ).length - 1,
-                        ]);
+                        props.setCurrentSelectedWordsRange([props.currentSelectedWordsRange[0], AppVariables.Quran[props.currentVerse.surah - 1].verses[props.currentVerse.verse - 1].text.split(" ").length - 1]);
                         break;
                     /**
                      * V
                      * Sélectionne le verset entier
                      */
                     case "v":
-                        props.setCurrentSelectedWordsRange([
-                            0,
-                            AppVariables.Quran[
-                                props.currentVerse.surah - 1
-                            ].verses[props.currentVerse.verse - 1].text.split(
-                                " "
-                            ).length - 1,
-                        ]);
+                        props.setCurrentSelectedWordsRange([0, AppVariables.Quran[props.currentVerse.surah - 1].verses[props.currentVerse.verse - 1].text.split(" ").length - 1]);
                         break;
                     case "Enter":
                         // Remove the focus of all the elements
                         (document.activeElement as HTMLElement)?.blur();
 
                         if (getCurrentAudioPlayerTime() === 0) {
-                            if (props.recitationFile)
-                                toast.error("You must start the audio first");
-                            else
-                                toast.error(
-                                    "You must select a video file first"
-                                );
+                            if (props.recitationFile) toast.error("You must start the audio first");
+                            else toast.error("You must select a video file first");
                             return;
                         }
 
-                        if (
-                            getCurrentAudioPlayerTime() ===
-                            getLastSubtitleEndTime(props.subtitles)
-                        ) {
-                            toast.error(
-                                "You can't add a subtitle at the same time as the previous one. Press backspace to remove the last subtitle entry, or space to resume the audio."
-                            );
+                        if (getCurrentAudioPlayerTime() === getLastSubtitleEndTime(props.subtitles)) {
+                            toast.error("You can't add a subtitle at the same time as the previous one. Press backspace to remove the last subtitle entry, or space to resume the audio.");
                             return;
                         }
 
-                        if (
-                            props.subtitles.length > 0 &&
-                            props.subtitles[props.subtitles.length - 1]
-                                .endTime > getCurrentAudioPlayerTime()
-                        ) {
-                            toast.error(
-                                "The only way to go back is by pressing the backspace key, but be careful as this will remove your last subtitle entry."
-                            );
+                        if (props.subtitles.length > 0 && props.subtitles[props.subtitles.length - 1].endTime > getCurrentAudioPlayerTime()) {
+                            toast.error("The only way to go back is by pressing the backspace key, but be careful as this will remove your last subtitle entry.");
                             return;
                         }
 
@@ -348,48 +245,21 @@ const ArabicSubtitleEditor = (props: Props) => {
                                 props.currentSelectedWordsRange[1],
                                 getLastSubtitleEndTime(props.subtitles),
                                 getCurrentAudioPlayerTime(),
-                                AppVariables.Quran[
-                                    props.currentVerse.surah - 1
-                                ].verses[props.currentVerse.verse - 1].text
+                                AppVariables.Quran[props.currentVerse.surah - 1].verses[props.currentVerse.verse - 1].text
                                     .split(" ")
-                                    .slice(
-                                        props.currentSelectedWordsRange[0],
-                                        props.currentSelectedWordsRange[1] + 1
-                                    )
+                                    .slice(props.currentSelectedWordsRange[0], props.currentSelectedWordsRange[1] + 1)
                                     .join(" ")
                             ),
                         ]);
 
                         // Si pas tout les mots du versets en cours ont été séléctionnés,
-                        if (
-                            props.currentSelectedWordsRange[1] <
-                            AppVariables.Quran[
-                                props.currentVerse.surah - 1
-                            ].verses[props.currentVerse.verse - 1].text.split(
-                                " "
-                            ).length -
-                                1
-                        ) {
-                            props.setPreviousSelectedWordIndexInVerse(
-                                props.currentSelectedWordsRange[1] + 2
-                            );
-                            props.setCurrentSelectedWordsRange([
-                                props.currentSelectedWordsRange[1] + 1,
-                                props.currentSelectedWordsRange[1] + 1,
-                            ]);
+                        if (props.currentSelectedWordsRange[1] < AppVariables.Quran[props.currentVerse.surah - 1].verses[props.currentVerse.verse - 1].text.split(" ").length - 1) {
+                            props.setPreviousSelectedWordIndexInVerse(props.currentSelectedWordsRange[1] + 2);
+                            props.setCurrentSelectedWordsRange([props.currentSelectedWordsRange[1] + 1, props.currentSelectedWordsRange[1] + 1]);
                         } else {
-                            if (
-                                AppVariables.Quran[props.currentVerse.surah - 1]
-                                    .total_verses >=
-                                props.currentVerse.verse + 1
-                            ) {
+                            if (AppVariables.Quran[props.currentVerse.surah - 1].total_verses >= props.currentVerse.verse + 1) {
                                 // verset suivant
-                                props.setCurrentVerse(
-                                    new VersePosition(
-                                        props.currentVerse.surah,
-                                        props.currentVerse.verse + 1
-                                    )
-                                );
+                                props.setCurrentVerse(new VersePosition(props.currentVerse.surah, props.currentVerse.verse + 1));
                                 props.setCurrentSelectedWordsRange([0, 0]);
                                 props.setPreviousSelectedWordIndexInVerse(1);
                             } else {
@@ -410,22 +280,12 @@ const ArabicSubtitleEditor = (props: Props) => {
         return function cleanup() {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [
-        audioPlayerRef,
-        props.currentSelectedWordsRange,
-        props.previousSelectedWordIndexInVerse,
-        props.currentVerse,
-        props.subtitles,
-    ]);
+    }, [audioPlayerRef, props.currentSelectedWordsRange, props.previousSelectedWordIndexInVerse, props.currentVerse, props.subtitles]);
 
     const verseBeginRef = useRef<HTMLInputElement>(null);
 
     function handleFileUpload(event: any): void {
-        FileExt.handleFileUpload(
-            event,
-            props.setRecitationFileBlob,
-            props.setRecitationFileBlobUrl
-        );
+        FileExt.handleFileUpload(event, props.setRecitationFileBlob, props.setRecitationFileBlobUrl);
     }
 
     /**
@@ -435,26 +295,20 @@ const ArabicSubtitleEditor = (props: Props) => {
         if (props.recitationFileBlob && props.subtitles.length > 0) {
             toast("Exporting the project, please wait...");
             setToggleMoreOptionsVisibility(false);
-            StringExt.blobToString(
-                props.recitationFileBlob,
-                (recitationFileString) => {
-                    const project = {
-                        recitationFile: recitationFileString,
-                        subtitles: props.subtitles,
-                        time: getCurrentAudioPlayerTime(),
-                        versePos: props.currentVerse,
-                    };
+            StringExt.blobToString(props.recitationFileBlob, (recitationFileString) => {
+                const project = {
+                    recitationFile: recitationFileString,
+                    subtitles: props.subtitles,
+                    time: getCurrentAudioPlayerTime(),
+                    versePos: props.currentVerse,
+                };
 
-                    const projectString = JSON.stringify(project);
+                const projectString = JSON.stringify(project);
 
-                    FileExt.DownloadFile(
-                        "QuranCaptionProject.cqp",
-                        projectString
-                    );
+                FileExt.DownloadFile("QuranCaptionProject.cqp", projectString);
 
-                    toast("Project exported!");
-                }
-            );
+                toast("Project exported!");
+            });
         }
     }
 
@@ -464,9 +318,7 @@ const ArabicSubtitleEditor = (props: Props) => {
      */
     function importSelectedProject(event: ChangeEvent<HTMLInputElement>): void {
         if (props.subtitles.length > 0) {
-            toast.error(
-                "You can't import a project while you are working on one. Please reset your work first (refresh the page)."
-            );
+            toast.error("You can't import a project while you are working on one. Please reset your work first (refresh the page).");
             return;
         }
 
@@ -500,9 +352,7 @@ const ArabicSubtitleEditor = (props: Props) => {
                 props.setSubtitles(subtitles);
 
                 // Convert the recitation file string to a blob
-                const videoBlob = StringExt.stringToBlob(
-                    project.recitationFile
-                );
+                const videoBlob = StringExt.stringToBlob(project.recitationFile);
 
                 // Set the recitation file blob state
                 props.setRecitationFileBlob(videoBlob);
@@ -515,18 +365,11 @@ const ArabicSubtitleEditor = (props: Props) => {
                 props.setCurrentVerse(project.versePos);
 
                 // If the audio player is available, set its current time to the project time
-                if (
-                    audioPlayerRef.current &&
-                    audioPlayerRef.current.audioEl.current
-                )
-                    audioPlayerRef.current.audioEl.current.currentTime =
-                        project.time;
+                if (audioPlayerRef.current && audioPlayerRef.current.audioEl.current) audioPlayerRef.current.audioEl.current.currentTime = project.time;
             });
         } catch {
             // If an error occurs, display a toast notification to inform the user that the selected file is not valid
-            toast(
-                "The file you selected is not a valid QuranCaption project file"
-            );
+            toast("The file you selected is not a valid QuranCaption project file");
         }
     }
 
@@ -536,34 +379,13 @@ const ArabicSubtitleEditor = (props: Props) => {
             <div className="w-full h-full bg-[#1e242c] flex items-center justify-center flex-row">
                 <div className="flex flex-col w-full h-full relative">
                     <div className="absolute right-2 w-full text-white flex flex-row items-center">
-                        <input
-                            type="file"
-                            accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg"
-                            className={
-                                "w-60 h-10 mt-3 ml-8 self-start hover:opacity-95 " +
-                                (props.recitationFile
-                                    ? "opacity-20"
-                                    : "opacity-100")
-                            }
-                            onChange={handleFileUpload}
-                        />
+                        <input type="file" accept=".mp4, .ogv, .webm, .wav, .mp3, .ogg, .mpeg" className={"w-60 h-10 mt-3 ml-8 self-start hover:opacity-95 " + (props.recitationFile ? "opacity-20" : "opacity-100")} onChange={handleFileUpload} />
 
-                        {(!props.recitationFile ||
-                            props.subtitles.length === 0) && (
+                        {(!props.recitationFile || props.subtitles.length === 0) && (
                             <>
                                 {!props.recitationFile && (
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth="1.5"
-                                        stroke="yellow"
-                                        className="w-10 h-10">
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
-                                        />
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="yellow" className="w-10 h-10">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
                                     </svg>
                                 )}
 
@@ -577,16 +399,7 @@ const ArabicSubtitleEditor = (props: Props) => {
 
                         <div className="ml-auto mt-3 pl-2">
                             {" "}
-                            <input
-                                name="transliteration"
-                                type="checkbox"
-                                checked={props.showTransliteration}
-                                onChange={(e) =>
-                                    props.setShowTransliteration(
-                                        e.currentTarget.checked
-                                    )
-                                }
-                            />
+                            <input name="transliteration" type="checkbox" checked={props.showTransliteration} onChange={(e) => props.setShowTransliteration(e.currentTarget.checked)} />
                             <label className="pl-2">Show transliteration</label>
                         </div>
                         <select
@@ -595,9 +408,7 @@ const ArabicSubtitleEditor = (props: Props) => {
                             value={props.currentVerse.surah}
                             onChange={(e) => {
                                 props.setCurrentSelectedWordsRange([0, 0]);
-                                props.setCurrentVerse(
-                                    new VersePosition(Number(e.target.value), 1)
-                                );
+                                props.setCurrentVerse(new VersePosition(Number(e.target.value), 1));
                                 verseBeginRef.current!.value = "1";
                             }}
                             // prevent the surah to change when the user is syncing
@@ -606,16 +417,8 @@ const ArabicSubtitleEditor = (props: Props) => {
                             }}>
                             {AppVariables.Quran.map((surah) => {
                                 return (
-                                    <option
-                                        key={surah.id}
-                                        value={surah.id}
-                                        className="text-black">
-                                        {surah.id +
-                                            ". " +
-                                            surah.transliteration +
-                                            " (" +
-                                            surah.translation +
-                                            ")"}
+                                    <option key={surah.id} value={surah.id} className="text-black">
+                                        {surah.id + ". " + surah.transliteration + " (" + surah.translation + ")"}
                                     </option>
                                 );
                             })}
@@ -630,41 +433,21 @@ const ArabicSubtitleEditor = (props: Props) => {
                                 if (
                                     e.target.value !== "" &&
                                     parseInt(e.target.value) >= 1 &&
-                                    parseInt(e.target.value) <=
-                                        AppVariables.Quran[
-                                            props.currentVerse.surah - 1
-                                        ].total_verses &&
-                                    AppVariables.Quran[
-                                        props.currentVerse.surah - 1
-                                    ].total_verses >= Number(e.target.value)
+                                    parseInt(e.target.value) <= AppVariables.Quran[props.currentVerse.surah - 1].total_verses &&
+                                    AppVariables.Quran[props.currentVerse.surah - 1].total_verses >= Number(e.target.value)
                                 ) {
                                     {
-                                        props.setCurrentVerse(
-                                            new VersePosition(
-                                                props.currentVerse.surah,
-                                                Number(e.target.value)
-                                            )
-                                        );
-                                        props.setCurrentSelectedWordsRange([
-                                            0, 0,
-                                        ]);
+                                        props.setCurrentVerse(new VersePosition(props.currentVerse.surah, Number(e.target.value)));
+                                        props.setCurrentSelectedWordsRange([0, 0]);
                                     }
 
                                     // indication que le verset voulu n'est pas out-of-range
-                                    verseBeginRef.current?.classList.remove(
-                                        "bg-red-500"
-                                    );
-                                    verseBeginRef.current?.classList.add(
-                                        "bg-black"
-                                    );
+                                    verseBeginRef.current?.classList.remove("bg-red-500");
+                                    verseBeginRef.current?.classList.add("bg-black");
                                 } else {
                                     // indication que le verset voulu est out-of-range
-                                    verseBeginRef.current?.classList.remove(
-                                        "bg-black"
-                                    );
-                                    verseBeginRef.current?.classList.add(
-                                        "bg-red-500"
-                                    );
+                                    verseBeginRef.current?.classList.remove("bg-black");
+                                    verseBeginRef.current?.classList.add("bg-red-500");
                                 }
                             }}
                         />
@@ -676,85 +459,53 @@ const ArabicSubtitleEditor = (props: Props) => {
                             stroke="currentColor"
                             className="w-10 h-10 mt-3 ml-4 cursor-pointer"
                             onClick={() => {
-                                setToggleMoreOptionsVisibility(
-                                    !moreOptionsVisibility
-                                );
+                                setToggleMoreOptionsVisibility(!moreOptionsVisibility);
                             }}>
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
-                            />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
                         </svg>
                         {moreOptionsVisibility && (
                             <div className="flex flex-col absolute right-0 top-14 bg-white rounded-lg px-3 py-2 border-black border-2 items-start">
-                                <button
-                                    className="text-black py-2 w-full px-2 bg-orange-300 rounded-lg lg border border-slate-700"
-                                    onClick={exportProject}>
+                                <button className="text-black py-2 w-full px-2 bg-orange-300 rounded-lg lg border border-slate-700" onClick={exportProject}>
                                     Export the project
                                 </button>
                                 <button className="text-black py-2 mt-2  w-full px-2 bg-lime-300 rounded-lg border border-slate-700 relative">
-                                    <input
-                                        type="file"
-                                        className="opacity-0 absolute left-0 top-0 right-0 bottom-0 z-50"
-                                        onChange={
-                                            importSelectedProject
-                                        }></input>
+                                    <input type="file" className="opacity-0 absolute left-0 top-0 right-0 bottom-0 z-50" onChange={importSelectedProject}></input>
                                     Import a project
                                 </button>
                             </div>
                         )}
                     </div>
                     <div className="flex flex-row-reverse ml-auto flex-wrap self-end my-auto pt-10 mr-5 overflow-y-auto">
-                        {AppVariables.Quran[
-                            props.currentVerse.surah - 1
-                        ].verses[props.currentVerse.verse - 1].text
-                            .split(" ")
-                            .map((word, index) => (
-                                <Word
-                                    key={index} // key
-                                    word={word} // the arabic word
-                                    fromVersePos={props.currentVerse} // the position of the verse where the word come from
-                                    wordPos={index} // the position of the word on the verse
-                                    showTransliteration={
-                                        props.showTransliteration
-                                    } // show the transliteration ?
-                                    isSelected={
-                                        props.currentSelectedWordsRange[0] <=
-                                            index &&
-                                        props.currentSelectedWordsRange[1] >=
-                                            index
+                        {AppVariables.Quran[props.currentVerse.surah - 1].verses[props.currentVerse.verse - 1].text.split(" ").map((word, index) => (
+                            <Word
+                                key={index} // key
+                                word={word} // the arabic word
+                                fromVersePos={props.currentVerse} // the position of the verse where the word come from
+                                wordPos={index} // the position of the word on the verse
+                                showTransliteration={props.showTransliteration} // show the transliteration ?
+                                isSelected={props.currentSelectedWordsRange[0] <= index && props.currentSelectedWordsRange[1] >= index}
+                                wordClickedAction={() => {
+                                    // Lorsqu'on clique sur un mot on change la born min
+                                    // = le récitateur se répète
+                                    // c'est surtout fait pour corriger un appui d'arrowdown en trop
+                                    if (index <= props.currentSelectedWordsRange[1]) {
+                                        props.setCurrentSelectedWordsRange([index, props.currentSelectedWordsRange[1]]);
+                                    } else {
+                                        // sinon on sélectionne jusqu'à ce mot
+                                        props.setCurrentSelectedWordsRange([props.currentSelectedWordsRange[0], index]);
                                     }
-                                    wordClickedAction={() => {
-                                        // Lorsqu'on clique sur un mot on change la born min
-                                        // = le récitateur se répète
-                                        // c'est surtout fait pour corriger un appui d'arrowdown en trop
-                                        if (
-                                            index <=
-                                            props.currentSelectedWordsRange[1]
-                                        ) {
-                                            props.setCurrentSelectedWordsRange([
-                                                index,
-                                                props
-                                                    .currentSelectedWordsRange[1],
-                                            ]);
-                                        } else {
-                                            // sinon on sélectionne jusqu'à ce mot
-                                            props.setCurrentSelectedWordsRange([
-                                                props
-                                                    .currentSelectedWordsRange[0],
-                                                index,
-                                            ]);
-                                        }
-                                    }}
-                                />
-                            ))}
+                                }}
+                            />
+                        ))}
                     </div>
 
                     <ul className="absolute bottom-20 mt-auto text-white text-opacity-30 hover:text-opacity-60 duration-200 ml-6 list-disc text-sm hover:bg-slate-800 p-5 lg:hover:scale-125 lg:hover:ml-20 lg:hover:mb-10  sm:block">
                         <li>Press space to pause/resume the audio</li>
-                        <li>Use the up and down arrow keys to select words<br/>
-                            and press enter to add the selected words as a subtitle</li>
+                        <li>
+                            Use the up and down arrow keys to select words
+                            <br />
+                            and press enter to add the selected words as a subtitle
+                        </li>
                         <li>
                             Use the left and right arrow to navigate the audio
                             <br />
@@ -763,22 +514,19 @@ const ArabicSubtitleEditor = (props: Props) => {
                         <li>Press S to add a silence</li>
                         <li>Press B to add a basmala</li>
                         <li>Press A to add the isti3adha</li>
-                        <li>
-                            Press backspace to remove the last added subtitles
-                        </li>
+                        <li>Press backspace to remove the last added subtitles</li>
                         <li>Press 'i' to select the first word</li>
                         <li>Press 'e' to select the last word</li>
                         <li>Press 'v' to select the whole verse</li>
                     </ul>
 
-                    {props.subtitles.some((x) => x.versePos) &&
-                        props.recitationFile && (
-                            <button
-                                className="bg-blue-500 hover:bg-blue-700  text-white font-bold px-4 mx-2 rounded text-lg duration-75 shadow-lg shadow-black absolute bottom-6 py-2.5 right-5 block lg:hidden"
-                                onClick={() => props.setGenerateVideo(true)}>
-                                Generate video
-                            </button>
-                        )}
+                    {props.subtitles.some((x) => x.versePos) && props.recitationFile && (
+                        <button
+                            className="bg-blue-500 hover:bg-blue-700  text-white font-bold px-4 mx-2 rounded text-lg duration-75 shadow-lg shadow-black absolute bottom-6 py-2.5 right-5 block lg:hidden"
+                            onClick={() => props.setGenerateVideo(true)}>
+                            Generate video
+                        </button>
+                    )}
 
                     <ReactAudioPlayer
                         ref={audioPlayerRef}
@@ -786,14 +534,7 @@ const ArabicSubtitleEditor = (props: Props) => {
                         controls
                         className="w-10/12 self-center mb-5 mt-5 pr-32 lg:pr-0"
                         onPause={() => {
-                            if (
-                                audioPlayerRef.current &&
-                                audioPlayerRef.current.audioEl.current
-                            )
-                                props.setAudioPosition(
-                                    audioPlayerRef.current?.audioEl.current
-                                        ?.currentTime
-                                );
+                            if (audioPlayerRef.current && audioPlayerRef.current.audioEl.current) props.setAudioPosition(audioPlayerRef.current?.audioEl.current?.currentTime);
                         }}
                     />
                 </div>
