@@ -1,7 +1,8 @@
 # Quran Caption
 
-### The project has come to an end.
-### If you want the server code to generate the video, please contact me.
+## This is the Old Version of Quran Caption : The V2 is finally available !
+
+Please refer to the new repository: [QuranCaption-2 on GitHub](https://github.com/zonetecde/QuranCaption-2).
 
 ---------------------------------
 
