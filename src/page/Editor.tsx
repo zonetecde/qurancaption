@@ -19,7 +19,14 @@ import icon from "../assets/icon.png";
 import software from "../assets/software.png";
 import { toast } from "sonner";
 
+import video from "../assets/Al-Ahzab_56.mp4";
+import sky from "../assets/sky.png";
+import MobileDetect from "mobile-detect";
+import { Toaster } from "sonner";
+
 const Editor = () => {
+    const md = new MobileDetect(window.navigator.userAgent);
+
     useEffect(() => {
         // Load the Quran
         //@ts-ignore
@@ -85,47 +92,69 @@ const Editor = () => {
                         {" "}
                         {hasSyncBegan ? (
                             <>
-                                {isOnGenerateVideoPage && recitationFileBlob ? (
+                                {md.mobile() ? (
                                     <>
-                                        <VideoGenerator setIsOnGenerationPage={setGenerateVideo} subtitles={subtitles} videoBlob={recitationFileBlob} videoBlobUrl={recitationFileBlobUrl} />
+                                        <div className="w-full h-full text-green-200 flex justify-center pb-10 items-center pt-6 flex-col px-3 text-center ">
+                                            <img src={sky} className="absolute top-0 left-0 right-0 bg-cover" />
+                                            <div className="z-50">
+                                                <p className="text-4xl -mt-16">Sorry :(</p>
+                                                <p className="mt-5">QuranCaption is not supported on mobile devices</p>
+                                                <p>Please use a desktop computer to start captioning !</p>
+                                                <video src={video} className="mt-10" autoPlay controls></video>
+                                            </div>
+
+                                            <footer className="absolute bottom-5">
+                                                <a href="https://github.com/zonetecde" target="_blank" className="underline">
+                                                    Rayane Staszewski
+                                                </a>
+                                            </footer>
+                                        </div>
                                     </>
                                 ) : (
-                                    <div className="flex flex-col w-full h-full max-w-[full]">
-                                        <TabControl tabItems={tabItems} setTabItems={setTabItems} subtitles={subtitles} setSubtitles={setSubtitles} />
-
-                                        {/* Si on est dans la tab "Arabe" alors on affiche l'éditeur de sous-titre arabe,
-        Sinon on affiche l'éditeur de sous-titre dans les autres langues */}
-                                        {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
-                                            <ArabicSubtitleEditor
-                                                audioPosition={audioPosition}
-                                                setAudioPosition={setAudioPosition}
-                                                setRecitationFileBlobUrl={setRecitationFileBlobUrl}
-                                                recitationFileBlob={recitationFileBlob}
-                                                setRecitationFileBlob={setRecitationFileBlob}
-                                                currentVerse={currentVerse}
-                                                setCurrentVerse={setCurrentVerse}
-                                                setSubtitles={setSubtitles}
-                                                subtitles={subtitles}
-                                                recitationFile={recitationFileBlobUrl}
-                                                triggerResetWork={triggerResetWork}
-                                                setCurrentSelectedWordsRange={setCurrentSelectedWordsRange}
-                                                currentSelectedWordsRange={currentSelectedWordsRange}
-                                                setPreviousSelectedWordIndexInVerse={setPreviousSelectedWordIndexInVerse}
-                                                previousSelectedWordIndexInVerse={previousSelectedWordIndexInVerse}
-                                                showTransliteration={showTransliteration}
-                                                setShowTransliteration={setShowTransliteration}
-                                                setGenerateVideo={setGenerateVideo}
-                                            />
+                                    <>
+                                        {isOnGenerateVideoPage && recitationFileBlob ? (
+                                            <>
+                                                <VideoGenerator setIsOnGenerationPage={setGenerateVideo} subtitles={subtitles} videoBlob={recitationFileBlob} videoBlobUrl={recitationFileBlobUrl} />
+                                            </>
                                         ) : (
-                                            <div className="w-full h-[95vh]">
-                                                <TranslationsEditor setSubtitles={setSubtitles} subtitles={subtitles} lang={tabItems.find((x) => x.isShown)?.lang!} />
+                                            <div className="flex flex-col w-full h-full max-w-[full]">
+                                                <TabControl tabItems={tabItems} setTabItems={setTabItems} subtitles={subtitles} setSubtitles={setSubtitles} />
+
+                                                {/* Si on est dans la tab "Arabe" alors on affiche l'éditeur de sous-titre arabe,
+        Sinon on affiche l'éditeur de sous-titre dans les autres langues */}
+                                                {tabItems.find((x) => x.isShown && x.lang === "ar") ? (
+                                                    <ArabicSubtitleEditor
+                                                        audioPosition={audioPosition}
+                                                        setAudioPosition={setAudioPosition}
+                                                        setRecitationFileBlobUrl={setRecitationFileBlobUrl}
+                                                        recitationFileBlob={recitationFileBlob}
+                                                        setRecitationFileBlob={setRecitationFileBlob}
+                                                        currentVerse={currentVerse}
+                                                        setCurrentVerse={setCurrentVerse}
+                                                        setSubtitles={setSubtitles}
+                                                        subtitles={subtitles}
+                                                        recitationFile={recitationFileBlobUrl}
+                                                        triggerResetWork={triggerResetWork}
+                                                        setCurrentSelectedWordsRange={setCurrentSelectedWordsRange}
+                                                        currentSelectedWordsRange={currentSelectedWordsRange}
+                                                        setPreviousSelectedWordIndexInVerse={setPreviousSelectedWordIndexInVerse}
+                                                        previousSelectedWordIndexInVerse={previousSelectedWordIndexInVerse}
+                                                        showTransliteration={showTransliteration}
+                                                        setShowTransliteration={setShowTransliteration}
+                                                        setGenerateVideo={setGenerateVideo}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-[95vh]">
+                                                        <TranslationsEditor setSubtitles={setSubtitles} subtitles={subtitles} lang={tabItems.find((x) => x.isShown)?.lang!} />
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
-                                    </div>
+                                        <div className="h-full w-42 md:w-96 border-l-2 border-black hidden lg:block">
+                                            <SubtitlesHistory recitationFile={recitationFileBlob} subtitles={subtitles} setGenerateVideo={setGenerateVideo} isOnGenerateVideoPage={isOnGenerateVideoPage} />
+                                        </div>
+                                    </>
                                 )}
-                                <div className="h-full w-42 md:w-96 border-l-2 border-black hidden lg:block">
-                                    <SubtitlesHistory recitationFile={recitationFileBlob} subtitles={subtitles} setGenerateVideo={setGenerateVideo} isOnGenerateVideoPage={isOnGenerateVideoPage} />
-                                </div>
                             </>
                         ) : (
                             <div className="flex flex-col justify-center items-center">
@@ -138,16 +167,20 @@ const Editor = () => {
                                 </h1>
                                 <p className="mt-2 text-white font-bold text-sm">Creating Quranic videos has never been easier.</p>
                                 <img src={software} className="w-6/12 lg:w-5/12 my-5 duration-150 select-none" />
-                                <div className="grid grid-cols-2 gap-x-3">
+                                <div className="grid grid-cols-2 gap-x-3 px-4">
                                     <a
                                         href="https://github.com/zonetecde/QuranCaption-2/releases/latest"
-                                        className="bg-blue-500 text-center hover:bg-blue-700 w-58 md:w-68 mb-2 md:mb4 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10">
-                                        <p>Download Quran Caption 2</p>
+                                        className="bg-blue-500 text-center hover:bg-blue-700 w-58 md:w-68 mb-2 md:mb4 lg:mb-34 text-white font-bold py-2 px-6 rounded text-lg md:text-xl duration-75 mt-2 shadow-lg shadow-black leading-6">
+                                        <div className="flex items-center justify-center h-full">
+                                            <p>Download Quran Caption 2</p>
+                                        </div>
                                     </a>
                                     <a
                                         href="https://github.com/zonetecde/QuranCaption-2"
-                                        className="bg-blue-500 text-center hover:bg-blue-700 w-58 md:w-68 mb-2 md:mb4 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10">
-                                        <p>Project's GitHub Page</p>
+                                        className="bg-blue-500 text-center hover:bg-blue-700 w-58 md:w-68 mb-2 md:mb4 lg:mb-34 text-white font-bold py-2 px-6 rounded  text-lg md:text-xl duration-75 mt-2 shadow-lg shadow-black leading-6">
+                                        <div className="flex items-center justify-center h-full">
+                                            <p>Project's GitHub Page</p>
+                                        </div>
                                     </a>
                                 </div>
                                 <p className="text-white">or</p>
