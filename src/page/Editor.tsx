@@ -16,9 +16,21 @@ import VideoGenerator from "../components/videoGenerator";
 import FileExt from "../extensions/fileExt";
 
 import icon from "../assets/icon.png";
+import software from "../assets/software.png";
 import { toast } from "sonner";
 
 const Editor = () => {
+    useEffect(() => {
+        // Load the Quran
+        //@ts-ignore
+        kofiWidgetOverlay.draw("zonetecde", {
+            type: "floating-chat",
+            "floating-chat.donateButton.text": "Support me",
+            "floating-chat.donateButton.background-color": "#794bc4",
+            "floating-chat.donateButton.text-color": "#fff",
+        });
+    }, []);
+
     // Le blob de la récitation et l'url de la récitation
     const [recitationFileBlobUrl, setRecitationFileBlobUrl] = useState<string>("");
     const [recitationFileBlob, setRecitationFileBlob] = useState<Blob>();
@@ -122,22 +134,31 @@ const Editor = () => {
                                     style={{
                                         textShadow: "0 10px 20px hsla(0,10%,0%,.9)",
                                     }}>
-                                    Quran Caption
+                                    Quran Caption 2
                                 </h1>
                                 <p className="mt-2 text-white font-bold text-sm">Creating Quranic videos has never been easier.</p>
-                                <img src={icon} className="w-28 lg:w-96 md:w-48 duration-150 select-none" />
+                                <img src={software} className="w-6/12 lg:w-5/12 my-5 duration-150 select-none" />
+                                <div className="grid grid-cols-2 gap-x-3">
+                                    <a
+                                        href="https://github.com/zonetecde/QuranCaption-2/releases/latest"
+                                        className="bg-blue-500 text-center hover:bg-blue-700 w-58 md:w-68 mb-2 md:mb4 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10">
+                                        <p>Download Quran Caption 2</p>
+                                    </a>
+                                    <a
+                                        href="https://github.com/zonetecde/QuranCaption-2"
+                                        className="bg-blue-500 text-center hover:bg-blue-700 w-58 md:w-68 mb-2 md:mb4 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10">
+                                        <p>Project's GitHub Page</p>
+                                    </a>
+                                </div>
+                                <p className="text-white">or</p>
                                 <button
-                                    className="bg-blue-500 hover:bg-blue-700 w-58 md:w-96 mb-8 md:mb-16 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 mt-2 shadow-lg shadow-black leading-10"
+                                    className="bg-blue-500 hover:bg-blue-700 w-58 md:w-96 mb-8 md:mb-16 lg:mb-34 text-white font-bold py-2 px-6 rounded text-xl duration-75 shadow-lg shadow-black leading-10 scale-75"
                                     onClick={() => {
                                         if (recitationFileBlobUrl !== "") beginSync();
                                     }}>
                                     <div
                                         className="relative"
                                         onClick={() => {
-                                            // Analytics
-                                            fetch("https://www.rayanestaszewski.fr/api/software/software-being-used?softwareName=Quran Video Maker&detail=" + "It is being used !! Yay !!", {
-                                                method: "POST",
-                                            });
                                             beginSync();
                                         }}>
                                         {/* <input
@@ -146,22 +167,17 @@ const Editor = () => {
                                             onChange={handleFileUpload}
                                             className="opacity-0 absolute z-40 -left-10 -top-5 -bottom-5 -right-10 cursor-pointer"
                                         /> */}
-                                        <p>Access the editor</p>
+                                        <p>Access the online editor</p>
                                     </div>
                                 </button>
                                 <p className="text-white text-center">
                                     Support my projects and help me continue creating amazing content for you! <br />
                                     Your contribution makes a big difference.
                                 </p>{" "}
-                                <a href="https://www.buymeacoffee.com/zonetecde" target="_blank" className="-mt-3">
-                                    <img src="https://cdn.buymeacoffee.com/buttons/v2/arial-violet.png" alt="Buy Me A Coffee" className="max-h-[50px] mt-5" />
-                                </a>
                                 <footer className="absolute bottom-5 left-0 right-0 text-white text-center">
                                     <a href="https://github.com/zonetecde" target="_blank" className="underline">
                                         Rayane Staszewski
                                     </a>
-                                    <br />
-                                    Copyright © 2023. All Rights Reserved.
                                 </footer>
                             </div>
                         )}
