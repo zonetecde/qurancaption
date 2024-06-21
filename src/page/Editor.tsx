@@ -200,7 +200,7 @@ const Editor = () => {
                                             onChange={handleFileUpload}
                                             className="opacity-0 absolute z-40 -left-10 -top-5 -bottom-5 -right-10 cursor-pointer"
                                         /> */}
-                                        <p>Access the online editor</p>
+                                        <p>Access the previous version</p>
                                     </div>
                                 </button>
                                 <p className="text-white text-center">
