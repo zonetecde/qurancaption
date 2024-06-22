@@ -98,7 +98,7 @@ const Editor = () => {
                                             <img src={sky} className="absolute top-0 left-0 right-0 bg-cover" />
                                             <div className="z-50">
                                                 <p className="text-4xl -mt-16">Sorry :(</p>
-                                                <p className="mt-5">QuranCaption is not supported on mobile devices</p>
+                                                <p className="mt-5">Quran Caption is not supported on mobile devices</p>
                                                 <p>Please use a desktop computer to start captioning !</p>
                                                 <video src={video} className="mt-10" autoPlay controls></video>
                                             </div>
@@ -172,7 +172,7 @@ const Editor = () => {
                                         href="https://github.com/zonetecde/QuranCaption-2/releases/latest"
                                         className="bg-blue-500 text-center hover:bg-blue-700 w-58 md:w-68 mb-2 md:mb4 lg:mb-34 text-white font-bold py-2 px-6 rounded text-lg md:text-xl duration-75 mt-2 shadow-lg shadow-black leading-6">
                                         <div className="flex items-center justify-center h-full">
-                                            <p>Download Quran Caption 2</p>
+                                            <p>Download Quran Caption</p>
                                         </div>
                                     </a>
                                     <a
